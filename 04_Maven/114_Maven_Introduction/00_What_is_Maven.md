@@ -30,7 +30,14 @@ my-app/
 
 ### What Maven Actually Helps With
 1. Dependency Management
+    Like npm install.
 2. Build Automation
+    Compiles Java code: instead of compiling 1000 files
 3. Testing
+    Runs tests automatically:
+        mvn test
 4. Packaging App
+    Creates runnable file:
+
 5. Standard Project Structure
+    - Every Java project looks similar → easier teamwork.
