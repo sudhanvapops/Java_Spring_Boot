@@ -20,7 +20,7 @@ public class Main {
         String user = dotEnv.get("DB_USER");
         String dbPassword = dotEnv.get("DB_PASSWORD");
 
-        String query = "select * from student where id = 1";
+        String query = "select * from student";
 
         // load and register
         try {
@@ -46,19 +46,21 @@ public class Main {
 
             System.out.println("----Result----");
             // while (rs.next()) {
-            // String name = rs.getString("name");
-            // System.out.println("Name: "+name);
-            // }
-
-            ResultSetMetaData meta = rs.getMetaData();
-            int cols = meta.getColumnCount();
-            while (rs.next()) {
-                for (int i = 1; i <= cols; i++) {
-                    System.out.print(rs.getObject(i) + " ");
+                // String name = rs.getString("name");
+                // System.out.println("Name: "+name);
+                // }
+                
+                ResultSetMetaData meta = rs.getMetaData();
+                int cols = meta.getColumnCount();
+                System.out.println("Id\tMarks\tName");
+                while (rs.next()) {
+                    for (int i = 1; i <= cols; i++) {
+                        System.out.print(rs.getObject(i) + "\t");
+                    }
+                    System.out.println();
                 }
-                System.out.println();
-            }
-
+                
+            System.out.println("--------------");
             rs.close();
             conn.close();
 
