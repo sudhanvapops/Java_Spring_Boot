@@ -1,4 +1,4 @@
-package com.orm;
+package com.orm.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
