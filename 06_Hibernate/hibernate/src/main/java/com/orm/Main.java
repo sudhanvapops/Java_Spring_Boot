@@ -1,33 +1,41 @@
 package com.orm;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 
 public class Main {
 
-    public static DbConfig loadConfig(){
-
-        Dotenv dotenv = Dotenv.load();
-
-        String url = dotenv.get("DB_URL");
-        String user = dotenv.get("DB_USER");
-        String dbPassword = dotenv.get("DB_PASSWORD");
-
-        return new DbConfig(url, user, dbPassword);
-    }
 
     public static void main(String[] args) {
 
-        DbConfig db = loadConfig();
-        System.out.println(db.getUrl());
-
+        // ! Configuration
+        Configuration cfg = new Configuration();
+        // By doing this you say add this calls as Annotated and hibernate finds it 
+        cfg.addAnnotatedClass(com.orm.Student.class);
+        cfg.configure();
+        // Use once
+        SessionFactory sf = cfg.buildSessionFactory();
+        
+        
+        // ! Data
         Student s1 = new Student();
-
-        s1.setName("Sudhanva S");
-        s1.setRollNo(1);
+        s1.setName("Akash KR");
+        s1.setRollNo(2);
         s1.setsAge(21);
+        
 
+        // ! inserting to db
+        Session s = sf.openSession();
+
+        Transaction tr = s.beginTransaction();
+        s.persist(s1);
+        tr.commit();        
 
         System.out.println(s1);
 
+        s.close();
+        sf.close();
     }
 }

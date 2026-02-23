@@ -1,1 +1,4 @@
 .env
+.xml
+.cfg.xml
+hibernate.cfg.xml

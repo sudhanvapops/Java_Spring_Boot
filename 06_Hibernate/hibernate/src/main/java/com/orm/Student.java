@@ -1,7 +1,12 @@
 package com.orm;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class Student {
 
+    @Id
     private int rollNo;
     private String name;
     private int sAge;
