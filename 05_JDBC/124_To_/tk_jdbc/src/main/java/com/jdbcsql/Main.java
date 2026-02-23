@@ -19,12 +19,15 @@ public class Main {
 
         int result = 0;
         try {
-            String query2 = "INSERT INTO student  VALUES (?, ?, ?)";
+            String query2 = "INSERT INTO student (id,name,marks)  VALUES (?, ?, ?)";
 
             PreparedStatement pstmt = conn.prepareStatement(query2);
+            // pstmt.setInt(1, id);
+            // pstmt.setInt(2, marks);
+            // pstmt.setString(3, name);
             pstmt.setInt(1, id);
-            pstmt.setInt(2, marks);
-            pstmt.setString(3, name);
+            pstmt.setInt(3, marks);
+            pstmt.setString(2, name);
             result = pstmt.executeUpdate();
             System.out.println("Inserted: " + result);
 
@@ -102,7 +105,7 @@ public class Main {
             System.out.println(conn);
 
             // ! create
-            // insertIntoStudents(conn, 6, 90, "Adithya");
+            // insertIntoStudents(conn, 7, 90, "KR");
 
             // ! Read
             readResult(conn);
