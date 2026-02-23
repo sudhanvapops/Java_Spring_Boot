@@ -55,8 +55,8 @@ public class Main {
         
         // ! Data
         Student s1 = new Student();
-        s1.setName("Akash KR");
-        s1.setRollNo(2);
+        s1.setName("Akash KR 2");
+        s1.setRollNo(6);
         s1.setsAge(21);
         
 
@@ -67,8 +67,7 @@ public class Main {
         s.persist(s1);
         tr.commit();        
 
-        System.out.println(s1);
-
+        // ! Close Connection
         s.close();
         sf.close();
     }
