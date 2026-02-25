@@ -2,6 +2,7 @@ package com.orm.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Programmer {
@@ -9,6 +10,7 @@ public class Programmer {
     private int pid;
     private String name;
     private String tech;
+    @OneToOne
     private Laptop laptop;
     
     @Override

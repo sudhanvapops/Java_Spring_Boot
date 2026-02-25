@@ -100,12 +100,13 @@ public class Main {
         return a;
     }
     
-    public static Laptop prepreLaptop(int ram, String brand, String model) {
+    public static Laptop prepreLaptop(int ram, String brand, String model, int lid) {
         // ! Data
         Laptop laptop = new Laptop();
         laptop.setBrand(brand);
         laptop.setModel(model);
         laptop.setRam(ram);
+        laptop.setLid(lid);
         return laptop;
     }
 
@@ -155,8 +156,9 @@ public class Main {
                 // Alien a = prepreAlien(1, "Sudhanva", "Java",22);
 
                 // ! 142 Programmer Embedable
-                Laptop l = prepreLaptop(10, "Asus", "ROG");
+                Laptop l = prepreLaptop(10, "Asus", "ROG",1);
                 Programmer p = prepreProgrammer(1,l,"Sudhanva","Java");
+                insertData(sf,l);
                 insertData(sf,p);
 
                 // ! Close Connection

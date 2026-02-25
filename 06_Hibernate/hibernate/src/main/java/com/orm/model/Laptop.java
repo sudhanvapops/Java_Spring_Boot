@@ -1,18 +1,26 @@
 package com.orm.model;
 
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
-@Embeddable
+// import jakarta.persistence.Embeddable;
+
+// @Embeddable
+@Entity
 public class Laptop {
     
+    @Id
+    private int lid;
+    public int getLid() {
+        return lid;
+    }
+    public void setLid(int lid) {
+        this.lid = lid;
+    }
     private String brand;
     private String model;
     private int ram;
     
-    @Override
-    public String toString() {
-        return "Laptop [brand=" + brand + ", model=" + model + ", ram=" + ram + "]";
-    }
     public String getBrand() {
         return brand;
     }
@@ -30,6 +38,11 @@ public class Laptop {
     }
     public void setRam(int ram) {
         this.ram = ram;
+    }
+
+    @Override
+    public String toString() {
+        return "Laptop [lid=" + lid + ", brand=" + brand + ", model=" + model + ", ram=" + ram + "]";
     }
 
     
