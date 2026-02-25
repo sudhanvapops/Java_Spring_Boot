@@ -12,6 +12,7 @@ public class HibernateUtil {
             Configuration cfg = new Configuration();
             cfg.configure();
             cfg.addAnnotatedClass(com.orm.model.Student.class);
+            cfg.addAnnotatedClass(com.orm.model.Alien.class);
 
             sessionFactory = cfg.buildSessionFactory();
 
