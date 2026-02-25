@@ -13,6 +13,7 @@ public class HibernateUtil {
             cfg.configure();
             cfg.addAnnotatedClass(com.orm.model.Student.class);
             cfg.addAnnotatedClass(com.orm.model.Alien.class);
+            cfg.addAnnotatedClass(com.orm.model.Programmer.class);
 
             sessionFactory = cfg.buildSessionFactory();
 

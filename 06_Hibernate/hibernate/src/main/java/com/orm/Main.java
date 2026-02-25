@@ -7,6 +7,8 @@ import org.hibernate.Transaction;
 // import org.hibernate.cfg.Configuration;
 
 import com.orm.model.Alien;
+import com.orm.model.Laptop;
+import com.orm.model.Programmer;
 import com.orm.model.Student;
 import com.orm.config.HibernateUtil;
 
@@ -97,6 +99,25 @@ public class Main {
         a.setAge(age);
         return a;
     }
+    
+    public static Laptop prepreLaptop(int ram, String brand, String model) {
+        // ! Data
+        Laptop laptop = new Laptop();
+        laptop.setBrand(brand);
+        laptop.setModel(model);
+        laptop.setRam(ram);
+        return laptop;
+    }
+
+    public static Programmer prepreProgrammer(int pid,Laptop laptop,String name,String tech) {
+        // ! Data
+        Programmer p = new Programmer();
+        p.setLaptop(laptop);
+        p.setName(name);
+        p.setPid(pid);
+        p.setTech(tech);
+        return p;
+    }
 
     public static void main(String[] args) {
 
@@ -130,11 +151,13 @@ public class Main {
                 // System.out.println(s + "\n");
 
                 // ! 141 Alien
-
                 // Data
-                Alien a = prepreAlien(1, "Sudhanva", "Java",22);
+                // Alien a = prepreAlien(1, "Sudhanva", "Java",22);
 
-                insertData(sf,a);
+                // ! 142 Programmer Embedable
+                Laptop l = prepreLaptop(10, "Asus", "ROG");
+                Programmer p = prepreProgrammer(1,l,"Sudhanva","Java");
+                insertData(sf,p);
 
                 // ! Close Connection
                 // sf.close();
