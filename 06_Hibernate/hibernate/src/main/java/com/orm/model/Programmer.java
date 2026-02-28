@@ -1,8 +1,12 @@
 package com.orm.model;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
+// import jakarta.persistence.OneToOne;
 
 @Entity
 public class Programmer {
@@ -10,13 +14,22 @@ public class Programmer {
     private int pid;
     private String name;
     private String tech;
-    @OneToOne
-    private Laptop laptop;
+    // @OneToOne
+    // private Laptop laptop;
+    // This will insert lid column to Programer
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Laptop> laptops;
     
-    @Override
-    public String toString() {
-        return "Programmer [pid=" + pid + ", name=" + name + ", tech=" + tech + ", laptop=" + laptop + "]";
+
+    public List<Laptop> getLaptops() {
+        return laptops;
     }
+
+    public void setLaptops(List<Laptop> laptops) {
+        this.laptops = laptops;
+    }
+   
     public int getPid() {
         return pid;
     }
@@ -35,12 +48,20 @@ public class Programmer {
     public void setTech(String tech) {
         this.tech = tech;
     }
-    public Laptop getLaptop() {
-        return laptop;
+
+    @Override
+    public String toString() {
+        return "Programmer [pid=" + pid + ", name=" + name + ", tech=" + tech + ", laptops=" + laptops + "]";
     }
-    public void setLaptop(Laptop laptop) {
-        this.laptop = laptop;
-    }
+
+    // public Laptop getLaptop() {
+    //     return laptop;
+    // }
+    // public void setLaptop(Laptop laptop) {
+    //     this.laptop = laptop;
+    // }
+
+    
 
     
 }
