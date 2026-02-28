@@ -1,0 +1,4 @@
+com\second\model\Programmer.class
+com\second\model\Laptop.class
+com\second\config\HibernateUtil.class
+com\second\Main.class
