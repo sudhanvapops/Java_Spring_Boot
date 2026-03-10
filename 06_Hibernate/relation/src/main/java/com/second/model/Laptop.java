@@ -1,7 +1,10 @@
 package com.second.model;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 public class Laptop {
@@ -11,7 +14,17 @@ public class Laptop {
     private String brand;
     private String model;
     private int ram;
+    @ManyToMany(mappedBy = "laptops")
+    private List<Programmer> programmers;
     
+
+    public List<Programmer> getProgrammers() {
+        return programmers;
+    }
+    public void setProgrammers(List<Programmer> programmers) {
+        this.programmers = programmers;
+    }
+
     public int getLid() {
         return lid;
     }

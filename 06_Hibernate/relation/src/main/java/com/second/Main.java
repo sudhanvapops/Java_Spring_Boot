@@ -37,18 +37,39 @@ public class Main {
     public static void main(String[] args) {
         try (
                 SessionFactory sf = HibernateUtil.getSessionFactory();
-                Session session = sf.openSession();) {
+                Session session = sf.openSession();
+            ) {
 
-            Transaction trx = session.beginTransaction();
-            
-            Laptop l1 =  prepreLaptop(16, "Asus", "ROG", 101);
+                Transaction trx = session.beginTransaction();
+                
+                Laptop l1 =  prepreLaptop(16, "Asus", "ROG", 101);
+                Laptop l2 =  prepreLaptop(32, "Asus", "TUF", 102);
+                Laptop l3 =  prepreLaptop(64, "Asus", "VIVO", 103);
 
-            Programmer p1 = prepreProgrammer(1, Arrays.asList(l1), "Sudhanva", "Java");
 
-            session.persist(l1);
-            session.persist(p1);
+                Programmer p1 = prepreProgrammer(1, Arrays.asList(l1,l2), "Sudhanva", "Java");
+                Programmer p2 = prepreProgrammer(2, Arrays.asList(l2,l3), "Akasha", "Python");
+                Programmer p3 = prepreProgrammer(3, Arrays.asList(l1), "Anusha", "C++");
 
-            trx.commit();
+                // Added Which Laptop belongs to which programmer
+                l1.setProgrammers(Arrays.asList(p1,p3));
+                l2.setProgrammers(Arrays.asList(p1,p2));
+                l3.setProgrammers(Arrays.asList(p2));
+                
+
+
+                session.persist(l1);
+                session.persist(l2);
+                session.persist(l3);
+                session.persist(p1);
+                session.persist(p2);
+                session.persist(p3);
+
+                trx.commit();
+                
+                Programmer p = session.find(Programmer.class,2);
+                System.out.println("Programmer 2: \n"+p);
+
 
         } catch (Exception e) {
             e.printStackTrace();

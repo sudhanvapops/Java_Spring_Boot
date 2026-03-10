@@ -14,8 +14,8 @@ public class Programmer {
     private String name;
     private String tech;
 
-    // @ManyToMany
-    @OneToMany
+    @ManyToMany
+    // @OneToMany
     private List<Laptop> laptops;
 
     public int getPid() {
