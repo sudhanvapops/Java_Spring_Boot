@@ -4,7 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+// import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -14,8 +14,8 @@ public class Programmer {
     private String name;
     private String tech;
 
-    @ManyToMany
-    // @OneToMany
+    // @ManyToMany
+    @OneToMany(mappedBy = "programmer")
     private List<Laptop> laptops;
 
     public int getPid() {
