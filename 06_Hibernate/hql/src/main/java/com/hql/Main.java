@@ -98,12 +98,24 @@ public class Main {
             //     System.out.println((String)objects[0] +" "+ (String)objects[1]);
             // }
 
+            // Lazy Loading
             Laptop l = session.getReference(Laptop.class,102);
-            System.out.println(l);
+            // System.out.println(l);
 
+
+            // L2 Cahce
+            Laptop l1 = session.find(Laptop.class, 101);
+            System.out.println(l1);
+            Laptop l2 = session.find(Laptop.class, 101);
+            System.out.println(l2);
+
+            Session s2 = sf.openSession();
+            Laptop l3 = s2.find(Laptop.class, 101);
+            System.out.println(l3);
 
             // trx.commit();
             session.close();
+            s2.close();
 
         } catch (Exception e) {
             e.printStackTrace();
