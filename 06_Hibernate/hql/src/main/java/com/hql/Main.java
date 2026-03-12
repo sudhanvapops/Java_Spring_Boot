@@ -86,7 +86,7 @@ public class Main {
             Query<String> querySL = session.createQuery("select model from Laptop where brand like ?1",String.class);
             querySL.setParameter(1, "ASUS");
             List<String> laptopsString = querySL.getResultList();
-            System.out.println(laptopsString);
+            // System.out.println(laptopsString);
 
 
             // Multiple
@@ -94,9 +94,12 @@ public class Main {
             querySLO.setParameter(1, "ASUS");
             List<Object[]> laptopsObject = querySLO.getResultList();
 
-            for (Object[] objects : laptopsObject) {
-                System.out.println((String)objects[0] +" "+ (String)objects[1]);
-            }
+            // for (Object[] objects : laptopsObject) {
+            //     System.out.println((String)objects[0] +" "+ (String)objects[1]);
+            // }
+
+            Laptop l = session.getReference(Laptop.class,102);
+            System.out.println(l);
 
 
             // trx.commit();
