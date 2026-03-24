@@ -56,9 +56,3 @@ if deived value then unecesarry db calls and calculations
 if stored value its good
 
 
-Why keep both totalCopies & availableCopies?
-beacuse to know calculate how many borrowed 
-
-Can availableCopies go negative? how prevent?
-no 
-prevention in both layers
