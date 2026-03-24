@@ -1,6 +1,7 @@
 1. Entity (Your Database Models)
 
 2. dao (Data Access Layer)
+    Handles database operations (CRUD)
     This layer handles database operations.
     The layer that talks to Hibernate Sessions.
 

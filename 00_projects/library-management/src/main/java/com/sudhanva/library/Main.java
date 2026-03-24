@@ -14,7 +14,7 @@ public class Main {
         try (
                 Session session = sf.openSession();
             ) {
-                    trx = session.beginTransaction();
+                trx = session.beginTransaction();
                 System.out.println("Session opened successfully\n:");
     
                 trx.commit();
