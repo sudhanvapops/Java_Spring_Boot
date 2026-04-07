@@ -9,6 +9,9 @@ import jakarta.persistence.*;
 @Table(name = "books")
 public class Book {
     
+
+    // Basic Fields
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -18,6 +21,9 @@ public class Book {
 
     @Column(nullable = false,unique = true)
     private String isbn;
+
+
+    // Relations
 
     // Book is OWNER of relationship
     // Set of auhors
@@ -31,6 +37,11 @@ public class Book {
     )
     private Set<Author> authors = new HashSet<>();
 
+    @OneToMany(mappedBy = "book")
+    private Set<BorrowRecord> borrowRecords = new HashSet<>();
+
+
+    // Copy Fields
 
     @Column(
         name = "total_copies",
@@ -44,6 +55,11 @@ public class Book {
     )
     private Integer availableCopies;
     
+
+
+    // Constrctors
+
+    public Book() {}
 
     public Book(
         Long id, 
@@ -75,6 +91,21 @@ public class Book {
         if (!this.authors.contains(author)) return ;
         this.authors.remove(author);
         author.getBooks().remove(this);
+    }
+
+    // ? I dont know why this is there study more
+    public void addBorrowRecord(BorrowRecord record) {
+        if (borrowRecords.contains(record)) return;
+
+        borrowRecords.add(record);
+        record.setBook(this);
+    }
+
+    public void removeBorrowRecord(BorrowRecord record) {
+        if (!borrowRecords.contains(record)) return;
+
+        borrowRecords.remove(record);
+        record.setBook(null);
     }
 
 

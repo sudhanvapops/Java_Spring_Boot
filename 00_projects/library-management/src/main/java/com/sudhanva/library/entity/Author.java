@@ -86,27 +86,17 @@ public class Author {
     }
 
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (id ^ (id >>> 32));
-        return result;
+    // Constrctors
+
+    public Author() {}
+
+    public Author(long id, String authorName, String email, String nationality, Set<Book> books) {
+        this.id = id;
+        this.authorName = authorName;
+        this.email = email;
+        this.nationality = nationality;
+        this.books = books;
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Author other = (Author) obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
     
 }
