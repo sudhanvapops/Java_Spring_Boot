@@ -3,8 +3,6 @@ package com.sudhanva.library.entity;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.annotations.Check;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -12,7 +10,7 @@ import jakarta.persistence.*;
 public class Book {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "book_name",nullable = false)
@@ -45,11 +43,16 @@ public class Book {
         nullable = false
     )
     private Integer availableCopies;
-
     
 
-    public Book(Long id, String bookName, String isbn, Set<Author> authors, Integer totalCopies,
-            Integer availableCopies) {
+    public Book(
+        Long id, 
+        String bookName,
+        String isbn, 
+        Set<Author> authors, 
+        Integer totalCopies,
+        Integer availableCopies
+    ) {
         this.id = id;
         this.bookName = bookName;
         this.isbn = isbn;
@@ -60,11 +63,16 @@ public class Book {
 
     // --- Helper Methods (important for relationships) ---
     public void addAuthor(Author author) {
+        
+        if (this.authors.contains(author))  return;
+
         this.authors.add(author);
         author.getBooks().add(this); // keep both sides in sync
     }
 
     public void removeAuthor(Author author) {
+
+        if (!this.authors.contains(author)) return ;
         this.authors.remove(author);
         author.getBooks().remove(this);
     }
