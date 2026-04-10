@@ -85,9 +85,7 @@ public class BorrowRecord {
 
     // Consturctors
 
-    public BorrowRecord(long id, Borrower borrower, Book book, LocalDateTime borrowDate, LocalDateTime dueDate,
-            LocalDateTime returnDate) {
-        this.id = id;
+    public BorrowRecord(Borrower borrower, Book book, LocalDateTime borrowDate, LocalDateTime dueDate, LocalDateTime returnDate) {
         this.borrower = borrower;
         this.book = book;
         this.borrowDate = borrowDate;

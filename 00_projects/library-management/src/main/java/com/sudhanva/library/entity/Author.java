@@ -90,8 +90,7 @@ public class Author {
 
     public Author() {}
 
-    public Author(long id, String authorName, String email, String nationality, Set<Book> books) {
-        this.id = id;
+    public Author(String authorName, String email, String nationality, Set<Book> books) {
         this.authorName = authorName;
         this.email = email;
         this.nationality = nationality;
