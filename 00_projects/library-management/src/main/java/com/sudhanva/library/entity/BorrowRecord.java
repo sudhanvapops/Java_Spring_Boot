@@ -34,6 +34,9 @@ public class BorrowRecord {
     @Column(name = "return_date", nullable = true)
     private LocalDateTime returnDate;
 
+    
+    // Getters and Setters
+
     public Long getId() {
         return id;
     }
