@@ -1,6 +1,8 @@
 package com.sudhanva.library.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -32,7 +34,8 @@ public class Book {
     private Set<Author> authors = new HashSet<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<BorrowRecord> borrowRecords = new HashSet<>();
+    // List cause records dont have to be unique
+    private List<BorrowRecord> borrowRecords = new ArrayList<>();
 
     // Copy Fields
 
@@ -157,5 +160,34 @@ public class Book {
         setTotalCopies(totalCopies);
         setAvailableCopies(availableCopies);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((isbn == null) ? 0 : isbn.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Book other = (Book) obj;
+        if (isbn == null) {
+            if (other.isbn != null)
+                return false;
+        } else if (!isbn.equals(other.isbn))
+            return false;
+        return true;
+    }
+
+
+    // Equals and hash code
+    
 
 }

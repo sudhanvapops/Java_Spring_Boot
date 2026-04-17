@@ -11,17 +11,18 @@ public class BorrowRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    private Long id;
 
     // Many BorrowRecord Belongs to One Borrower
-    // Lazy Meaning If borrower and book data not accessed it wont load uneccessory data, full borrower and book
-    @ManyToOne(fetch = FetchType.LAZY) 
+    // Lazy Meaning If borrower and book data not accessed it wont load uneccessory
+    // data, full borrower and book
+    @ManyToOne(fetch = FetchType.LAZY)
     // Here borrower_id is the FK
     @JoinColumn(name = "borrower_id", nullable = false)
     private Borrower borrower;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id",nullable = false)
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
     @Column(name = "borrow_date")
@@ -30,15 +31,14 @@ public class BorrowRecord {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
-    @Column(name = "return_date",nullable = true)
+    @Column(name = "return_date", nullable = true)
     private LocalDateTime returnDate;
 
-    
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -82,10 +82,10 @@ public class BorrowRecord {
         this.returnDate = returnDate;
     }
 
-
     // Consturctors
 
-    public BorrowRecord(Borrower borrower, Book book, LocalDateTime borrowDate, LocalDateTime dueDate, LocalDateTime returnDate) {
+    public BorrowRecord(Borrower borrower, Book book, LocalDateTime borrowDate, LocalDateTime dueDate,
+            LocalDateTime returnDate) {
         this.borrower = borrower;
         this.book = book;
         this.borrowDate = borrowDate;
@@ -93,7 +93,32 @@ public class BorrowRecord {
         this.returnDate = returnDate;
     }
 
-    public BorrowRecord() {}
+    public BorrowRecord() {
+    }
+
+    // Equals and HashCode
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof BorrowRecord))
+            return false;
+
+        BorrowRecord other = (BorrowRecord) o;
+
+        if (this.getId() == 0 || other.getId() == 0)
+            return false;
+
+        return this.getId() == other.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(getId());
+    }
+
+
 
 
 }
