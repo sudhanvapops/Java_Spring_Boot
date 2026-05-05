@@ -1,0 +1,54 @@
+Table authors {
+    id bigint [pk]
+    author_name varchar [not null]
+    email varchar [unique]
+    nationality varchar
+}
+
+
+Table books {
+    id bigint [pk]
+    book_name varchar [not null]
+    isbn varchar [not null, unique]
+    total_copies int [not null]
+    available_copies int [not null]
+}
+
+
+Table borrowers {
+    id bigint [pk]
+    email varchar [unique]
+    card_number varchar [not null, unique]
+    name varchar [not null]
+    phone_no varchar
+    membership_date timestamp [not null]
+}
+
+
+Table borrow_records {
+    id bigint [pk]
+    borrower_id bigint [not null]
+    book_id bigint [not null]
+    borrow_date timestamp [not null]
+    due_date timestamp
+    return_date timestamp
+}
+
+
+Table book_author {
+    book_id bigint [not null]
+    author_id bigint [not null]
+}
+
+
+// /* Relationships */
+
+// Many-to-Many: Book ↔ Author
+Ref: book_author.book_id <> books.id
+Ref: book_author.author_id <> authors.id
+
+// One-to-Many: Book → BorrowRecord
+Ref: borrow_records.book_id > books.id
+
+// One-to-Many: Borrower → BorrowRecord
+Ref: borrow_records.borrower_id > borrowers.id

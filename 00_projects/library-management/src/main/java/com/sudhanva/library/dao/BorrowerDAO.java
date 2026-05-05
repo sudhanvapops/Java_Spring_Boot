@@ -6,7 +6,6 @@ import org.hibernate.query.Query;
 
 import com.sudhanva.library.entity.Borrower;
 
-import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Optional;
 

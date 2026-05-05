@@ -97,7 +97,7 @@ public class Author {
         Author other = (Author) o;
 
         // If either ID is null, they are NOT equal
-        if (this.id == 0 || other.id == 0)
+        if (this.id == null || other.id == null)
             return false;
 
         return this.id == other.id;

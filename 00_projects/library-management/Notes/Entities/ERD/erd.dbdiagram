@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "authors",
+      "schemaName": "public",
+      "x": 12,
+      "y": 12
+    },
+    {
+      "name": "books",
+      "schemaName": "public",
+      "x": 12,
+      "y": 201.20852718982238
+    },
+    {
+      "name": "borrowers",
+      "schemaName": "public",
+      "x": 12,
+      "y": 456
+    },
+    {
+      "name": "borrow_records",
+      "schemaName": "public",
+      "x": 589.4196943660104,
+      "y": 315.5628938253406
+    },
+    {
+      "name": "book_author",
+      "schemaName": "public",
+      "x": 605.7268232722604,
+      "y": 111.54885377116943
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "book_id"
+      ],
+      "firstTableName": "book_author",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "books",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "author_id"
+      ],
+      "firstTableName": "book_author",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "authors",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "book_id"
+      ],
+      "firstTableName": "borrow_records",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "books",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "borrower_id"
+      ],
+      "firstTableName": "borrow_records",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "borrowers",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    }
+  ]
+}

@@ -25,7 +25,7 @@ public class BorrowRecord {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "borrow_date")
+    @Column(name = "borrow_date", nullable = false)
     private LocalDateTime borrowDate;
 
     @Column(name = "due_date")
@@ -34,7 +34,16 @@ public class BorrowRecord {
     @Column(name = "return_date", nullable = true)
     private LocalDateTime returnDate;
 
-    
+    // --- Helper semantics ---
+
+    public boolean isActive() {
+        return returnDate == null;
+    }
+
+    public boolean isReturned() {
+        return returnDate != null;
+    }
+
     // Getters and Setters
 
     public Long getId() {
@@ -99,29 +108,43 @@ public class BorrowRecord {
     public BorrowRecord() {
     }
 
+    
     // Equals and HashCode
 
+    // @Override
+    // public boolean equals(Object o) {
+    // if (this == o)
+    // return true;
+    // if (!(o instanceof BorrowRecord))
+    // return false;
+
+    // BorrowRecord other = (BorrowRecord) o;
+
+    // if (this.getId() == null || other.getId() == 0)
+    // return false;
+
+    // return this.getId() == other.getId();
+    // }
+
+    // @Override
+    // public int hashCode() {
+    // return Long.hashCode(getId());
+    // }
+
+    // --- Equals & HashCode ---
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
         if (!(o instanceof BorrowRecord))
             return false;
-
         BorrowRecord other = (BorrowRecord) o;
-
-        if (this.getId() == 0 || other.getId() == 0)
-            return false;
-
-        return this.getId() == other.getId();
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(getId());
+        return 31;
     }
-
-
-
 
 }

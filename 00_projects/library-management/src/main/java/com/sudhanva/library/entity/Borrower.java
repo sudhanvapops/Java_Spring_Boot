@@ -31,10 +31,14 @@ public class Borrower {
     @Column(nullable = false)
     private LocalDateTime membershipDate;
 
+
+
     // Relations
 
     @OneToMany(mappedBy = "borrower", fetch = FetchType.LAZY)
     private Set<BorrowRecord> borrowRecords = new HashSet<>();
+
+
 
     // Helper Functions
 

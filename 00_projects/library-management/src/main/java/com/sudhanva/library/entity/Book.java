@@ -30,7 +30,11 @@ public class Book {
     // books filed
     // the field name that owns the relationship in the other entity
     @ManyToMany
-    @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
+    @JoinTable(
+        name = "book_author", 
+        joinColumns = @JoinColumn(name = "book_id"), 
+        inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
     private Set<Author> authors = new HashSet<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -44,6 +48,7 @@ public class Book {
 
     @Column(name = "available_copies", nullable = false)
     private Integer availableCopies;
+
 
     // --- Helper Methods (important for relationships) ---
     public void addAuthor(Author author) {
@@ -63,6 +68,7 @@ public class Book {
         author.getBooks().remove(this);
     }
 
+
     // ? I dont know why this is there study more
     public void addBorrowRecord(BorrowRecord record) {
         if (borrowRecords.contains(record))
@@ -72,6 +78,7 @@ public class Book {
         record.setBook(this);
     }
 
+
     public void removeBorrowRecord(BorrowRecord record) {
         if (!borrowRecords.contains(record))
             return;
@@ -79,6 +86,7 @@ public class Book {
         borrowRecords.remove(record);
         record.setBook(null);
     }
+
 
     public Long getId() {
         return id;
@@ -115,6 +123,7 @@ public class Book {
         this.authors = authors;
     }
 
+
     public Integer getTotalCopies() {
         return totalCopies;
     }
@@ -126,6 +135,7 @@ public class Book {
         this.totalCopies = totalCopies;
     }
 
+
     public Integer getAvailableCopies() {
         return availableCopies;
     }
@@ -136,6 +146,7 @@ public class Book {
         }
         this.availableCopies = availableCopies;
     }
+    
 
     @Override
     public String toString() {
@@ -160,6 +171,9 @@ public class Book {
         setTotalCopies(totalCopies);
         setAvailableCopies(availableCopies);
     }
+
+
+    // Equals and hash code
 
     @Override
     public int hashCode() {
@@ -187,7 +201,6 @@ public class Book {
     }
 
 
-    // Equals and hash code
     
 
 }
