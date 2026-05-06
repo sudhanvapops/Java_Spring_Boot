@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import com.sudhanva.library.dao.BookDAO;
+import com.sudhanva.library.dao.BorrowRecordDAO;
 import com.sudhanva.library.dao.BorrowerDAO;
 import com.sudhanva.library.entity.Book;
 import com.sudhanva.library.entity.BorrowRecord;
@@ -19,13 +20,17 @@ public class BorrowService {
 
     BorrowerDAO borrowerDAO;
     BookDAO bookDao;
+    BorrowRecordDAO borrowRecordDAO;
 
     public BorrowService(SessionFactory sf) {
         this.sf = sf;
         this.borrowerDAO = new BorrowerDAO(sf);
         this.bookDao = new BookDAO(sf);
+        this.borrowRecordDAO = new BorrowRecordDAO(sf);
     }
 
+
+    
     public BorrowRecord borrowBook(String cardNumber, String isbn) {
 
         // A Hibernate session is transaction-scoped You should not store it as a field
@@ -73,6 +78,8 @@ public class BorrowService {
             BorrowRecord record = new BorrowRecord();
             record.setBorrowDate(java.time.LocalDateTime.now());
             record.setReturnDate(null);
+            // TODO: add DUE date
+            // record.setDueDate();
 
 
             // 7. Maintain bidirectional relationships
@@ -94,5 +101,34 @@ public class BorrowService {
         }
 
     }
+
+
+    public BorrowRecord returnBook(String cardNumber, String isbn){
+
+        Session session = sf.getCurrentSession();
+
+        Transaction trx = session.beginTransaction();
+
+        try {
+
+            Borrower borrower = borrowerDAO.findByCardNumber(cardNumber).orElseThrow(
+                () -> new RuntimeException("Borrower Not Found")
+            );
+
+            Book book = bookDao.findByIsbn(isbn).orElseThrow(
+                ()->new RuntimeException("Book Not Found")
+            );
+
+
+            
+        } catch (Exception e) {
+            trx.rollback();
+            throw new RuntimeException("");
+        }
+
+
+    }
+
+
 
 }

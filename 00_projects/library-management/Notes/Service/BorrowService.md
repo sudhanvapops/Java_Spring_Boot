@@ -3,6 +3,7 @@
 it is used to borrow book
 
 
+
 ### Borrowbook()
 
 What is this method really doing?
@@ -38,3 +39,14 @@ Persist
 Commit transaction
 
 if failed rollback the transaction
+
+
+
+### return book
+
+validate borrower
+validate book
+find active borrow record
+update returnDate
+increase available copies
+commit
