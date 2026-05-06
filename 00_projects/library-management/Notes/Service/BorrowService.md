@@ -50,3 +50,14 @@ find active borrow record
 update returnDate
 increase available copies
 commit
+
+
+
+### renewBook()
+### addBook()
+### registerBorrower()
+### searchBooks()
+### getOverdueBooks()
+### getBorrowHistory()
+### removeBook()
+### addAuthor()

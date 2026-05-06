@@ -111,15 +111,41 @@ public class BorrowService {
 
         try {
 
+             // 1. Fetch borrower
             Borrower borrower = borrowerDAO.findByCardNumber(cardNumber).orElseThrow(
                 () -> new RuntimeException("Borrower Not Found")
             );
 
+
+            // 2. Fetch book
             Book book = bookDao.findByIsbn(isbn).orElseThrow(
                 ()->new RuntimeException("Book Not Found")
             );
 
 
+            // 3. Find active borrow record
+            BorrowRecord br = borrowRecordDAO.findActiveBorrowRecord(borrower, book).orElseThrow(
+                () -> new RuntimeException( "No active borrow record found for this borrower and book")
+            );
+
+
+            // 4. Mark as returned
+            br.setReturnDate(java.time.LocalDateTime.now());
+
+            // 5. Increase available copies
+            book.setAvailableCopies(book.getAvailableCopies() + 1);
+
+
+            // Updating The existing Record No need since Objects are automatically updated
+            // borrower.addBorrowRecord(br);
+            // book.addBorrowRecord(br);
+
+
+            // Not needed cause br already exists and Hibernate will manage
+            // session.persist(br);
+
+            trx.commit();
+            return br;
             
         } catch (Exception e) {
             trx.rollback();
