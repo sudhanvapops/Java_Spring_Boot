@@ -9,8 +9,10 @@
     <bean id="alien" class="com.sudhanva.Alien">
         <!-- Since int is primitive value we use value -->
         <property name="age" value="21"></property>
+        <property name="lap" ref="laptop"></property>
     </bean>
 
-    <bean id="laptop" class="com.sudhanva.Laptop"/>
+    <bean id="laptop" class="com.sudhanva.Laptop">
+    </bean>
 
 </beans>

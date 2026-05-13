@@ -8,3 +8,6 @@ and it uses its getters and setter to assign it
 
 so called Setter Injection
 
+
+value if it is a primitive value
+
