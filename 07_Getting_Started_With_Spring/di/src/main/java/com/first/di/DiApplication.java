@@ -22,8 +22,11 @@ public class DiApplication {
 		Alien obj = context.getBean(Alien.class);
 		obj.code();
 
-		Alien obj1 = context.getBean(Alien.class);
-		System.out.println(obj1.equals(obj));
+		// Alien obj1 = context.getBean(Alien.class);
+		// System.out.println(obj1.equals(obj));
+
+		
+
 	}
 
 }
