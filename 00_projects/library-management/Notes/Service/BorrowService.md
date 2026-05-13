@@ -54,10 +54,25 @@ commit
 
 
 ### renewBook()
+
+
 ### addBook()
+
+
 ### registerBorrower()
+
+
 ### searchBooks()
+
+
 ### getOverdueBooks()
+
+
 ### getBorrowHistory()
+
+
 ### removeBook()
+
+
 ### addAuthor()
+

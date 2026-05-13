@@ -27,11 +27,11 @@ public class Author {
     @ManyToMany(mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -91,22 +91,23 @@ public class Author {
     public boolean equals(Object o) {
         if (this == o)
             return true;
+
         if (!(o instanceof Author))
             return false;
 
         Author other = (Author) o;
 
-        // If either ID is null, they are NOT equal
-        if (this.id == null || other.id == null)
-            return false;
+        // If email exists use it as business identity
+        if (this.email != null && other.email != null) {
+            return this.email.equals(other.email);
+        }
 
-        return this.id == other.id;
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(id);
+        return email != null ? email.hashCode() : 31;
     }
-
 
 }

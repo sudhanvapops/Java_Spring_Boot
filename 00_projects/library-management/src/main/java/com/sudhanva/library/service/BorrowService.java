@@ -35,6 +35,7 @@ public class BorrowService {
 
         // A Hibernate session is transaction-scoped You should not store it as a field
         Session session = sf.getCurrentSession();
+        // Session session = sf.openSession();
         Transaction trx = session.beginTransaction();
 
         try {
