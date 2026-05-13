@@ -3,12 +3,10 @@
 .cfg.xml
 hibernate.cfg.xml
 todoC.md
-# =========================
 
+# =========================
 # Maven
-
 # =========================
-
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -20,31 +18,21 @@ buildNumber.properties
 .mvn/timing.properties
 
 # Maven Wrapper
-
 .mvn/wrapper/maven-wrapper.jar
 
 # =========================
-
 # Compiled class files
-
 # =========================
-
 *.class
 
 # =========================
-
 # Log files
-
 # =========================
-
 *.log
 
 # =========================
-
 # IDE - IntelliJ IDEA
-
 # =========================
-
 .idea/
 *.iws
 *.iml
@@ -52,51 +40,61 @@ buildNumber.properties
 out/
 
 # =========================
-
 # IDE - Eclipse
-
 # =========================
-
 .project
 .classpath
 .settings/
 bin/
 
 # =========================
-
 # IDE - VS Code
-
 # =========================
-
 .vscode/
 
 # =========================
-
 # OS Files
-
 # =========================
-
 .DS_Store
 Thumbs.db
 
 # =========================
-
 # Environment / Secrets
-
 # =========================
-
 .env
 *.env
 
 # Hibernate / DB configs (optional)
-
 hibernate.cfg.xml
 
 # =========================
-
-# Temporary files
-
+# Spring Boot
 # =========================
 
+# Spring Boot application properties
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# Spring Boot logs
+logs/
+*.log
+
+# Spring Boot generated files
+spring.log
+
+# Embedded DB files
+*.mv.db
+*.trace.db
+
+# =========================
+# Gradle
+# =========================
+.gradle/
+build/
+
+# =========================
+# Temporary files
+# =========================
 *.swp
 *~
