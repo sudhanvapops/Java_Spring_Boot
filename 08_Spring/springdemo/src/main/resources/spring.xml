@@ -6,7 +6,11 @@
        http://www.springframework.org/schema/beans
        https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="alien" class="com.sudhanva.Alien"/>
+    <bean id="alien" class="com.sudhanva.Alien">
+        <!-- Since int is primitive value we use value -->
+        <property name="age" value="21"></property>
+    </bean>
+
     <bean id="laptop" class="com.sudhanva.Laptop"/>
 
 </beans>
