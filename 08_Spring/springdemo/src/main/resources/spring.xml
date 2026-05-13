@@ -7,5 +7,6 @@
        https://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="alien" class="com.sudhanva.Alien"/>
+    <bean id="laptop" class="com.sudhanva.Laptop"/>
 
 </beans>
