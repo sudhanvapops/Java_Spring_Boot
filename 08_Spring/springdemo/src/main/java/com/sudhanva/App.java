@@ -7,7 +7,7 @@ public class App {
     public static void main(String[] args) {
 
         // Making a IOC Conatiner
-        ApplicationContext context = new ClassPathXmlApplicationContext();
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
 
 
         Alien obj = (Alien) context.getBean("alien");
