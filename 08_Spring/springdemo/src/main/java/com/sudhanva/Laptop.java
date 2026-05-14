@@ -1,6 +1,6 @@
 package com.sudhanva;
 
-public class Laptop {
+public class Laptop implements Computer {
     
     String cpu;
 
@@ -8,7 +8,8 @@ public class Laptop {
         this.cpu = cpu;
     }
 
+    @Override
     public void compile(){
-        System.out.println("Compiling Code With "+cpu);
+        System.out.println("Compiling Code With Laptop: "+cpu);
     }
 }

@@ -16,4 +16,8 @@
         <constructor-arg value="Ryzen R5"/>
     </bean>
 
+    <bean id="desktop" class="com.sudhanva.Dekstop">
+        <constructor-arg value="Ryzen R9"/>
+    </bean>
+
 </beans>
