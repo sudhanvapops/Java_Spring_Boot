@@ -13,7 +13,7 @@
         <!-- <property name="com" ref="com"></property> -->
     </bean>
 
-    <bean id="laptop" class="com.sudhanva.Laptop">
+    <bean id="laptop" class="com.sudhanva.Laptop" lazy-init="true">
         <constructor-arg value="Ryzen R5"/>
     </bean>
 
@@ -21,7 +21,7 @@
         <constructor-arg value="Ryzen R5"/>
     </bean>
 
-    <bean id="desktop" class="com.sudhanva.Desktop">
+    <bean id="desktop" class="com.sudhanva.Desktop" lazy-init="true">
         <constructor-arg value="Ryzen R9"/>
     </bean>
 
