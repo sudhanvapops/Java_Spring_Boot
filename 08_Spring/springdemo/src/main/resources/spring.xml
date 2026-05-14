@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans
        https://www.springframework.org/schema/beans/spring-beans.xsd">
-
     <bean id="alien" class="com.sudhanva.Alien" autowire="byName">
         <!-- Since int is primitive value we use value -->
         <property name="age" value="21"></property>
         <!-- <property name="com" ref="desktop"></property> -->
         <!-- <property name="com" ref="com"></property> -->
+
+        <!-- Inner Bean -->
+        <property name="com">
+            <bean id="com" class="com.sudhanva.Laptop">
+                <constructor-arg value="Ryzen R5"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="laptop" class="com.sudhanva.Laptop" lazy-init="true">
         <constructor-arg value="Ryzen R5"/>
     </bean>
 
-    <bean id="com" class="com.sudhanva.Laptop">
-        <constructor-arg value="Ryzen R5"/>
-    </bean>
-
     <bean id="desktop" class="com.sudhanva.Desktop" lazy-init="true">
         <constructor-arg value="Ryzen R9"/>
     </bean>
-
 </beans>
