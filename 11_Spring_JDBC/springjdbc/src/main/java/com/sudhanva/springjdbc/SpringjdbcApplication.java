@@ -20,7 +20,7 @@ public class SpringjdbcApplication {
 
 
 		Student student = context.getBean(Student.class);
-		student.setRollNo(1);
+		student.setRollNo(104);
 		student.setName("Sudhanva S");
 		student.setMarks(86);
 

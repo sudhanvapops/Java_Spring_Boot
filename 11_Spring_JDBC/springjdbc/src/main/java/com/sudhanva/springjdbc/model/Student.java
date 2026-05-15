@@ -37,7 +37,7 @@ public class Student {
 
     @Override
     public String toString() {
-        return "Student { rollNo: " + rollNo + ", name: " + name + ", marks: " + marks + " }";
+        return "\n\tStudent { rollNo: " + rollNo + ", name: " + name + ", marks: " + marks + " }\n";
     }
 
 }
