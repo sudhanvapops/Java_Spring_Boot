@@ -1,4 +1,4 @@
-package com.sudhanva.ten;
+package com.sudhanva.ten.Model;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

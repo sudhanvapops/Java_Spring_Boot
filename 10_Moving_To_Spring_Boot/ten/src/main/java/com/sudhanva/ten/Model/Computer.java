@@ -1,4 +1,4 @@
-package com.sudhanva.ten;
+package com.sudhanva.ten.Model;
 
 public interface Computer {
     void compile();

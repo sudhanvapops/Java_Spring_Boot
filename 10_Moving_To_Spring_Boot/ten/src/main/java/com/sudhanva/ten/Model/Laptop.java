@@ -1,4 +1,4 @@
-package com.sudhanva.ten;
+package com.sudhanva.ten.Model;
 
 import org.springframework.stereotype.Component;
 
