@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 // import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -13,7 +14,7 @@ public class AddController {
     
     @RequestMapping("/add")
     public String add(){
-        return "add.jsp";
+        return "add";
     }
 
     // @RequestMapping("/output")
@@ -31,14 +32,26 @@ public class AddController {
 
     // Spring Boot Way
 
+    // @RequestMapping("/output")
+    // public String result(@RequestParam("num1") int a, @RequestParam("num2") int b,Model model){
+
+    //     int result = a + b;
+
+    //     model.addAttribute("result", result);
+
+    //     return "output";
+    // }
+
+
     @RequestMapping("/output")
-    public String result(@RequestParam("num1") int a, @RequestParam("num2") int b,Model model){
+    public ModelAndView result(@RequestParam("num1") int a, @RequestParam("num2") int b,ModelAndView mv){
 
         int result = a + b;
 
-        model.addAttribute("result", result);
+        mv.addObject("result", result);
+        mv.setViewName("output");
 
-        return "output.jsp";
+        return mv;
     }
 
 }
