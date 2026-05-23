@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.server.model.JobPost;
 import com.sudhanva.server.service.JobService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -23,11 +26,18 @@ public class JobController {
         return jobservice.getAllJob();
     }
 
-    @GetMapping("jobPosts/{id}")
+    @GetMapping("jobPost/{id}")
     public JobPost getJobPost(
         @PathVariable int id
     ) {
         return jobservice.getJob(id);
+    }
+    
+
+    @PostMapping("jobPost")
+    public JobPost addJob(@RequestBody JobPost jobPost) {
+        jobservice.addJob(jobPost);
+        return jobservice.getJob(jobPost.getPostId());
     }
     
 
