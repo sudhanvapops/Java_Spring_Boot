@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sudhanva.server.model.JobPost;
 import com.sudhanva.server.service.JobService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -40,5 +42,22 @@ public class JobController {
         return jobservice.getJob(jobPost.getPostId());
     }
     
+
+    @PutMapping("jobPost")
+    public JobPost updateJobPost(
+        @RequestBody JobPost jobPost
+    ){
+
+        jobservice.updateJob(jobPost);
+        return jobservice.getJob(jobPost.getPostId());
+    }
+
+
+    @DeleteMapping("jobPost/{postId}")
+    public JobPost deleteJob(
+        @PathVariable int postId
+    ){
+        return jobservice.deleteJob(postId);
+    }
 
 }

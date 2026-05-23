@@ -24,7 +24,7 @@ Client receives JSON
 
 
 
-###  testing
+###  testing POST
 
 Invoke-RestMethod `
 -Uri "http://localhost:8080/jobPost" `
