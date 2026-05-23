@@ -47,7 +47,7 @@ const Search = () => {
                 {post &&
                     post.map((p) => {
                         return (
-                            <Grid key={p.id} item xs={12} md={6} lg={4}>
+                            <Grid key={p.postId} item xs={12} md={6} lg={4}>
                                 <Card sx={{ padding: "3%", overflow: "hidden", width: "84%", backgroundColor: "#ADD8E6" }}>
                                     <Typography
                                         variant="h5"
