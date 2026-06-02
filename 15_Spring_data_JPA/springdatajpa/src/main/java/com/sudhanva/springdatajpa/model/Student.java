@@ -1,15 +1,17 @@
-package com.sudhanva.springjdbc.model;
+package com.sudhanva.springdatajpa.model;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
-// "This class is a Spring bean. Create and manage its object automatically."
 @Component
-// A new object is created every time the bean is requested.
 @Scope("prototype")
+@Entity
 public class Student {
 
+    @Id
     private int rollNo;
     private String name;
     private int marks;
@@ -42,5 +44,4 @@ public class Student {
     public String toString() {
         return "\n\tStudent { rollNo: " + rollNo + ", name: " + name + ", marks: " + marks + " }\n";
     }
-
 }
