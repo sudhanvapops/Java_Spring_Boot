@@ -28,7 +28,7 @@ public class Product {
     private BigDecimal price;
 
     private Date releaseDate;
-    private boolean isProductAvail;
+    private boolean productAvailable;
     private int stockQuantity;
 
 }
