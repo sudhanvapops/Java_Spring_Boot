@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.restspringjpa.model.JobPost;
 import com.sudhanva.restspringjpa.service.JobService;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -79,3 +80,4 @@ public class JobController {
 
 
 }
+ 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class JobPost {
 
     // Without @ElementCollection, JPA doesn't know how to store a List<String> in a relational database and will typically throw a mapping error when the application starts.
     @ElementCollection
+    // @ElementCollection(fetch = FetchType.EAGER)
     private List<String> postTechStack;
 
 
