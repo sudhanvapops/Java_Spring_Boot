@@ -6,6 +6,8 @@ import java.sql.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,12 +25,12 @@ public class ProductController {
     private ProductService pService;
 
     @GetMapping("/products")
-    public List<Product> getAllProducts() {
-        return pService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return new ResponseEntity<>(pService.getAllProducts(),HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/load")
-    public void loadData() {
+    public ResponseEntity<String> loadData() {
         List<Product> products = Arrays.asList(
                 new Product(
                         null,
@@ -62,6 +64,8 @@ public class ProductController {
                         120)
         );
         pService.loadData(products);
+
+        return new ResponseEntity<>("Data loaded successfully", HttpStatus.CREATED);
     }
 
     
