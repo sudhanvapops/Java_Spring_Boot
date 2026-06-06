@@ -4,6 +4,7 @@
 hibernate.cfg.xml
 todoC.md
 course_related
+static/
 
 # =========================
 # Maven

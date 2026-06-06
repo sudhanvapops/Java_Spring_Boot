@@ -10,18 +10,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sudhanva.server2.Model.Product;
 import com.sudhanva.server2.repo.ProductRepo;
 
-
 @Service
 public class ProductService {
-    
+
     @Autowired
     private ProductRepo repo;
 
-    public List<Product> getAllProducts(){
+    public List<Product> getAllProducts() {
         return repo.findAll();
     }
 
-    public void loadData(List<Product> product){
+    public void loadData(List<Product> product) {
         repo.saveAll(product);
     }
 
@@ -29,13 +28,25 @@ public class ProductService {
         return repo.findById(id).orElse(null);
     }
 
-    public Product addProduct(Product product, MultipartFile image) throws IOException {
+    public Product addorUpdateProduct(Product product, MultipartFile image) throws IOException {
 
         product.setImageName(image.getOriginalFilename());
         product.setImageType(image.getContentType());
         product.setImageData(image.getBytes());
 
         return repo.save(product);
-    } 
+    }
+
+    public void deleteProductById(Long id) {
+        if (repo.existsById(id)) {
+            repo.deleteById(id);
+        } else {
+            throw new RuntimeException("Product not found: " + id);
+        }
+    }
+
+    public List<Product> searchProducts(String keyword) {
+        return repo.searchProducts(keyword);   
+    }
 
 }
