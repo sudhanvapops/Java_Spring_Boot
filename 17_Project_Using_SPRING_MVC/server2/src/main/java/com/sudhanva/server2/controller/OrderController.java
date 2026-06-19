@@ -8,9 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sudhanva.server2.Model.dto.OrderRequest;
 import com.sudhanva.server2.Model.dto.OrderResponse;
 import com.sudhanva.server2.service.OrderService;
 
@@ -32,8 +34,8 @@ public class OrderController {
     }
     
     @PostMapping("/orders/place")
-    public ResponseEntity<OrderResponse> placeOrder(){
-        OrderResponse orderResponse = orderService.placeOrder();
+    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest orderRequest){
+        OrderResponse orderResponse = orderService.placeOrder(orderRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(orderResponse);
