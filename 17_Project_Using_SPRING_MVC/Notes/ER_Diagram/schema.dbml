@@ -1,0 +1,71 @@
+// ============================================================
+// DATABASE ENTITIES
+// ============================================================
+
+Table orders {
+  id            bigint   [pk, increment, note: "Internal primary key"]
+  order_id      varchar  [unique, not null, note: "Generated: ORD + UUID e.g. ORD3F9A1B2C"]
+  customer_name varchar  [not null]
+  email         varchar  [not null]
+  status        varchar  [not null, note: "e.g. PLACED"]
+  order_date    date     [not null]
+
+  Note: "Maps to @Entity(name = orders) — Order.java"
+}
+
+Table order_item {
+  id          bigint  [pk, increment]
+  quantity    int     [not null]
+  total_price decimal [not null, note: "product.price × quantity"]
+  order_id    bigint  [not null, ref: > orders.id, note: "@ManyToOne LAZY"]
+  product_id  bigint  [not null, ref: > product.id, note: "@ManyToOne EAGER"]
+
+  Note: "Maps to @Entity — OrderItem.java. Cascade-saved from Order."
+}
+
+Table product {
+  id                bigint   [pk, increment]
+  name              varchar  [not null]
+  description       text
+  brand             varchar
+  catagory          varchar  [note: "Typo in source — kept as-is"]
+  price             decimal  [not null]
+  release_date      date
+  product_available boolean  [default: false]
+  stock_quantity    int      [default: 0]
+  image_name        varchar
+  image_type        varchar
+  image_data        bytea    [note: "@Lob — binary image bytes"]
+
+  Note: "Maps to @Entity — Product.java. Stock decremented on order."
+}
+
+// ============================================================
+// DTO SHAPES  (not stored in DB — API request/response)
+// ============================================================
+
+Table order_request [headercolor: #8B7ECC, note: "DTO — sent by client on POST /api/orders/place"] {
+  customer_name varchar [not null]
+  email         varchar [not null]
+  items         varchar [not null, note: "List<order_item_request>"]
+}
+
+Table order_item_request [headercolor: #8B7ECC, note: "DTO — nested inside OrderRequest"] {
+  product_id bigint [not null, ref: > product.id, note: "Must match an existing product.id"]
+  quantity   int    [not null]
+}
+
+Table order_response [headercolor: #3B8BD4, note: "DTO — returned by server after order is placed"] {
+  order_id      varchar [not null, note: "Generated ORD+UUID string"]
+  customer_name varchar
+  email         varchar
+  status        varchar [note: "Always PLACED on creation"]
+  order_date    date
+  items         varchar [note: "List<order_item_response>"]
+}
+
+Table order_item_response [headercolor: #3B8BD4, note: "DTO — nested inside OrderResponse"] {
+  product_name varchar
+  quantity     int
+  total_price  decimal
+}

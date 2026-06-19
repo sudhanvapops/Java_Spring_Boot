@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "orders",
+        "schemaName": "public",
+        "x": 12,
+        "y": 322
+      },
+      {
+        "name": "order_item",
+        "schemaName": "public",
+        "x": 505.41748046875,
+        "y": 322
+      },
+      {
+        "name": "product",
+        "schemaName": "public",
+        "x": 12,
+        "y": 592
+      },
+      {
+        "name": "order_request",
+        "schemaName": "public",
+        "x": 792.887755297815,
+        "y": 764.9554432518091
+      },
+      {
+        "name": "order_item_request",
+        "schemaName": "public",
+        "x": 505.41748046875,
+        "y": 560
+      },
+      {
+        "name": "order_response",
+        "schemaName": "public",
+        "x": 1126.3052357665651,
+        "y": 764.9554432518091
+      },
+      {
+        "name": "order_item_response",
+        "schemaName": "public",
+        "x": 486.87164201656503,
+        "y": 764.9554432518091
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": []
+  },
+  "views": {}
+}
