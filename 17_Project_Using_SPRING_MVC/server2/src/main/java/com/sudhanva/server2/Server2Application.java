@@ -3,6 +3,7 @@ package com.sudhanva.server2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 @SpringBootApplication
 public class Server2Application {
 
