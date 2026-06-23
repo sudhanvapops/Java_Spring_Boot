@@ -33,6 +33,9 @@ public class Book {
     @Column(nullable = false)
     private Integer availableCopy;
 
+    @Column(nullable = false)
+    private Integer totalCopies;
+
     @OneToMany(mappedBy = "book")
     private List<BorrowRecord> borrowRecords;
 

@@ -1,0 +1,27 @@
+Table member {
+  id bigint [pk, increment]
+  name varchar [not null]
+  email varchar [not null]
+  age int [not null]
+}
+
+Table book {
+  id bigint [pk, increment]
+  name varchar [not null]
+  author varchar [not null]
+  available_copy int [not null]
+  total_copies int [not null]
+}
+
+Table borrow_record {
+  id bigint [pk, increment]
+  book_id bigint [not null]
+  member_id bigint [not null]
+  borrow_date datetime [not null]
+  due_date datetime [not null]
+  return_date datetime
+  fine bigint
+}
+
+Ref: borrow_record.book_id > book.id
+Ref: borrow_record.member_id > member.id

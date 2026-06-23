@@ -32,7 +32,12 @@ public class BorrowRecord {
 
     @Column(nullable = false)
     private LocalDateTime borrowDate;
+    
+    @Column(nullable = false)
+    private LocalDateTime dueDate;
+
     private LocalDateTime returnDate;
+
     private Long fine;
 
 }
