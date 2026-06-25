@@ -6,12 +6,12 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record BorrowRecordResponse(
-    Long memberId,
+public record BorrowTransactionResponse(
+    Long transactionId,
     String memberName,
     LocalDateTime borrowDate,
     LocalDateTime dueDate,
-    List<BorrowRecordBookResponse> books
+    List<BorrowTransactionItemResponse> books
 ) {
     
 }
