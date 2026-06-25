@@ -8,4 +8,7 @@ import com.sudhanva.library_management_v2.Model.Book;
 @Repository
 public interface BookRepo extends JpaRepository<Book,Long>{
     
+    Book findByNameAndAuthor(String name, String author);
+    Boolean existsByName(String name);
+
 }

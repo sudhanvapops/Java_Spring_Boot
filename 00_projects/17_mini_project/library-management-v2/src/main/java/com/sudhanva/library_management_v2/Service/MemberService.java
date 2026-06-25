@@ -77,7 +77,7 @@ public class MemberService {
         );
     }
 
-    
+    // Add Member
     public ApiResponse<MemberResponse> addMember(MemberRequest memberRequest) {
 
         Member existingMember = memberRepo.findByEmail(memberRequest.email()).orElse(null);

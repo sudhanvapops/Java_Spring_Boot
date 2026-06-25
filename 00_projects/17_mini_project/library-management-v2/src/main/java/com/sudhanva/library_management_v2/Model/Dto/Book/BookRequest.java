@@ -16,7 +16,11 @@ public record BookRequest(
 
     @NotNull(message = "Total copies is required")
     @Min(value = 1, message = "Total copies must be at least 1")
-    Integer totalCopies
+    Integer totalCopies,
+
+    @NotNull(message = "Available copies is required")
+    @Min(value = 0, message = "Total copies must be at least 0")
+    Integer availableCopy
 ) {
     
 }
