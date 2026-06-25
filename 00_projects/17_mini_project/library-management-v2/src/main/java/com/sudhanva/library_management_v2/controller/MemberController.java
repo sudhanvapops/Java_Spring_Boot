@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.library_management_v2.Model.Member;
+import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
 import com.sudhanva.library_management_v2.Service.MemberService;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
@@ -29,31 +31,54 @@ public class MemberController {
     @Autowired
     private MemberService memberService;
 
+    // Get All Members
     @GetMapping
-    public ResponseEntity<List<MemberResponse>> getMember() {
-        List<MemberResponse> member = memberService.getAllMembers();
+    public ResponseEntity<ApiResponse<List<MemberResponse>>> getAllMember() {
+        ApiResponse<List<MemberResponse>> member = memberService.getAllMembers();
         return ResponseEntity.status(HttpStatus.OK).body(member);
     }
 
+    // Get Member with specific Id
     @GetMapping("/{id}")
-    public ResponseEntity<MemberResponse> getMember(@PathVariable Long id) {
-        MemberResponse member = memberService.getMemberById(id);
-        if (member != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(member);
+    public ResponseEntity<ApiResponse<MemberResponse>> getMemberById(@PathVariable Long id) {
+        ApiResponse<MemberResponse> response = memberService.getMemberById(id);
+        if (response.success() == false) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // Add a New Member
     @PostMapping
-    public ResponseEntity<MemberResponse> addMember(
+    public ResponseEntity<ApiResponse<MemberResponse>> addMember(
             @Valid @RequestBody MemberRequest memberRequest) {
 
-        MemberResponse memberResponse = memberService.addMember(memberRequest);
+        ApiResponse<MemberResponse> response = memberService.addMember(memberRequest);
 
-        if (memberResponse != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(memberResponse);
+        if (!response.success()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+    // Updtae a Member
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<MemberResponse>> updateMember(
+            @PathVariable Long id,
+            @Valid @RequestBody MemberRequest memberRequest) {
+
+        ApiResponse<MemberResponse> memberResponse = memberService.updateMember(id, memberRequest);
+
+        if (memberResponse.success() == false) {
+            if (memberResponse.message().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(memberResponse);
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(memberResponse);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(memberResponse);
+    }
+
 }
