@@ -1,7 +1,5 @@
 package com.sudhanva.library_management_v2.controller;
 
-import com.sudhanva.library_management_v2.repo.BookRepo;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
@@ -37,19 +37,19 @@ public class BookController {
         @PathVariable Long id
     ){
         ApiResponse<BookResponse> response = bookService.getBookById(id);
-        if (response == null){
+        if (response.success() == false){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); 
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Get Book By Name
-    @GetMapping("/name/{name}")
+    @GetMapping("/name")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByName(
-        @PathVariable String name
+        @RequestParam String name
     ){
         ApiResponse<List<BookResponse>> response = bookService.getBookByBookName(name);
-        if (response == null){
+        if (response.success() == false){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); 
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -57,12 +57,12 @@ public class BookController {
 
 
     // Get Book By Author
-    @GetMapping("/author/{author}")
+    @GetMapping("/author")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByAuthor(
-        @PathVariable String author
+        @RequestParam String author
     ){
         ApiResponse<List<BookResponse>> response = bookService.getBookByAuthor(author);
-        if (response == null){
+        if (response.success() == false){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); 
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -70,10 +70,10 @@ public class BookController {
 
 
     // Get All Book
-     @GetMapping
-    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByAuthor( ){
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<BookResponse>>> getAllBooks( ){
         ApiResponse<List<BookResponse>> response = bookService.getAllBooks();
-        if (response == null){
+        if (response.success() == false){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); 
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -96,7 +96,30 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     // Update Book
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<BookResponse>> updateBookById(
+        @PathVariable Long id,
+        @Valid @RequestBody BookRequest bookRequest
+    ){
+
+        ApiResponse<BookResponse> response = bookService.updateBookById(id,bookRequest);
+
+        if (response.success() == false){
+            if (response.message().contains("doesnt exist")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }   
+        
+        return ResponseEntity.ok(response);
+    }
+
+
+    // Update Total Copies
+
+    // Update Available Copies
 
     // Delete Book
 
