@@ -8,6 +8,7 @@ import lombok.Builder;
 
 @Builder
 public record MemberRequest(
+
     @NotBlank(message = "Member name is required")
     String name,
 

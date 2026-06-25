@@ -1,0 +1,139 @@
+{
+  "version": "2.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "tablePositions": [
+      {
+        "name": "BookRequest",
+        "schemaName": "public",
+        "x": 292.232421875,
+        "y": 12
+      },
+      {
+        "name": "BookResponse",
+        "schemaName": "public",
+        "x": 853.7106000592227,
+        "y": 12
+      },
+      {
+        "name": "MemberRequest",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "MemberResponse",
+        "schemaName": "public",
+        "x": 584.0556640625,
+        "y": 12
+      },
+      {
+        "name": "BorrowTransactionRequest",
+        "schemaName": "public",
+        "x": 112.01808056259256,
+        "y": 260.0624879220811
+      },
+      {
+        "name": "BorrowTransactionResponse",
+        "schemaName": "public",
+        "x": 112.01808056259256,
+        "y": 451.71809720348665
+      },
+      {
+        "name": "BorrowTransactionRequestBooks",
+        "schemaName": "public",
+        "x": 661.596673912651,
+        "y": 275.3566767717791
+      },
+      {
+        "name": "BorrowTransactionResponseBooks",
+        "schemaName": "public",
+        "x": 570.1617445573789,
+        "y": 458.98449472421146
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "memberId"
+        ],
+        "firstTableName": "BorrowTransactionRequest",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "borrowTransactionRequestId"
+        ],
+        "secondTableName": "BorrowTransactionItemRequest",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "transactionId"
+        ],
+        "firstTableName": "BorrowTransactionResponse",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "transactionId"
+        ],
+        "secondTableName": "BorrowTransactionItemResponse",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "books"
+        ],
+        "firstTableName": "BorrowTransactionRequest",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "borrowTransactionRequestId"
+        ],
+        "secondTableName": "BorrowTransactionItemRequest",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "memberId"
+        ],
+        "firstTableName": "BorrowTransactionRequest",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "borrowTransactionRequestMemberId"
+        ],
+        "secondTableName": "BorrowTransactionRequestBooks",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "transactionId"
+        ],
+        "firstTableName": "BorrowTransactionResponse",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "transactionId"
+        ],
+        "secondTableName": "BorrowTransactionResponseBooks",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}

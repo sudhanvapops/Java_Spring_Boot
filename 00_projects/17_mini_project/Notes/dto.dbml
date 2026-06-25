@@ -1,0 +1,49 @@
+Table BookRequest {
+  name varchar [not null]
+  author varchar [not null]
+  totalCopies int [not null, note: 'Validation: min 1']
+}
+
+Table BookResponse {
+  id bigint
+  name varchar
+  author varchar
+  availableCopies int
+  totalCopies int
+}
+
+Table MemberRequest {
+  name varchar [not null]
+  email varchar [not null, note: 'Validation: email']
+  age int [not null, note: 'Validation: min 1']
+}
+
+Table MemberResponse {
+  id bigint
+  name varchar
+  email varchar
+  age int
+}
+
+Table BorrowTransactionRequest {
+  memberId bigint [not null]
+}
+
+Table BorrowTransactionRequestBooks {
+  borrowTransactionRequestMemberId bigint [not null, ref: > BorrowTransactionRequest.memberId]
+  bookId bigint [not null]
+}
+
+Table BorrowTransactionResponse {
+  transactionId bigint
+  memberName varchar
+  borrowDate datetime
+  dueDate datetime
+}
+
+Table BorrowTransactionResponseBooks {
+  transactionId bigint [ref: > BorrowTransactionResponse.transactionId]
+  bookId bigint
+  bookName varchar
+  author varchar
+}
