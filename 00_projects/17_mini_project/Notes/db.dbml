@@ -1,11 +1,11 @@
-Table member {
+Table members {
   id bigint [pk, increment]
   name varchar [not null]
-  email varchar [not null]
+  email varchar [not null, unique]
   age int [not null]
 }
 
-Table book {
+Table books {
   id bigint [pk, increment]
   name varchar [not null]
   author varchar [not null]
@@ -13,15 +13,21 @@ Table book {
   total_copies int [not null]
 }
 
-Table borrow_record {
+Table borrow_transactions {
   id bigint [pk, increment]
-  book_id bigint [not null]
   member_id bigint [not null]
   borrow_date datetime [not null]
   due_date datetime [not null]
+}
+
+Table borrow_records {
+  id bigint [pk, increment]
+  borrow_transaction_id bigint [not null]
+  book_id bigint [not null]
   return_date datetime
   fine bigint
 }
 
-Ref: borrow_record.book_id > book.id
-Ref: borrow_record.member_id > member.id
+Ref: borrow_transactions.member_id > members.id
+Ref: borrow_records.borrow_transaction_id > borrow_transactions.id
+Ref: borrow_records.book_id > books.id

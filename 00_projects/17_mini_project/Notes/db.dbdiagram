@@ -1,11 +1,36 @@
 {
   "version": "2.0.0",
-  "darkMode": false,
+  "darkMode": true,
   "gridEnabling": false,
   "currentViewName": null,
   "defaultView": {
     "detailLevel": "All",
-    "tablePositions": [],
+    "tablePositions": [
+      {
+        "name": "members",
+        "schemaName": "public",
+        "x": 331.38917004048574,
+        "y": 40.56325910931173
+      },
+      {
+        "name": "books",
+        "schemaName": "public",
+        "x": 331.38917004048574,
+        "y": 246.56325910931173
+      },
+      {
+        "name": "borrow_transactions",
+        "schemaName": "public",
+        "x": 789.3486426967357,
+        "y": 40.56325910931173
+      },
+      {
+        "name": "borrow_records",
+        "schemaName": "public",
+        "x": 771.3919692560728,
+        "y": 295.03593117408894
+      }
+    ],
     "tableGroupCollapseStates": [],
     "stickyNoteLayouts": [],
     "referencePaths": []
