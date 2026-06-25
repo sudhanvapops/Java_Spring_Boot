@@ -124,4 +124,27 @@ public class MemberService {
         );
     }
 
+
+    // Delete Member
+    public ApiResponse<MemberResponse> deleteMember(Long id) {
+
+        Member member = memberRepo.findById(id).orElse(null);
+
+        if(member == null){
+            return new ApiResponse<>(
+                false,
+                "Member Not Found: "+ id,
+                null
+            );
+        }
+
+        memberRepo.delete(member);
+
+        return new ApiResponse<>(
+            true,
+            "Member Deleted: "+id,
+            mapToMemberResponse(member)
+        );
+    }
+
 }

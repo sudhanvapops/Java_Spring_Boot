@@ -17,6 +17,7 @@ import com.sudhanva.library_management_v2.Service.MemberService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,6 +80,19 @@ public class MemberController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(memberResponse);
+    }
+
+
+    // Delete Member
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<MemberResponse>> deleteMember(
+        @PathVariable Long id
+    ){
+        ApiResponse<MemberResponse> response = memberService.deleteMember(id);
+        if (response.success() == false) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
