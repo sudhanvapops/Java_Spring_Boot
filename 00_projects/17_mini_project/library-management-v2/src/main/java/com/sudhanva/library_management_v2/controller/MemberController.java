@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,8 +30,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/member")
 public class MemberController {
 
-    @Autowired
-    private MemberService memberService;
+    private final MemberService memberService;
+
+    MemberController(MemberService memberService) {
+        this.memberService = memberService;
+    }
 
     // Get All Members
     @GetMapping
@@ -63,7 +67,6 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
     // Updtae a Member
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<MemberResponse>> updateMember(
@@ -76,23 +79,50 @@ public class MemberController {
             if (memberResponse.message().contains("not found")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(memberResponse);
             }
+            if (memberResponse.message().contains("inactive")) {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(memberResponse);
+            }
             return ResponseEntity.status(HttpStatus.CONFLICT).body(memberResponse);
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(memberResponse);
     }
 
-
     // Delete Member
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<MemberResponse>> deleteMember(
-        @PathVariable Long id
-    ){
+            @PathVariable Long id) {
         ApiResponse<MemberResponse> response = memberService.deleteMember(id);
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (!response.success()) {
+
+            if (response.message().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            if (response.message().contains("borrowed")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            if (response.message().contains("inactive")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
         }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // Reactivate Member
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<ApiResponse<MemberResponse>> activateMember(
+        @PathVariable  Long id
+    ){
+
+        ApiResponse<MemberResponse> response = memberService.activateMember(id);
+
+        if (!response.success()){
+            if(response.message().contains("Not Found")){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }
