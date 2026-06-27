@@ -47,6 +47,10 @@ public class Book {
     @Column(nullable = false)
     private Integer totalCopies;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     @OneToMany(mappedBy = "book")
     private List<BorrowRecord> borrowRecords;
 

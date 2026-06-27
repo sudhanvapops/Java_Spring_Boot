@@ -3,6 +3,7 @@ Table members {
   name varchar [not null]
   email varchar [not null, unique]
   age int [not null]
+  isActive boolean [default: true]
 }
 
 Table books {
@@ -11,6 +12,7 @@ Table books {
   author varchar [not null]
   available_copy int [not null]
   total_copies int [not null]
+  isActive boolean [default: true]
 }
 
 Table borrow_transactions {

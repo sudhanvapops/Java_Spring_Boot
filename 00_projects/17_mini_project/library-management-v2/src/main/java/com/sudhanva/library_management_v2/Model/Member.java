@@ -37,6 +37,10 @@ public class Member {
     @Column(nullable = false)
     private Integer age;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<BorrowTransaction> borrowTransactions;
 
