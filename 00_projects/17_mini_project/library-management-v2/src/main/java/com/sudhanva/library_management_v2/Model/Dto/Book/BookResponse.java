@@ -8,7 +8,8 @@ public record BookResponse(
     String name,
     String author,
     Integer availableCopies,
-    Integer totalCopies
+    Integer totalCopies,
+    Boolean isActive
 ) {
     
 }

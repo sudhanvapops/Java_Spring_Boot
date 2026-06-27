@@ -7,7 +7,8 @@ public record MemberResponse(
     Long id,
     String name,
     String email,
-    Integer age
+    Integer age,
+    Boolean isActive
 ) {
     
 }

@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
@@ -16,9 +19,11 @@ import com.sudhanva.library_management_v2.repo.MemberRepo;
 @Service
 public class MemberService {
 
-    @Autowired
-    private MemberRepo memberRepo;
+    private final MemberRepo memberRepo;
 
+    public MemberService(MemberRepo memberRepo) {
+        this.memberRepo = memberRepo;
+    }
 
     // Utility Methods
     private MemberResponse mapToMemberResponse(Member member) {
@@ -27,6 +32,7 @@ public class MemberService {
                 .name(member.getName())
                 .email(member.getEmail())
                 .age(member.getAge())
+                .isActive(member.getIsActive())
                 .build();
     }
 
@@ -35,11 +41,13 @@ public class MemberService {
                 .name(memberRequest.name())
                 .email(memberRequest.email())
                 .age(memberRequest.age())
+                .isActive(memberRequest.isActive())
                 .build();
     }
 
     // Service Methods
 
+    @Transactional(readOnly = true)
     public ApiResponse<List<MemberResponse>> getAllMembers() {
 
         List<Member> members = memberRepo.findAll();
@@ -50,13 +58,12 @@ public class MemberService {
         }
 
         return new ApiResponse<>(
-            true,
-            "Total Members founs: "+allMembers.size(),
-            allMembers
-        );
+                true,
+                "Total Members found: " + allMembers.size(),
+                allMembers);
     }
 
-
+    @Transactional(readOnly = true)
     public ApiResponse<MemberResponse> getMemberById(Long id) {
 
         Member member = memberRepo.findById(id)
@@ -64,41 +71,41 @@ public class MemberService {
 
         if (member == null) {
             return new ApiResponse<>(
-            false,
-            "Member Not Found with id: "+id,
-            null
-        );
+                    false,
+                    "Member Not Found with id: " + id,
+                    null);
         }
 
         return new ApiResponse<>(
-            true,
-            "Member Fetched Successfully",
-            mapToMemberResponse(member)
-        );
+                true,
+                "Member Fetched Successfully",
+                mapToMemberResponse(member));
     }
 
     // Add Member
+
+    @Transactional
     public ApiResponse<MemberResponse> addMember(MemberRequest memberRequest) {
 
         Member existingMember = memberRepo.findByEmail(memberRequest.email()).orElse(null);
 
         if (existingMember != null) {
             return new ApiResponse<>(
-                false,
-                "Email already exists: " + memberRequest.email(),
-                null
-            );
+                    false,
+                    "Email already exists: " + memberRequest.email(),
+                    null);
         }
 
         Member member = mapToMember(memberRequest);
 
         return new ApiResponse<>(
-            true,
-            "Member Created successfully",
-            mapToMemberResponse(memberRepo.save(member))
-        );
+                true,
+                "Member Created successfully",
+                mapToMemberResponse(memberRepo.save(member)));
     }
 
+    // Update Member
+    @Transactional
     public ApiResponse<MemberResponse> updateMember(Long id, MemberRequest memberRequest) {
 
         Member existingMember = memberRepo.findById(id).orElse(null);
@@ -113,38 +120,84 @@ public class MemberService {
             return new ApiResponse<>(false, "Email already exists for another member", null);
         }
 
+        if (Boolean.FALSE.equals(existingMember.getIsActive())) {
+            return new ApiResponse<>(false, "Member is inactive cannot update", null);
+        }
+
         existingMember.setAge(memberRequest.age());
         existingMember.setEmail(memberRequest.email());
         existingMember.setName(memberRequest.name());
 
         return new ApiResponse<>(
-            true,
-            "Member updated successfully",
-            mapToMemberResponse(memberRepo.save(existingMember))
-        );
+                true,
+                "Member updated successfully",
+                mapToMemberResponse(memberRepo.save(existingMember)));
     }
 
-
     // Delete Member
+    @Transactional
     public ApiResponse<MemberResponse> deleteMember(Long id) {
 
         Member member = memberRepo.findById(id).orElse(null);
 
-        if(member == null){
+        if (member == null) {
             return new ApiResponse<>(
-                false,
-                "Member Not Found: "+ id,
-                null
-            );
+                    false,
+                    "Member Not Found: " + id,
+                    null);
         }
 
-        memberRepo.delete(member);
+        if (!member.getIsActive()) {
+            return new ApiResponse<>(
+                    false,
+                    "Member is already inactive.",
+                    null);
+        }
+
+        boolean hasActiveBorrow = member.getBorrowTransactions()
+                .stream()
+                .flatMap(transaction -> transaction.getRecords().stream())
+                .anyMatch(record -> record.getReturnDate() == null);
+
+        if (hasActiveBorrow) {
+            return new ApiResponse<>(
+                    false,
+                    "Member has borrowed books that are not yet returned.",
+                    null);
+        }
+
+        member.setIsActive(false);
 
         return new ApiResponse<>(
-            true,
-            "Member Deleted: "+id,
-            mapToMemberResponse(member)
-        );
+                true,
+                "Member deactivated: " + id,
+                mapToMemberResponse(member));
+    }
+
+    // Reactive Member
+    public ApiResponse<MemberResponse> activateMember(Long id) {
+
+        Member existingMember = memberRepo.findById(id).orElse(null);
+
+        if (existingMember == null) {
+            return new ApiResponse<>(
+                    false,
+                    "Member Not Found: " + id,
+                    null);
+        }
+
+        // If already active sedning another active request doesnt matter so skip
+        // validation for that
+
+        existingMember.setIsActive(true);
+
+        Member member = memberRepo.save(existingMember);
+
+        return new ApiResponse<>(
+                true,
+                "Member Reactivated: " + id,
+                mapToMemberResponse(member));
+
     }
 
 }

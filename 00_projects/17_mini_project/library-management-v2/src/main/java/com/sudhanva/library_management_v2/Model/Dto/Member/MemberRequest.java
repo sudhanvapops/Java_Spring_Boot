@@ -19,7 +19,10 @@ public record MemberRequest(
     
     @NotNull(message = "Age is required")
     @Min(value = 1, message = "Age must be greater than 0")
-    Integer age
+    Integer age,
+
+    @NotNull(message = "isActive cannot be null")
+    Boolean isActive
 ) {
     
 }
