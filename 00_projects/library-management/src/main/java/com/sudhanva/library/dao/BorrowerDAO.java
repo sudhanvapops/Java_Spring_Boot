@@ -46,9 +46,31 @@ public class BorrowerDAO {
     }
 
     
+    public Optional<Borrower> findById(Long id) {
+        Session s = sessionFactory.getCurrentSession();
+        return Optional.ofNullable(s.get(Borrower.class, id));
+    }
+
+    public List<Borrower> findAll(int limit, int offset) {
+
+        Session s = sessionFactory.getCurrentSession();
+
+        Query<Borrower> q = s.createQuery("FROM Borrower b order by b.id", Borrower.class);
+
+        q.setMaxResults(limit);
+        q.setFirstResult(offset);
+
+        return q.getResultList();
+    }
+
     public void save(Borrower borrower) {
         Session s = sessionFactory.getCurrentSession();
         s.persist(borrower);
+    }
+
+    public void delete(Borrower borrower) {
+        Session s = sessionFactory.getCurrentSession();
+        s.remove(borrower);
     }
 
     // Transaction is in service layer
