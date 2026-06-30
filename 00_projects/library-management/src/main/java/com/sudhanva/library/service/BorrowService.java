@@ -10,6 +10,7 @@ import org.hibernate.Transaction;
 import com.sudhanva.library.dao.BookDAO;
 import com.sudhanva.library.dao.BorrowRecordDAO;
 import com.sudhanva.library.dao.BorrowerDAO;
+import com.sudhanva.library.dto.BorrowRecordDTO;
 import com.sudhanva.library.entity.Book;
 import com.sudhanva.library.entity.BorrowRecord;
 import com.sudhanva.library.entity.Borrower;
@@ -29,9 +30,17 @@ public class BorrowService {
         this.borrowRecordDAO = new BorrowRecordDAO(sf);
     }
 
+    // Package-visible constructor for unit tests to inject mock DAOs
+    BorrowService(SessionFactory sf, BorrowerDAO borrowerDAO, BookDAO bookDao, BorrowRecordDAO borrowRecordDAO) {
+        this.sf = sf;
+        this.borrowerDAO = borrowerDAO;
+        this.bookDao = bookDao;
+        this.borrowRecordDAO = borrowRecordDAO;
+    }
+
 
     
-    public BorrowRecord borrowBook(String cardNumber, String isbn) {
+    public BorrowRecordDTO borrowBook(String cardNumber, String isbn) {
 
         // A Hibernate session is transaction-scoped You should not store it as a field
         Session session = sf.getCurrentSession();
@@ -93,7 +102,7 @@ public class BorrowService {
 
 
             trx.commit();
-            return record;
+            return BorrowRecordDTO.from(record);
 
 
         } catch (Exception e) {
@@ -104,7 +113,7 @@ public class BorrowService {
     }
 
 
-    public BorrowRecord returnBook(String cardNumber, String isbn){
+    public BorrowRecordDTO returnBook(String cardNumber, String isbn){
 
         Session session = sf.getCurrentSession();
 
@@ -146,16 +155,47 @@ public class BorrowService {
             // session.persist(br);
 
             trx.commit();
-            return br;
-            
+            return BorrowRecordDTO.from(br);
+
         } catch (Exception e) {
             trx.rollback();
-            throw new RuntimeException("");
+            throw e;
         }
 
 
     }
 
+    public List<BorrowRecordDTO> listRecords(int limit, int offset) {
+        Session session = sf.getCurrentSession();
+        Transaction trx = session.beginTransaction();
+        try {
+            List<BorrowRecordDTO> records = borrowRecordDAO.findAll(limit, offset).stream()
+                    .map(BorrowRecordDTO::from)
+                    .collect(java.util.stream.Collectors.toList());
+            trx.commit();
+            return records;
+        } catch (Exception e) {
+            trx.rollback();
+            throw e;
+        }
+    }
 
+    public List<BorrowRecordDTO> listRecordsForBorrower(String cardNumber) {
+        Session session = sf.getCurrentSession();
+        Transaction trx = session.beginTransaction();
+        try {
+            Borrower borrower = borrowerDAO.findByCardNumber(cardNumber)
+                    .orElseThrow(() -> new RuntimeException("Borrower not found"));
+
+            List<BorrowRecordDTO> records = borrowRecordDAO.findByBorrower(borrower).stream()
+                    .map(BorrowRecordDTO::from)
+                    .collect(java.util.stream.Collectors.toList());
+            trx.commit();
+            return records;
+        } catch (Exception e) {
+            trx.rollback();
+            throw e;
+        }
+    }
 
 }

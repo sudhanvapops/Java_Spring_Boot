@@ -16,9 +16,15 @@ interface BookDAOType {
 
     public Optional<Book> findByIsbn(String isbn);
 
+    public Optional<Book> findById(Long id);
+
     public List<Book> findByName(String name,int limit, int offset);
 
+    public List<Book> findAll(int limit, int offset);
+
     public void save(Book book);
+
+    public void delete(Book book);
 
 }
 
@@ -46,6 +52,12 @@ public class BookDAO implements BookDAOType{
     }
 
     @Override
+    public Optional<Book> findById(Long id) {
+        Session session = sf.getCurrentSession();
+        return Optional.ofNullable(session.get(Book.class, id));
+    }
+
+    @Override
     public List<Book> findByName(String name,int limit, int offset) {
         Session session = sf.getCurrentSession();
         Query<Book> q = session.createQuery("from Book b where b.bookName  = :name",Book.class);
@@ -58,9 +70,26 @@ public class BookDAO implements BookDAOType{
     }
 
     @Override
+    public List<Book> findAll(int limit, int offset) {
+        Session session = sf.getCurrentSession();
+        Query<Book> q = session.createQuery("from Book b order by b.id", Book.class);
+
+        q.setMaxResults(limit);
+        q.setFirstResult(offset);
+
+        return q.getResultList();
+    }
+
+    @Override
     public void save(Book book) {
         Session session = sf.getCurrentSession();
         session.persist(book);
+    }
+
+    @Override
+    public void delete(Book book) {
+        Session session = sf.getCurrentSession();
+        session.remove(book);
     }
 
 }

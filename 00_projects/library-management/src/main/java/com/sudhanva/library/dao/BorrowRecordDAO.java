@@ -1,5 +1,6 @@
 package com.sudhanva.library.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Session;
@@ -30,5 +31,25 @@ public class BorrowRecordDAO {
         return q.uniqueResultOptional();
 
     }
-    
+
+    public List<BorrowRecord> findAll(int limit, int offset) {
+        Session session = sf.getCurrentSession();
+        Query<BorrowRecord> q = session.createQuery("from BorrowRecord b order by b.id", BorrowRecord.class);
+
+        q.setMaxResults(limit);
+        q.setFirstResult(offset);
+
+        return q.getResultList();
+    }
+
+    public List<BorrowRecord> findByBorrower(Borrower borrower) {
+        Session session = sf.getCurrentSession();
+        Query<BorrowRecord> q = session.createQuery(
+                "from BorrowRecord b where b.borrower = :borrower order by b.borrowDate desc", BorrowRecord.class);
+
+        q.setParameter("borrower", borrower);
+
+        return q.getResultList();
+    }
+
 }
