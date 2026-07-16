@@ -3,6 +3,7 @@ package com.sudhanva.library_management_v2.Model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,6 +34,9 @@ public class BorrowRecord {
     
     private LocalDateTime returnDate;
 
+    @Column(nullable = false)
+    private LocalDateTime dueDate;
+    
     private BigDecimal fine;
 
     @ManyToOne

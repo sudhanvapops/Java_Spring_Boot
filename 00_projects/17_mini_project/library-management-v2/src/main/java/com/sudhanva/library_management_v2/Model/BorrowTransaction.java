@@ -37,8 +37,6 @@ public class BorrowTransaction {
     @Column(nullable = false)
     private LocalDateTime borrowDate;
     
-    @Column(nullable = false)
-    private LocalDateTime dueDate;
 
     @OneToMany(mappedBy = "borrowTransaction", cascade = CascadeType.ALL)
     private List<BorrowRecord> records;
