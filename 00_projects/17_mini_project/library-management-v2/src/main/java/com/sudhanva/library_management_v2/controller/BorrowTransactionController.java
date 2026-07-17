@@ -1,5 +1,7 @@
 package com.sudhanva.library_management_v2.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +47,36 @@ public class BorrowTransactionController {
 
     // Get All Transaction
 
+    @GetMapping("/all")
+    ResponseEntity<ApiResponse<List<BorrowTransactionResponse>>> getAllTransactions(){
+
+        ApiResponse<List<BorrowTransactionResponse>> response = bTService.getAllTransaction();
+
+        if(response.success()==false){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Get ALl Transaction belong to a Single Person
+    @GetMapping("/member-id/{memberId}")
+    ResponseEntity<ApiResponse<List<BorrowTransactionResponse>>> getAllTransactionsByMemberId(@PathVariable Long memberId){
+
+
+        ApiResponse<List<BorrowTransactionResponse>> response = bTService.getAllTransactionByMemeberId(memberId);
+
+        if(response.success()==false){
+            if(response.message().strip().contains("Member")){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            if(response.message().strip().contains("Transaction")){
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
+        }
+
+        return ResponseEntity.ok(response);
+    }
 
     // Make a Transaction
 

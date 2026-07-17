@@ -8,11 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sudhanva.library_management_v2.Model.BorrowRecord;
 import com.sudhanva.library_management_v2.Model.BorrowTransaction;
+import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.BorrowTransactionRepo;
+import com.sudhanva.library_management_v2.repo.MemberRepo;
 
 
 
@@ -21,13 +23,16 @@ public class BorrowTransactionService {
 
     final private BorrowTransactionRepo bTRepo;
     final private BorrowRecordRepo bRRepo;
+    final private MemberRepo memberRepo;
 
     BorrowTransactionService(
         BorrowTransactionRepo bTRepo,
-        BorrowRecordRepo bRRepo 
+        BorrowRecordRepo bRRepo, 
+        MemberRepo memberRepo 
     ) {
         this.bTRepo = bTRepo;
         this.bRRepo = bRRepo;
+        this.memberRepo = memberRepo;
     }
 
 
@@ -97,6 +102,77 @@ public class BorrowTransactionService {
         );
 
     }
+
+
+
+    // Get all Trnsaction
+    @Transactional(readOnly = true)
+    public ApiResponse<List<BorrowTransactionResponse>> getAllTransaction(){
+
+        List<BorrowTransaction> borrowTransactionsList =  bTRepo.findAll();
+
+        if(borrowTransactionsList.isEmpty()){
+            return new ApiResponse<>(
+                false,
+                "No transaction found",
+                null
+            );
+        }
+
+        List<BorrowTransactionResponse> responses;
+
+        responses = borrowTransactionsList.stream()
+            .map(transaction -> mapToBorrowTransactionResponse(transaction))
+            .toList();
+
+        return new ApiResponse<>(
+            true,
+            "Transactions Found: "+borrowTransactionsList.size(),
+            responses
+        );
+
+    }   
+
+
+    // Get Transaction of a Particular Person
+    @Transactional(readOnly = true)
+    public ApiResponse<List<BorrowTransactionResponse>> getAllTransactionByMemeberId(Long memberId){
+
+        Member existingMember = memberRepo.findById(memberId).orElse(null);
+
+        if (existingMember == null){
+            return new ApiResponse<>(
+                false,
+                "No Member found",
+                null
+            );
+        }
+
+        List<BorrowTransaction> borrowTransactionsList =  bTRepo.findByMemberId(memberId);
+
+        if(borrowTransactionsList.isEmpty()){
+            return new ApiResponse<>(
+                false,
+                "No Transaction found",
+                null
+            );
+        }
+
+        List<BorrowTransactionResponse> responses;
+
+        responses = borrowTransactionsList.stream()
+            .map(transaction -> mapToBorrowTransactionResponse(transaction))
+            .toList();
+
+        return new ApiResponse<>(
+            true,
+            "Transactions Found: "+borrowTransactionsList.size(),
+            responses
+        );
+
+    }
+
+
 
 
 }
