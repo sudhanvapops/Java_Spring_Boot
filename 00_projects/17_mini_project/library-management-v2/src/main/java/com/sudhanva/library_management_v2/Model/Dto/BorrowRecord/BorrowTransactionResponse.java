@@ -9,9 +9,8 @@ import lombok.Builder;
 public record BorrowTransactionResponse(
     Long transactionId,
     String memberName,
-    LocalDateTime borrowDate,
-    LocalDateTime dueDate,
-    List<BorrowTransactionItemResponse> books
+    List<BorrowTransactionItemResponse> books,
+    LocalDateTime borrowDate
 ) {
     
 }

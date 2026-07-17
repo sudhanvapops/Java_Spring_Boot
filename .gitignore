@@ -5,6 +5,10 @@ hibernate.cfg.xml
 todoC.md
 course_related
 static/
+prompt.md
+scripts/
+output.txt
+combine.py
 
 # =========================
 # Maven
