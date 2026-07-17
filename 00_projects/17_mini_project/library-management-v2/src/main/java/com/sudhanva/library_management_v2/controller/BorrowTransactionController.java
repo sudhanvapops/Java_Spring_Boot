@@ -6,10 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
 import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
 
@@ -59,6 +62,7 @@ public class BorrowTransactionController {
         return ResponseEntity.ok(response);
     }
 
+
     // Get ALl Transaction belong to a Single Person
     @GetMapping("/member-id/{memberId}")
     ResponseEntity<ApiResponse<List<BorrowTransactionResponse>>> getAllTransactionsByMemberId(@PathVariable Long memberId){
@@ -78,8 +82,15 @@ public class BorrowTransactionController {
         return ResponseEntity.ok(response);
     }
 
-    // Make a Transaction
 
+    @PostMapping("/borrowBooks")
+    public ResponseEntity<ApiResponse<BorrowTransactionResponse>> borrowBook(
+        @RequestBody BorrowTransactionRequest borrowRequest
+    ) {
+
+        ApiResponse<BorrowTransactionResponse> response = bTService.borrowBook(borrowRequest);
+        return null;
+    }
 
     // No Delete
 

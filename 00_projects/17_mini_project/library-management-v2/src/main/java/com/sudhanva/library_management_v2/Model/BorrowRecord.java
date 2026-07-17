@@ -29,6 +29,10 @@ public class BorrowRecord {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "borrow_transaction_id", nullable = false)
+    private BorrowTransaction borrowTransaction;
+
+    @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
     
@@ -39,7 +43,4 @@ public class BorrowRecord {
     
     private BigDecimal fine;
 
-    @ManyToOne
-    @JoinColumn(name = "borrow_transaction_id", nullable = false)
-    private BorrowTransaction borrowTransaction;
 }
