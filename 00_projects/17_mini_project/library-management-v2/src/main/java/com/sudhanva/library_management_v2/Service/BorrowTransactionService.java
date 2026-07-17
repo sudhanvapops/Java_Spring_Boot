@@ -282,6 +282,7 @@ public class BorrowTransactionService {
 
         // Borrow the Book
         LocalDateTime borrowDate = LocalDateTime.now();
+        // For now later take borrow dates from users
         LocalDateTime dueDate = borrowDate.plusDays(15);
 
 

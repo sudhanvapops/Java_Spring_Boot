@@ -16,6 +16,8 @@ import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransacti
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
 import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
 
+import jakarta.validation.Valid;
+
 
 
 @RestController
@@ -23,10 +25,10 @@ import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
 public class BorrowTransactionController {
     
     
-    final private BorrowTransactionService bTService;
+    final private BorrowTransactionService borrowTransactionService;
 
     public BorrowTransactionController(BorrowTransactionService bTService) {
-        this.bTService = bTService;
+        this.borrowTransactionService = bTService;
     }
 
 
@@ -37,7 +39,7 @@ public class BorrowTransactionController {
     ) {
 
         ApiResponse<BorrowTransactionResponse> response = 
-            bTService.getTransactionById(id);
+            borrowTransactionService.getTransactionById(id);
 
         // handle cases
         if (response.success() == false){
@@ -53,7 +55,7 @@ public class BorrowTransactionController {
     @GetMapping("/all")
     ResponseEntity<ApiResponse<List<BorrowTransactionResponse>>> getAllTransactions(){
 
-        ApiResponse<List<BorrowTransactionResponse>> response = bTService.getAllTransaction();
+        ApiResponse<List<BorrowTransactionResponse>> response = borrowTransactionService.getAllTransaction();
 
         if(response.success()==false){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -68,7 +70,7 @@ public class BorrowTransactionController {
     ResponseEntity<ApiResponse<List<BorrowTransactionResponse>>> getAllTransactionsByMemberId(@PathVariable Long memberId){
 
 
-        ApiResponse<List<BorrowTransactionResponse>> response = bTService.getAllTransactionByMemeberId(memberId);
+        ApiResponse<List<BorrowTransactionResponse>> response = borrowTransactionService.getAllTransactionByMemeberId(memberId);
 
         if(response.success()==false){
             if(response.message().strip().contains("Member")){
@@ -83,13 +85,39 @@ public class BorrowTransactionController {
     }
 
 
-    @PostMapping("/borrowBooks")
+   @PostMapping("/borrow")
     public ResponseEntity<ApiResponse<BorrowTransactionResponse>> borrowBook(
-        @RequestBody BorrowTransactionRequest borrowRequest
+        @Valid @RequestBody BorrowTransactionRequest borrowRequest
     ) {
-
-        ApiResponse<BorrowTransactionResponse> response = bTService.borrowBook(borrowRequest);
-        return null;
+    
+        ApiResponse<BorrowTransactionResponse> response =
+                borrowTransactionService.borrowBook(borrowRequest);
+    
+        if (!response.success()) {
+    
+            String message = response.message().toLowerCase();
+    
+            if (message.contains("member exits") || message.contains("book dosen't exist")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+    
+            if (message.contains("inactive")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+    
+            if (message.contains("duplicate")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+    
+            if (message.contains("copy not available")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+    
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    
     }
 
     // No Delete
