@@ -1,5 +1,6 @@
 package com.sudhanva.library_management_v2.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,7 @@ import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
 
 
 @RestController
-@RequestMapping("/api/transaction")
+@RequestMapping("/api/borrow-transactions")
 public class BorrowTransactionController {
     
     
@@ -31,13 +32,17 @@ public class BorrowTransactionController {
     ) {
 
         ApiResponse<BorrowTransactionResponse> response = 
-            bTService.getBookById();
+            bTService.getTransactionById(id);
 
         // handle cases
-
+        if (response.success() == false){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
         
-        return null;
+        return ResponseEntity.ok(response);
     }
+
+
     // Get All Transaction
 
 

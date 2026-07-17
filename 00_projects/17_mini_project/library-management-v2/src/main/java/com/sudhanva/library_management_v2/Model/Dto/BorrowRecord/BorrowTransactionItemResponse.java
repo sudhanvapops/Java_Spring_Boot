@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record BorrowTransactionItemResponse(
-    Long bookId,
+    Long borrowedBookId,
     String bookName,
     String author,
     LocalDateTime dueDate
