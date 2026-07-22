@@ -112,6 +112,10 @@ public class BorrowTransactionController {
             if (message.contains("copy not available")) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
+
+            if (message.contains("max")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
     
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }

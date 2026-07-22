@@ -1,6 +1,5 @@
 package com.sudhanva.library_management_v2.Model.Dto.BorrowRecord;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -14,8 +13,6 @@ public record BorrowTransactionRequest(
     Long memberId,
 
     @NotEmpty(message = "At least one book must be selected")
-    List<BorrowTransactionItemRequest> books,
-
-    LocalDateTime borrowDate
+    List<BorrowTransactionItemRequest> books
 
 ) { }

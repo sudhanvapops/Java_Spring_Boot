@@ -10,6 +10,6 @@ import com.sudhanva.library_management_v2.Model.BorrowTransaction;
 @Repository
 public interface BorrowTransactionRepo extends JpaRepository<BorrowTransaction,Long>{
     
-    List<BorrowTransaction> findByMemberId(Long memberId);    
+    List<BorrowTransaction> findByMemberId(Long memberId);
 
 }

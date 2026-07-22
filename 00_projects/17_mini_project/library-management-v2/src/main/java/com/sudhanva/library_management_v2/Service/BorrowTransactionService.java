@@ -16,7 +16,6 @@ import com.sudhanva.library_management_v2.Model.BorrowRecord;
 import com.sudhanva.library_management_v2.Model.BorrowTransaction;
 import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
-import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
@@ -35,6 +34,7 @@ public class BorrowTransactionService {
     final private BookRepo bookRepo;
     final private BorrowRecordRepo borrowRecordRepo;
     
+    final private static int MAX_BOOKS = 5;
 
     BorrowTransactionService(
         BorrowTransactionRepo bTRepo,
@@ -213,6 +213,27 @@ public class BorrowTransactionService {
         }
 
 
+        // Max Book
+
+        // Dont use this approch
+        // Getting broowTransactions and .getBorrwRecord()
+        // Performance low
+
+        List<BorrowRecord> borrowRecords = borrowRecordRepo.findByBorrowTransactionMemberIdAndReturnDateIsNull(borrowRequest.memberId());
+
+        // Here first part is redudent check
+        if (
+            borrowRecords.size() >= MAX_BOOKS || 
+            ( borrowRecords.size() + borrowRequest.books().size()) > MAX_BOOKS
+        ){
+            return new ApiResponse<>(
+                false,
+                "Max Borrowing Books Exceeds",
+                null
+            );
+        }
+
+
         // Validate Book
 
         // Duplicate Check
@@ -278,6 +299,9 @@ public class BorrowTransactionService {
             }
 
         }
+
+
+        // Search for Return == null in borrow Reacords and get count ofit 
 
 
         // Borrow the Book
