@@ -77,6 +77,7 @@ public class BorrowTransactionController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
             if(response.message().strip().contains("Transaction")){
+                // Here OK beacuse member exists but no record found so empty list Ok
                 return ResponseEntity.status(HttpStatus.OK).body(response);
             }
         }

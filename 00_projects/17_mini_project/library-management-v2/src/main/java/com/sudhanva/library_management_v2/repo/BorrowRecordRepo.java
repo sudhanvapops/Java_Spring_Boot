@@ -11,6 +11,8 @@ import com.sudhanva.library_management_v2.Model.BorrowRecord;
 public interface BorrowRecordRepo extends JpaRepository<BorrowRecord,Long>{
     List<BorrowRecord> findByBorrowTransactionMemberIdAndReturnDateIsNull(Long id);
 
+    List<BorrowRecord> findByBorrowTransactionMemberId(Long id);
+
 // BorrowRecord
 //     ↓ borrowTransaction
 // BorrowTransaction
