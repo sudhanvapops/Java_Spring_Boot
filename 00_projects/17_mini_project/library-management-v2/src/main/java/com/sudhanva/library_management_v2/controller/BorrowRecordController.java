@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayResponse;
 import com.sudhanva.library_management_v2.Service.BorrowRecordService;
 
 
@@ -75,5 +76,12 @@ public class BorrowRecordController {
     }
 
 
+    // Today Due Books
+    @GetMapping("/due-today")
+    public ResponseEntity<ApiResponse<List<DueTodayResponse>>> getDueRecordsToday() {
+        ApiResponse<List<DueTodayResponse>> response =
+                borrowRecordService.getDueRecordsToday();
+        return ResponseEntity.ok(response);
+    }
 
 }

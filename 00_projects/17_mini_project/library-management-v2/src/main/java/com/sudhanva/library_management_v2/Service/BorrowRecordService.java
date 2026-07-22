@@ -1,15 +1,20 @@
 package com.sudhanva.library_management_v2.Service;
 
 import com.sudhanva.library_management_v2.repo.BookRepo;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sudhanva.library_management_v2.Model.BorrowRecord;
+import com.sudhanva.library_management_v2.Model.BorrowTransaction;
 import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayResponse;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
@@ -151,5 +156,26 @@ public class BorrowRecordService {
 
 
     // Get records due today
+
+    // borrowRecord.getBorrowTransaction().getMember().getName();
+    // If i writ ethe above hibernate may execute many quires caus eof lazy loading
+    // and maytoone relation is oftern Lazy
+   @Transactional(readOnly = true)
+    public ApiResponse<List<DueTodayResponse>> getDueRecordsToday() {
+
+        LocalDate today = LocalDate.now();
+
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+
+        List<DueTodayResponse> records =
+                borrowRecordRepo.findDueToday(start, end);
+
+        return new ApiResponse<>(
+                true,
+                "Due Records: " + records.size(),
+                records
+        );
+    }
 
 }

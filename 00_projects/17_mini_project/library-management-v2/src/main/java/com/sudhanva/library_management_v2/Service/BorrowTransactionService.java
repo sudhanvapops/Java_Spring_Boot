@@ -35,6 +35,7 @@ public class BorrowTransactionService {
     final private BorrowRecordRepo borrowRecordRepo;
     
     final private static int MAX_BOOKS = 5;
+    final private static int PLUS_DATE = 5;
 
     BorrowTransactionService(
         BorrowTransactionRepo bTRepo,
@@ -307,7 +308,7 @@ public class BorrowTransactionService {
         // Borrow the Book
         LocalDateTime borrowDate = LocalDateTime.now();
         // For now later take borrow dates from users
-        LocalDateTime dueDate = borrowDate.plusDays(15);
+        LocalDateTime dueDate = borrowDate.plusDays(PLUS_DATE);
 
 
         // Create Borrow Records
