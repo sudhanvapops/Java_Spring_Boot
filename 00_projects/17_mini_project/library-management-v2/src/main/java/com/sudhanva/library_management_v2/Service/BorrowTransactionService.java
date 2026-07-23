@@ -252,9 +252,9 @@ public class BorrowTransactionService {
 
         if (uniqueBookIds.size() != bookIds.size()) {
             return new ApiResponse<>(
-                    false,
-                    "Book Duplicate book IDs found in request.",
-                    null
+                false,
+                "Book Duplicate book IDs found in request.",
+                null
             );
         }
 

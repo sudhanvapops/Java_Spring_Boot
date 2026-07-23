@@ -12,6 +12,8 @@ import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayRespons
 
 @Repository
 public interface BorrowRecordRepo extends JpaRepository<BorrowRecord,Long>{
+
+
     List<BorrowRecord> findByBorrowTransactionMemberIdAndReturnDateIsNull(Long id);
 
 

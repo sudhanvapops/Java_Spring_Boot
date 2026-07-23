@@ -47,3 +47,36 @@ Table BorrowTransactionResponseBooks {
   bookName varchar
   author varchar
 }
+
+Table BookReturnRequest {
+  memberId bigint [not null]
+}
+
+Table BookReturnRequestBooks {
+  memberId bigint [ref: > BookReturnRequest.memberId]
+  bookId bigint [not null]
+}
+
+Table BookReturnResponse {
+  memberId bigint
+  memberName varchar
+  totalFine decimal
+}
+
+Table BookReturnResponseBooks {
+  memberId bigint [ref: > BookReturnResponse.memberId]
+  bookId bigint
+  bookName varchar
+  fine decimal
+  returnDate datetime
+}
+
+Table DueTodayResponse {
+  borrowedBookId bigint
+  bookName varchar
+  author varchar
+  dueDate datetime
+  memberId bigint
+  memberName varchar
+  memberEmail varchar
+}

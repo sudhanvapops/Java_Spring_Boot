@@ -2,19 +2,30 @@ package com.sudhanva.library_management_v2.Service;
 
 import com.sudhanva.library_management_v2.repo.BookRepo;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sudhanva.library_management_v2.Model.Book;
 import com.sudhanva.library_management_v2.Model.BorrowRecord;
-import com.sudhanva.library_management_v2.Model.BorrowTransaction;
 import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BookReturnRequest;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BookReturnResponse;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowReturnItemRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayResponse;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowReturnItemResponse;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
@@ -27,6 +38,8 @@ public class BorrowRecordService {
     private final BookRepo bookRepo;
     final private BorrowRecordRepo borrowRecordRepo;
     final private MemberRepo memberRepo;
+
+    final private int FINE = 10;
 
     public BorrowRecordService(
         BorrowRecordRepo borrowRecordRepo,
@@ -175,6 +188,155 @@ public class BorrowRecordService {
                 true,
                 "Due Records: " + records.size(),
                 records
+        );
+    }
+
+    // Return Book
+    @Transactional
+    public ApiResponse<BookReturnResponse> returnBook(
+        BookReturnRequest bookReturnRequest
+    ){
+
+        // Validate Member
+        Member existingMember = memberRepo.findById(bookReturnRequest.memberId()).orElse(null);
+
+        if(existingMember == null){
+            return new ApiResponse<>(
+                false,
+                "Member not found",
+                null
+            );
+        }
+
+
+        if(!existingMember.getIsActive()){
+            return new ApiResponse<>(
+                false,
+                "Member is inactive",
+                null
+            );
+        }
+
+
+        // Validate Books
+
+
+        // Requested Book Ids
+        List<Long> returningBookIds = bookReturnRequest.books()
+            .stream()
+            .map( book -> book.bookId())
+            .toList();
+
+
+        Set<Long> uniqueBookIds = new HashSet<>(returningBookIds);
+        if (uniqueBookIds.size() != returningBookIds.size()) {
+            return new ApiResponse<>(
+                false,
+                "Book Duplicate book IDs found in request.",
+                null
+            );
+        }
+
+
+        // Get all active borrowed books of the member
+        List<BorrowRecord> activeBorrowedBooks = borrowRecordRepo.findByBorrowTransactionMemberIdAndReturnDateIsNull(bookReturnRequest.memberId());
+
+
+        if (activeBorrowedBooks.isEmpty()){
+            return new ApiResponse<>(
+                false,
+                "Member has no active borrowed books.",
+                null
+            );
+        }
+
+
+        // Map Active Nooks: bookId -> BorrowRecord
+        Map<Long,BorrowRecord> borrowedBookMap = activeBorrowedBooks.stream().collect(
+            Collectors.toMap(
+                record -> record.getBook().getId(),
+                record -> record
+            )
+        );
+        
+
+        // Validate Requested Book are actually borrowed By The borrower or other
+
+        List<Long> notBelongsBookIds = new ArrayList<>();
+
+        for (Long bookId : returningBookIds) {
+            if (!borrowedBookMap.containsKey(bookId)) {
+                notBelongsBookIds.add(bookId);
+            }
+        }
+        
+        if (!notBelongsBookIds.isEmpty()) {
+            return new ApiResponse<>(
+                    false,
+                    "Book Id " + notBelongsBookIds + " is not currently borrowed by this member.",
+                    null
+            );
+        }
+
+
+        // Return Each Book
+
+        List<BorrowReturnItemResponse> returnedBooks = new ArrayList<>();
+
+        BigDecimal totalFine = BigDecimal.ZERO;
+        LocalDateTime returnDate = LocalDateTime.now();
+        
+        for (Long bookId : returningBookIds) {
+
+            BorrowRecord record = borrowedBookMap.get(bookId);
+            
+            // Set Return Date
+            record.setReturnDate(returnDate);
+
+
+            // Set Fine
+            long daysLate = Math.max(
+                0,
+                ChronoUnit.DAYS.between(
+                    record.getDueDate().toLocalDate(),
+                    returnDate.toLocalDate()
+                )
+            );
+
+            BigDecimal fine = BigDecimal.valueOf(daysLate * FINE);
+
+            record.setFine(fine);
+
+            totalFine = totalFine.add(fine);
+
+            // Increase available copies
+            Book book = record.getBook();
+            book.setAvailableCopy(book.getAvailableCopy() + 1);
+
+            // Response Item
+            returnedBooks.add(
+                BorrowReturnItemResponse.builder()
+                    .bookId(book.getId())
+                    .bookName(book.getName())
+                    .fine(fine)
+                    .returnDate(returnDate)
+                    .build()
+            );
+
+        }
+
+        BookReturnResponse response =
+            BookReturnResponse.builder()
+                    .memberId(existingMember.getId())
+                    .memberName(existingMember.getName())
+                    .books(returnedBooks)
+                    .totalFine(totalFine)
+                    .build();
+
+        return new ApiResponse<>(
+            true,
+            "Book returned successfully",
+            response
         );
     }
 

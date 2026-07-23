@@ -53,6 +53,36 @@
         "schemaName": "public",
         "x": 570.1617445573789,
         "y": 458.98449472421146
+      },
+      {
+        "name": "BookReturnRequest",
+        "schemaName": "public",
+        "x": 12,
+        "y": 668.9844947242115
+      },
+      {
+        "name": "BookReturnRequestBooks",
+        "schemaName": "public",
+        "x": 279.58935546875,
+        "y": 668.9844947242115
+      },
+      {
+        "name": "BookReturnResponse",
+        "schemaName": "public",
+        "x": 569.55419921875,
+        "y": 668.9844947242115
+      },
+      {
+        "name": "BookReturnResponseBooks",
+        "schemaName": "public",
+        "x": 829.03125,
+        "y": 668.9844947242115
+      },
+      {
+        "name": "DueTodayResponse",
+        "schemaName": "public",
+        "x": 12,
+        "y": 782.9844947242115
       }
     ],
     "tableGroupCollapseStates": [],
@@ -129,6 +159,36 @@
           "transactionId"
         ],
         "secondTableName": "BorrowTransactionResponseBooks",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "memberId"
+        ],
+        "firstTableName": "BookReturnRequest",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "memberId"
+        ],
+        "secondTableName": "BookReturnRequestBooks",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "memberId"
+        ],
+        "firstTableName": "BookReturnResponse",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "memberId"
+        ],
+        "secondTableName": "BookReturnResponseBooks",
         "secondSchemaName": "public",
         "secondRelation": "*",
         "checkPoints": []
