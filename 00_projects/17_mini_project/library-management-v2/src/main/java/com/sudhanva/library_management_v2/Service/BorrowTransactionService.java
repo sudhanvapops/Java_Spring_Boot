@@ -1,11 +1,13 @@
 package com.sudhanva.library_management_v2.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -214,18 +216,20 @@ public class BorrowTransactionService {
         }
 
 
-        // Max Book
+        
 
         // Dont use this approch
         // Getting broowTransactions and .getBorrwRecord()
         // Performance low
 
-        List<BorrowRecord> borrowRecords = borrowRecordRepo.findByBorrowTransactionMemberIdAndReturnDateIsNull(borrowRequest.memberId());
+        List<BorrowRecord> borrowExisitingRecords = borrowRecordRepo.findByBorrowTransactionMemberIdAndReturnDateIsNull(borrowRequest.memberId());
+
+        // Max Book
 
         // Here first part is redudent check
         if (
-            borrowRecords.size() >= MAX_BOOKS || 
-            ( borrowRecords.size() + borrowRequest.books().size()) > MAX_BOOKS
+            borrowExisitingRecords.size() >= MAX_BOOKS || 
+            ( borrowExisitingRecords.size() + borrowRequest.books().size()) > MAX_BOOKS
         ){
             return new ApiResponse<>(
                 false,
@@ -233,6 +237,7 @@ public class BorrowTransactionService {
                 null
             );
         }
+        
 
 
         // Validate Book
@@ -252,6 +257,24 @@ public class BorrowTransactionService {
                     null
             );
         }
+
+
+
+        // Check if borrower already have that book
+        Set<Long>borrowedBookIds = borrowExisitingRecords.stream().map( item -> item.getBook().getId() ).collect(Collectors.toSet());
+
+        List<Long> duplicateBookIds = bookIds.stream()
+            .filter(borrowedBookIds::contains)
+            .toList();
+        
+        if (!duplicateBookIds.isEmpty()) {
+            return new ApiResponse<>(
+                    false,
+                    "Already borrowed books: " + duplicateBookIds,
+                    null
+            );
+        }
+
 
 
         List<Book> existingBooks = bookRepo.findAllById(bookIds);
@@ -302,9 +325,6 @@ public class BorrowTransactionService {
         }
 
 
-        // Search for Return == null in borrow Reacords and get count ofit 
-
-
         // Borrow the Book
         LocalDateTime borrowDate = LocalDateTime.now();
         // For now later take borrow dates from users
@@ -350,8 +370,5 @@ public class BorrowTransactionService {
         );
 
     }
-
-
-
 
 }
