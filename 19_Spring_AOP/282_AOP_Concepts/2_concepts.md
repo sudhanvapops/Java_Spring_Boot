@@ -1,8 +1,12 @@
 ### Concepts
 
 
-1. The Main Concepts
+1. Aspect
 
+first make it a componet
+
+@Component
+@Aspect
 
 An Aspect is simply:
     A class containing extra work.
@@ -24,6 +28,10 @@ A place where Spring could do something.
 
 "Possible" interception poins
 
+
+public void logMethodCall(JoinPoint jp){
+    LOGGER.info("Method Called: "+jp.getSignature().getName());
+}
 
 3. Pointcut 
 
@@ -59,15 +67,32 @@ Advice is:
 Before:
     Log
 
+
 After:
     Clean cache
 
 After Exception:
     Log Error
 
+After returning:
+    do something
+
+
 Around: (total method start and end)
     Measure Time
 
+@"advicename":after, before
+
+Eg:
+@Before("expression")
+
+// return type, fully classified class name, method name, args
+// * all return type, * all the class name, *(..) all the methods (..) means all arguments
+
+this is point cut
+
+@Before("execution(* *.*(..))")
+    @Before("execution(* com.sudhanva.server2.service.ProductService.*(..))")
 
 
 5. Weaving
