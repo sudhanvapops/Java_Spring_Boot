@@ -109,7 +109,11 @@ Aspect
      ↓
 Real Method
 
-this connection process is called Weaving
+this connection process is called Weaving (done at runtime, u can also in compile time)
+
+
+6. Target Object is the joinpoint's object
+which is going to be wraped up with proxy object
 
 
 ### Putting It Together
