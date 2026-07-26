@@ -12,7 +12,9 @@ public class HelloController {
 
     @GetMapping("/hello")
     public String greet(HttpServletRequest request){
-        return "Hello World Session Id: "+request.getSession().getId();
+        // Give me the current session. If one doesn't exist, create one.
+        // if not used false
+        return "Hello World Session Id: "+request.getSession(false).getId();
     }
 
     @GetMapping("/csrf")
