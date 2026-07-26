@@ -66,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder){
 
-        // Instead of loading users from a database, it loads them from memory (RAM).
+       
 
         // Diffrent type of constructors are available
         // Object of UserDetails Object
@@ -76,7 +76,7 @@ public class SecurityConfig {
         userDetailsList.add(
             User
                 .withUsername("sudhanva")
-                .passwordEncoder(passwordEncoder::encode)
+                // .passwordEncoder(passwordEncoder::encode)
                 .password("123456")
                 .roles("USER")
                 .build()
@@ -90,9 +90,8 @@ public class SecurityConfig {
                 .roles("ADMIN")
                 .build()
         );
-        
-
-
+            
+        // Instead of loading users from a database, it loads them from memory (RAM).
         return new InMemoryUserDetailsManager(userDetailsList);
     }
 
