@@ -14,7 +14,7 @@ public class HelloController {
     public String greet(HttpServletRequest request){
         // Give me the current session. If one doesn't exist, create one.
         // if not used false
-        return "Hello World Session Id: "+request.getSession(false).getId();
+        return "Hello World Session Id: "+request.getSession().getId();
     }
 
     @GetMapping("/csrf")
