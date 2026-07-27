@@ -10,6 +10,11 @@ import jakarta.servlet.http.HttpServletRequest;
 public class HelloController {
     
 
+    @GetMapping("/")
+    public String hello(HttpServletRequest request){
+        return "Hello World Session Id: "+request.getSession().getId();
+    }
+
     @GetMapping("/hello")
     public String greet(HttpServletRequest request){
         // Give me the current session. If one doesn't exist, create one.
