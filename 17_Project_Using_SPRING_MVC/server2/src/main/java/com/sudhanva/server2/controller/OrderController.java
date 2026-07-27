@@ -21,8 +21,11 @@ import com.sudhanva.server2.service.OrderService;
 @CrossOrigin(origins = "http://localhost:5173")
 public class OrderController {
     
-    @Autowired
-    OrderService orderService;
+    final OrderService orderService;
+
+    OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping("/orders")
     public ResponseEntity<List<OrderResponse>> getAllOrders(){

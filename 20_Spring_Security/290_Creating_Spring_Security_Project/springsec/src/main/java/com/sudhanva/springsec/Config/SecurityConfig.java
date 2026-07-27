@@ -68,15 +68,15 @@ public class SecurityConfig {
 
 
     // Password Enocder
-    // @Bean
-    // public PasswordEncoder passwordEncoder() {
-    //     return new BCryptPasswordEncoder();
-    // }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder(12);
     }
+
+    // @Bean
+    // public PasswordEncoder passwordEncoder() {
+    //     return NoOpPasswordEncoder.getInstance();
+    // }
 
 
     // User Details Service: for Loading data of user to spring security from a data source
@@ -117,9 +117,12 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authProvider(){
 
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(
+            // tells how to retrive the Data from database to SecurityContext
+            userDetailsService
+        );
 
-        
+        // Which encoder to use for Veryfing/authenticating user
         provider.setPasswordEncoder(passwordEncoder());
 
         return provider;

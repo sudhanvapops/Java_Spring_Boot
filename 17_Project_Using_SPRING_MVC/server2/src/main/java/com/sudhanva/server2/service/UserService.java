@@ -1,25 +1,27 @@
-package com.sudhanva.springsec.service;
+package com.sudhanva.server2.service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.sudhanva.springsec.model.User;
-import com.sudhanva.springsec.repo.UserRepo;
+import com.sudhanva.server2.Model.User;
+import com.sudhanva.server2.repo.UserRepo;
 
 @Service
 public class UserService {
-
 
     final UserRepo userRepo;
 
     UserService(UserRepo userRepo) {
         this.userRepo = userRepo;
     }
+   
+    public User saveUser(User user) {
+        
+        // validation 
 
-    // Here you have a choice to make a bean in config and return it here wire it
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-    
-    public User saveUser(User user){
+        // save
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
         System.out.println("\nOld Password: "+user.getPassword());
         user.setPassword(encoder.encode(user.getPassword()));
@@ -27,5 +29,5 @@ public class UserService {
 
         return userRepo.save(user);
     }
-
+    
 }
