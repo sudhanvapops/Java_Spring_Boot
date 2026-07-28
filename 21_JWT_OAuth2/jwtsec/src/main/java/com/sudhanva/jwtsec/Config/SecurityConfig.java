@@ -15,6 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.sudhanva.jwtsec.filter.JwtFilter;
 
 
 // This class defines Spring beans.
@@ -26,9 +29,14 @@ public class SecurityConfig {
 
 
     private final UserDetailsService userDetailsService;
+    private final JwtFilter jwtfilter;
 
-    SecurityConfig(UserDetailsService userDetailsService) {
+    SecurityConfig(
+        UserDetailsService userDetailsService,
+        JwtFilter jwtfilter
+    ) {
         this.userDetailsService = userDetailsService;
+        this.jwtfilter = jwtfilter;
     }
 
 
@@ -53,8 +61,8 @@ public class SecurityConfig {
             .httpBasic(Customizer.withDefaults())
             // CSRF is disabled
             .csrf(customizer -> customizer.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-            ;
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtfilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build(); // creates the SecurityFilterChain Object
     }

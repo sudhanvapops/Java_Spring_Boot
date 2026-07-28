@@ -15,7 +15,6 @@ import com.sudhanva.jwtsec.model.User;
 import com.sudhanva.jwtsec.repo.UserRepo;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -27,7 +26,10 @@ public class JwtService {
     private final UserRepo userRepo;
     private final JwtConfig jwtConfig;
 
-    JwtService(UserRepo userRepo,JwtConfig jwtConfig) {
+    JwtService(
+        UserRepo userRepo,
+        JwtConfig jwtConfig
+    ) {
         this.userRepo = userRepo;
         this.jwtConfig = jwtConfig;
     }
