@@ -12,7 +12,6 @@ import com.sudhanva.jwtsec.security.UserPrincipal;
 
 
 
-
 // This calss is for to tell How to get User from DB to DAO
 @Service
 public class MyUserDetailsService implements UserDetailsService {
@@ -35,7 +34,6 @@ public class MyUserDetailsService implements UserDetailsService {
             System.out.println("\nUser not found: 404 "+ username+"\n");
             throw new UsernameNotFoundException("User not found: 404 "+ username+"");
         }
-
 
         return new UserPrincipal(user);
 

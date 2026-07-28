@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.sudhanva.jwtsec.Config.JwtConfig;
@@ -81,6 +82,18 @@ public class JwtService {
             // Build the JWT and convert it into a compact String.
             .compact();
 
+    }
+
+
+    public String extractUsername(String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'extractUsername'");
+    }
+
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'validateToken'");
     }
     
 }
