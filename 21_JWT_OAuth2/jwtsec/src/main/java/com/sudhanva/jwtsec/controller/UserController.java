@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.jwtsec.model.User;
+import com.sudhanva.jwtsec.service.JwtService;
 import com.sudhanva.jwtsec.service.UserService;
 
 
@@ -21,13 +22,16 @@ public class UserController {
     
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final JwtService  jwtService;
 
     UserController(
         UserService userService,
-        AuthenticationManager authenticationManager
+        AuthenticationManager authenticationManager,
+        JwtService jwtService
     ) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     
@@ -57,6 +61,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(authenticated);
         }
 
+        String jwtToken = jwtService.generateToken(user.getUsername());
+        System.out.println("JwtToken: "+jwtToken);
         return ResponseEntity.ok(authenticated);
     }
 
