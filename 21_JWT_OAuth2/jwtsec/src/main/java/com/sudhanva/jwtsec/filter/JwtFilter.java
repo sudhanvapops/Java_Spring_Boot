@@ -6,6 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sudhanva.jwtsec.service.JwtService;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 // to be called for every request
 // accept in the request mapper
 // OncePerRequestFilter is a convenience base class provided by Spring that guarantees your filter executes only once for a single HTTP request.
+@Component
 public class JwtFilter extends OncePerRequestFilter{
 
 

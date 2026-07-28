@@ -24,7 +24,7 @@
 
 
     @Service
-    public class JwtService {
+    public class JwtService{
 
 
         private final UserRepo userRepo;
