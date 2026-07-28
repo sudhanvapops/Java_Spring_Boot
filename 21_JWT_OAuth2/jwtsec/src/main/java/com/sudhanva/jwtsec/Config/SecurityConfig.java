@@ -3,9 +3,11 @@ package com.sudhanva.jwtsec.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -46,7 +48,7 @@ public class SecurityConfig {
             )
             // these how you get authentiated
             // Lets users authenticate with form-based login
-            .formLogin(Customizer.withDefaults())
+            .formLogin(customizer -> customizer.disable())
             // Lets users use http basic authnetication
             .httpBasic(Customizer.withDefaults())
             // CSRF is disabled
@@ -84,5 +86,13 @@ public class SecurityConfig {
 
     }
 
+
+
+    
+    // Expose Authentication Manager Bean/ in modern spring we do this 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration){
+        return configuration.getAuthenticationManager();
+    }
 
 }
