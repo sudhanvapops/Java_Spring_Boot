@@ -11,6 +11,7 @@ import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
+import com.sudhanva.library_management_v2.exceptions.MemberNotFoundException;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
 @Service
@@ -59,25 +60,21 @@ public class MemberService {
                 "Total Members found: " + allMembers.size(),
                 allMembers);
     }
+    
 
     @Transactional(readOnly = true)
     public ApiResponse<MemberResponse> getMemberById(Long id) {
 
-        Member member = memberRepo.findById(id)
-                .orElse(null);
-
-        if (member == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Member Not Found with id: " + id,
-                    null);
-        }
+        Member existingMember = 
+                memberRepo.findById(id)
+                    .orElseThrow(() -> new MemberNotFoundException(id));
 
         return new ApiResponse<>(
                 true,
                 "Member Fetched Successfully",
-                mapToMemberResponse(member));
+                mapToMemberResponse(existingMember));
     }
+
 
     // Add Member
 
