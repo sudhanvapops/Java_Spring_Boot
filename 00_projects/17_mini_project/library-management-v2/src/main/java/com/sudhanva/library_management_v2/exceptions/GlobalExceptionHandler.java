@@ -13,7 +13,7 @@ import com.sudhanva.library_management_v2.enums.ErrorCode;
 // casue other vise it expects a view
 // This catches everything that wasn't handled by the other advice classes.
 @RestControllerAdvice
-public class GlobalEceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> globalHandler(
