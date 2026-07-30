@@ -1,8 +1,17 @@
 ### TODO
 
+
+### Done 
 - Standardize API error handling
 - Add GlobalExceptionHandler
 - Introduce ErrorCode enum
+
+
+### Next
+
+-  Get All Records Borrow Record fix it
+
+
 - Add pagination
 - Add optimistic locking
 

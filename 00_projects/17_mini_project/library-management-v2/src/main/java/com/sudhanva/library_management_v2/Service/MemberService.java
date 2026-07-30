@@ -12,6 +12,9 @@ import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberHasActiveBorrowsException;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberInactiveException;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
 @Service
@@ -81,14 +84,10 @@ public class MemberService {
     @Transactional
     public ApiResponse<MemberResponse> addMember(MemberRequest memberRequest) {
 
-        // TODO: email exception
         Member existingMember = memberRepo.findByEmail(memberRequest.email()).orElse(null);
 
         if (existingMember != null) {
-            return new ApiResponse<>(
-                    false,
-                    "Email already exists: " + memberRequest.email(),
-                    null);
+            throw new MemberEmailAlreadyExistsException(memberRequest.email());
         }
 
         Member member = mapToMember(memberRequest);
@@ -108,17 +107,14 @@ public class MemberService {
         );
 
 
-        // TODO: email exception
         Optional<Member> memberWithEmail = memberRepo.findByEmail(memberRequest.email());
 
         if (memberWithEmail.isPresent() && !memberWithEmail.get().getId().equals(id)) {
-            return new ApiResponse<>(false, "Email already exists for another member", null);
+            throw new MemberEmailAlreadyExistsException(memberRequest.email());
         }
 
-
-        // TODO: Member Inactive
         if (Boolean.FALSE.equals(existingMember.getIsActive())) {
-            return new ApiResponse<>(false, "Member is inactive cannot update", null);
+            throw new MemberInactiveException(id);
         }
 
         existingMember.setAge(memberRequest.age());
@@ -141,10 +137,7 @@ public class MemberService {
         );
 
         if (!member.getIsActive()) {
-            return new ApiResponse<>(
-                    false,
-                    "Member is already inactive.",
-                    null);
+            throw new MemberInactiveException(id);
         }
 
 
@@ -154,10 +147,7 @@ public class MemberService {
                 .anyMatch(record -> record.getReturnDate() == null);
 
         if (hasActiveBorrow) {
-            return new ApiResponse<>(
-                    false,
-                    "Member has borrowed books that are not yet returned.",
-                    null);
+            throw new MemberHasActiveBorrowsException(id);
         }
 
         member.setIsActive(false);
@@ -170,6 +160,7 @@ public class MemberService {
 
 
     // Reactive Member
+    @Transactional
     public ApiResponse<MemberResponse> activateMember(Long id) {
 
         Member existingMember = memberRepo.findById(id).orElseThrow(

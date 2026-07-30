@@ -2,7 +2,6 @@ package com.sudhanva.library_management_v2.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,9 +38,6 @@ public class BorrowRecordController {
 
         ApiResponse<List<BorrowTransactionItemResponse>> response = borrowRecordService.getAllRecords();
 
-        if (response.success() == false){
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
         return ResponseEntity.ok(response);
     }
 
@@ -54,9 +50,6 @@ public class BorrowRecordController {
 
         ApiResponse<List<BorrowTransactionItemResponse>> response = borrowRecordService.getAllMemberRecords(memberId);
 
-        if (response.success() == false){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         return ResponseEntity.ok(response);
     }
 
@@ -67,16 +60,6 @@ public class BorrowRecordController {
 
         ApiResponse<List<BorrowTransactionItemResponse>> response = borrowRecordService.getAllUnreturnedRecords(memberId);
 
-        if (response.success() == false){
-            if(response.message().strip().toLowerCase().contains("member")){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            if(response.message().strip().toLowerCase().contains("borrow")){
-                return ResponseEntity.status(HttpStatus.OK).body(response);
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-        
         return ResponseEntity.ok(response);
 
     }
@@ -107,33 +90,6 @@ public class BorrowRecordController {
 
         ApiResponse<BookReturnResponse> response =
                 borrowRecordService.returnBook(bookReturnRequest);
-
-        if (!response.success()) {
-
-            String message = response.message().toLowerCase();
-
-            if (message.contains("member not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-
-            if (message.contains("inactive")) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-
-            if (message.contains("duplicate")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            if (message.contains("not currently borrowed")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            if (message.contains("no active borrowed books")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
 
         return ResponseEntity.ok(response);
     }

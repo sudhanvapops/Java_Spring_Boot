@@ -15,6 +15,7 @@ import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookInactive
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotFoundException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.InvalidBookCopiesException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.NoBooksFoundException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotAvailableException;
 
 
 // casue other vise it expects a view
@@ -109,6 +110,19 @@ public class BookExceptionHandler {
                 .body(mapToErrorResponseDto(
                         exception,
                         ErrorCode.BOOK_CURRENTLY_BORROWED
+                ));
+    }
+
+    @ExceptionHandler(BookNotAvailableException.class)
+    public ResponseEntity<ErrorResponseDto> handleBookNotAvailable(
+            BookNotAvailableException exception
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.BOOK_NOT_AVAILABLE
                 ));
     }
 

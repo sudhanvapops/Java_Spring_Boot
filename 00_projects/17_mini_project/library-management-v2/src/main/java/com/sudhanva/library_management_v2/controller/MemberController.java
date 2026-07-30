@@ -45,9 +45,6 @@ public class MemberController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MemberResponse>> getMemberById(@PathVariable Long id) {
         ApiResponse<MemberResponse> response = memberService.getMemberById(id);
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -57,10 +54,6 @@ public class MemberController {
             @Valid @RequestBody MemberRequest memberRequest) {
 
         ApiResponse<MemberResponse> response = memberService.addMember(memberRequest);
-
-        if (!response.success()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -73,16 +66,6 @@ public class MemberController {
 
         ApiResponse<MemberResponse> memberResponse = memberService.updateMember(id, memberRequest);
 
-        if (memberResponse.success() == false) {
-            if (memberResponse.message().contains("not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(memberResponse);
-            }
-            if (memberResponse.message().contains("inactive")) {
-                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(memberResponse);
-            }
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(memberResponse);
-        }
-
         return ResponseEntity.status(HttpStatus.OK).body(memberResponse);
     }
 
@@ -91,20 +74,6 @@ public class MemberController {
     public ResponseEntity<ApiResponse<MemberResponse>> deleteMember(
             @PathVariable Long id) {
         ApiResponse<MemberResponse> response = memberService.deleteMember(id);
-        if (!response.success()) {
-
-            if (response.message().contains("not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-
-            if (response.message().contains("borrowed")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
-
-            if (response.message().contains("inactive")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -116,11 +85,6 @@ public class MemberController {
 
         ApiResponse<MemberResponse> response = memberService.activateMember(id);
 
-        if (!response.success()){
-            if(response.message().contains("Not Found")){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

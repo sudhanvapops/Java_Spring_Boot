@@ -22,12 +22,18 @@ import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BookReturnRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BookReturnResponse;
-import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowReturnItemRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowReturnItemResponse;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberInactiveException;
+import com.sudhanva.library_management_v2.exceptions.BorrowExceptions.DuplicateBookRequestException;
+import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoBorrowRecordsFoundException;
+import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoUnreturnedBooksFoundException;
+import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoActiveBorrowedBooksException;
+import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.BookNotBorrowedByMemberException;
 
 
 
@@ -76,11 +82,7 @@ public class BorrowRecordService {
         List<BorrowRecord> response =  borrowRecordRepo.findAll();
 
         if (response.isEmpty()){
-            return new ApiResponse<>(
-                false,
-                "No records found",
-                null
-            );
+            throw new NoBorrowRecordsFoundException();
         }
 
         return new ApiResponse<>(
@@ -96,27 +98,15 @@ public class BorrowRecordService {
     public ApiResponse<List<BorrowTransactionItemResponse>> getAllMemberRecords(Long memberId){
 
         // Validate Member
-        Member existedMember = memberRepo.findById(memberId).orElse(null);
+        memberRepo.findById(memberId)
+            .orElseThrow(() -> new MemberNotFoundException(memberId));
 
 
-        if(existedMember == null){
-            return new ApiResponse<>(
-                false,
-                "Member doesn't exist, "+memberId,
-                null
-            );
-        }
-
-        
         // Reocrd Validation
         List<BorrowRecord> response =  borrowRecordRepo.findByBorrowTransactionMemberId(memberId);
 
         if (response.isEmpty()){
-            return new ApiResponse<>(
-                false,
-                "No records found, Member Id: "+memberId,
-                null
-            );
+            throw new NoBorrowRecordsFoundException(memberId);
         }
 
         return new ApiResponse<>(
@@ -132,26 +122,15 @@ public class BorrowRecordService {
     public ApiResponse<List<BorrowTransactionItemResponse>> getAllUnreturnedRecords(Long memberId){
 
         // validate member id
-        Member existingMember = memberRepo.findById(memberId).orElse(null);
-
-        if (existingMember == null){
-            return new ApiResponse<>(
-                false,
-                "Member Doesn't exist: "+memberId,
-                null
-            );
-        }
+        memberRepo.findById(memberId)
+            .orElseThrow(() -> new MemberNotFoundException(memberId));
 
 
         // Find records
         List<BorrowRecord> borrowRecords = borrowRecordRepo.findByBorrowTransactionMemberIdAndReturnDateIsNull(memberId);
 
         if (borrowRecords.isEmpty()) {
-            return new ApiResponse<>(
-                false,
-                "No Borrow Record Exist, Member Id: "+memberId,
-                null
-            );
+            throw new NoUnreturnedBooksFoundException(memberId);
         }
 
 
@@ -198,23 +177,12 @@ public class BorrowRecordService {
     ){
 
         // Validate Member
-        Member existingMember = memberRepo.findById(bookReturnRequest.memberId()).orElse(null);
-
-        if(existingMember == null){
-            return new ApiResponse<>(
-                false,
-                "Member not found",
-                null
-            );
-        }
+        Member existingMember = memberRepo.findById(bookReturnRequest.memberId())
+            .orElseThrow(() -> new MemberNotFoundException(bookReturnRequest.memberId()));
 
 
         if(!existingMember.getIsActive()){
-            return new ApiResponse<>(
-                false,
-                "Member is inactive",
-                null
-            );
+            throw new MemberInactiveException(bookReturnRequest.memberId());
         }
 
 
@@ -230,11 +198,7 @@ public class BorrowRecordService {
 
         Set<Long> uniqueBookIds = new HashSet<>(returningBookIds);
         if (uniqueBookIds.size() != returningBookIds.size()) {
-            return new ApiResponse<>(
-                false,
-                "Book Duplicate book IDs found in request.",
-                null
-            );
+            throw new DuplicateBookRequestException();
         }
 
 
@@ -243,11 +207,7 @@ public class BorrowRecordService {
 
 
         if (activeBorrowedBooks.isEmpty()){
-            return new ApiResponse<>(
-                false,
-                "Member has no active borrowed books.",
-                null
-            );
+            throw new NoActiveBorrowedBooksException(bookReturnRequest.memberId());
         }
 
 
@@ -271,11 +231,7 @@ public class BorrowRecordService {
         }
         
         if (!notBelongsBookIds.isEmpty()) {
-            return new ApiResponse<>(
-                    false,
-                    "Book Id " + notBelongsBookIds + " is not currently borrowed by this member.",
-                    null
-            );
+            throw new BookNotBorrowedByMemberException(notBelongsBookIds);
         }
 
 

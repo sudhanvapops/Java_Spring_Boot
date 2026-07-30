@@ -38,14 +38,9 @@ public class BorrowTransactionController {
         @PathVariable Long id
     ) {
 
-        ApiResponse<BorrowTransactionResponse> response = 
+        ApiResponse<BorrowTransactionResponse> response =
             borrowTransactionService.getTransactionById(id);
 
-        // handle cases
-        if (response.success() == false){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        
         return ResponseEntity.ok(response);
     }
 
@@ -56,10 +51,6 @@ public class BorrowTransactionController {
     ResponseEntity<ApiResponse<List<BorrowTransactionResponse>>> getAllTransactions(){
 
         ApiResponse<List<BorrowTransactionResponse>> response = borrowTransactionService.getAllTransaction();
-
-        if(response.success()==false){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
 
         return ResponseEntity.ok(response);
     }
@@ -72,16 +63,6 @@ public class BorrowTransactionController {
 
         ApiResponse<List<BorrowTransactionResponse>> response = borrowTransactionService.getAllTransactionByMemeberId(memberId);
 
-        if(response.success()==false){
-            if(response.message().strip().contains("Member")){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            if(response.message().strip().contains("Transaction")){
-                // Here OK beacuse member exists but no record found so empty list Ok
-                return ResponseEntity.status(HttpStatus.OK).body(response);
-            }
-        }
-
         return ResponseEntity.ok(response);
     }
 
@@ -93,36 +74,9 @@ public class BorrowTransactionController {
     
         ApiResponse<BorrowTransactionResponse> response =
                 borrowTransactionService.borrowBook(borrowRequest);
-    
-        if (!response.success()) {
-    
-            String message = response.message().toLowerCase();
-    
-            if (message.contains("member exits") || message.contains("book dosen't exist")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-    
-            if (message.contains("inactive")) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-    
-            if (message.contains("duplicate")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-    
-            if (message.contains("copy not available")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
 
-            if (message.contains("max")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-    
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-    
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    
+
     }
 
     // No Delete

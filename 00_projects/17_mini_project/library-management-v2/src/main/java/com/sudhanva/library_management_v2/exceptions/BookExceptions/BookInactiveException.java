@@ -7,4 +7,8 @@ public class BookInactiveException extends RuntimeException {
         super("Book is Inactive \n");
     }
 
+    public BookInactiveException(Long bookId) {
+        super("Book is inactive, id: " + bookId);
+    }
+
 }

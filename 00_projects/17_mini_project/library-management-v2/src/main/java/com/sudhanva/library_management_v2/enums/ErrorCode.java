@@ -2,25 +2,33 @@ package com.sudhanva.library_management_v2.enums;
 
 public enum ErrorCode {
 
-    // Memebr
+    // Member
     MEMBER_NOT_FOUND,
     MEMBER_INACTIVE,
+    MEMBER_EMAIL_ALREADY_EXISTS,
+    MEMBER_HAS_ACTIVE_BORROWS,
 
-     // Book
+    // Book
     BOOK_NOT_FOUND,
     BOOK_INACTIVE,
     BOOK_NOT_AVAILABLE,
     BOOK_ALREADY_EXISTS,
     INVALID_BOOK_COPIES,
-    
-
-    // Borrow
-    MAX_BOOK_LIMIT_EXCEEDED,
-    DUPLICATE_BOOK_REQUEST,
     BOOK_CURRENTLY_BORROWED,
 
-    // Return
+    // Borrow Transaction
+    BORROW_TRANSACTION_NOT_FOUND,
+    NO_BORROW_TRANSACTIONS_FOUND,
+    MAX_BOOK_LIMIT_EXCEEDED,
+    DUPLICATE_BOOK_REQUEST,
+    BOOK_ALREADY_BORROWED_BY_MEMBER,
+
+    // Borrow Record / Return
     BORROW_RECORD_NOT_FOUND,
+    NO_BORROW_RECORDS_FOUND,
+    NO_UNRETURNED_BOOKS_FOUND,
+    NO_ACTIVE_BORROWED_BOOKS,
+    BOOK_NOT_BORROWED_BY_MEMBER,
 
     // Generic
     VALIDATION_FAILED,

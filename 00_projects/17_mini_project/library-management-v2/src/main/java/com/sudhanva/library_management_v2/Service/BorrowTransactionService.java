@@ -25,6 +25,16 @@ import com.sudhanva.library_management_v2.repo.BookRepo;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.BorrowTransactionRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberInactiveException;
+import com.sudhanva.library_management_v2.exceptions.BorrowTransactionExceptions.BorrowTransactionNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.BorrowTransactionExceptions.NoBorrowTransactionsFoundException;
+import com.sudhanva.library_management_v2.exceptions.BorrowTransactionExceptions.MaxBookLimitExceededException;
+import com.sudhanva.library_management_v2.exceptions.BorrowTransactionExceptions.BookAlreadyBorrowedByMemberException;
+import com.sudhanva.library_management_v2.exceptions.BorrowExceptions.DuplicateBookRequestException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookInactiveException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotAvailableException;
 
 
 
@@ -97,18 +107,11 @@ public class BorrowTransactionService {
     @Transactional(readOnly = true)
     public ApiResponse<BorrowTransactionResponse> getTransactionById(Long id) {
 
-        BorrowTransaction borrowTransaction =  
-            borrowTransactionRepo.findById(id).orElse(null);
+        BorrowTransaction borrowTransaction =
+            borrowTransactionRepo.findById(id)
+                .orElseThrow(() -> new BorrowTransactionNotFoundException(id));
 
-        if (borrowTransaction == null){
-            return new ApiResponse<>(
-                false,
-                "No transaction found with id: "+id,
-                null
-            );
-        }
-
-        BorrowTransactionResponse response = 
+        BorrowTransactionResponse response =
             mapToBorrowTransactionResponse(borrowTransaction);
 
         return new ApiResponse<>(
@@ -128,11 +131,7 @@ public class BorrowTransactionService {
         List<BorrowTransaction> borrowTransactionsList =  borrowTransactionRepo.findAll();
 
         if(borrowTransactionsList.isEmpty()){
-            return new ApiResponse<>(
-                false,
-                "No transaction found",
-                null
-            );
+            throw new NoBorrowTransactionsFoundException();
         }
 
         List<BorrowTransactionResponse> responses;
@@ -154,24 +153,13 @@ public class BorrowTransactionService {
     @Transactional(readOnly = true)
     public ApiResponse<List<BorrowTransactionResponse>> getAllTransactionByMemeberId(Long memberId){
 
-        Member existingMember = memberRepo.findById(memberId).orElse(null);
-
-        if (existingMember == null){
-            return new ApiResponse<>(
-                false,
-                "No Member found",
-                null
-            );
-        }
+        Member existingMember = memberRepo.findById(memberId)
+            .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         List<BorrowTransaction> borrowTransactionsList =  borrowTransactionRepo.findByMemberId(memberId);
 
         if(borrowTransactionsList.isEmpty()){
-            return new ApiResponse<>(
-                false,
-                "No Transaction found",
-                null
-            );
+            throw new NoBorrowTransactionsFoundException(memberId);
         }
 
         List<BorrowTransactionResponse> responses;
@@ -193,30 +181,17 @@ public class BorrowTransactionService {
     @Transactional
     public ApiResponse<BorrowTransactionResponse> borrowBook(BorrowTransactionRequest borrowRequest) {
 
-        Member existingMember = memberRepo.findById(borrowRequest.memberId()).orElse(null);
+        Member existingMember = memberRepo.findById(borrowRequest.memberId())
+            .orElseThrow(() -> new MemberNotFoundException(borrowRequest.memberId()));
 
         // Validate Member
 
-        if (existingMember == null) {
-            return new ApiResponse<>(
-                false,
-                "No Member Exits" + borrowRequest.memberId(),
-                null
-            );
-        }
-
         if (existingMember.getIsActive() == false){
-            return new ApiResponse<>(
-                false,
-                "Member is inactive" +
-                borrowRequest.memberId() + 
-                " Name: "+existingMember.getName(),
-                null
-            );
+            throw new MemberInactiveException(borrowRequest.memberId());
         }
 
 
-        
+
 
         // Dont use this approch
         // Getting broowTransactions and .getBorrwRecord()
@@ -228,16 +203,12 @@ public class BorrowTransactionService {
 
         // Here first part is redudent check
         if (
-            borrowExisitingRecords.size() >= MAX_BOOKS || 
+            borrowExisitingRecords.size() >= MAX_BOOKS ||
             ( borrowExisitingRecords.size() + borrowRequest.books().size()) > MAX_BOOKS
         ){
-            return new ApiResponse<>(
-                false,
-                "Max Borrowing Books Exceeds",
-                null
-            );
+            throw new MaxBookLimitExceededException(MAX_BOOKS);
         }
-        
+
 
 
         // Validate Book
@@ -251,11 +222,7 @@ public class BorrowTransactionService {
         Set<Long> uniqueBookIds = new HashSet<>(bookIds);
 
         if (uniqueBookIds.size() != bookIds.size()) {
-            return new ApiResponse<>(
-                false,
-                "Book Duplicate book IDs found in request.",
-                null
-            );
+            throw new DuplicateBookRequestException();
         }
 
 
@@ -266,37 +233,29 @@ public class BorrowTransactionService {
         List<Long> duplicateBookIds = bookIds.stream()
             .filter(borrowedBookIds::contains)
             .toList();
-        
+
         if (!duplicateBookIds.isEmpty()) {
-            return new ApiResponse<>(
-                    false,
-                    "Already borrowed books: " + duplicateBookIds,
-                    null
-            );
+            throw new BookAlreadyBorrowedByMemberException(duplicateBookIds);
         }
 
 
 
         List<Book> existingBooks = bookRepo.findAllById(bookIds);
-        
+
         // Check if any book not present
         if(existingBooks.size() != bookIds.size()){
 
             Set<Long> foundIds = existingBooks.stream()
                 .map(book -> book.getId())
                 .collect(Collectors.toSet());
-            
+
             Long missingBookId = bookIds.stream()
                 .filter(id -> !foundIds.contains(id))
                 .findFirst()
                 .orElse(null);
-            
-            return new ApiResponse<>(
-                false,
-                "Book dosen't exist Id: " + missingBookId + "\n",
-                null
-            );
-            
+
+            throw BookNotFoundException.byId(missingBookId);
+
         }
 
 
@@ -304,22 +263,12 @@ public class BorrowTransactionService {
 
             // Check for inActive
             if (book.getIsActive() == false){
-                return new ApiResponse<>(
-                    false,
-                    "Book is inactive" +
-                    " Name: "+book.getName(),
-                    null
-                );
+                throw new BookInactiveException(book.getId());
             }
 
             // Check for total copy
             if(book.getAvailableCopy() <= 0){
-                return new ApiResponse<>(
-                    false,
-                    "Copy not available" +
-                    " Name: "+book.getName(),
-                    null
-                );
+                throw new BookNotAvailableException(book.getId());
             }
 
         }
