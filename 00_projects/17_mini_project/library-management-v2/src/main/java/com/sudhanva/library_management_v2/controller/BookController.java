@@ -37,33 +37,28 @@ public class BookController {
     // Get Book By Id
     @GetMapping("/id/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> getBookById(
-            @PathVariable Long id) {
+            @PathVariable Long id
+        ) {
         ApiResponse<BookResponse> response = bookService.getBookById(id);
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
 
     // Get Book By Name
     @GetMapping("/name")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByName(
-            @RequestParam String name) {
+        @RequestParam String name
+    ) {
         ApiResponse<List<BookResponse>> response = bookService.getBookByBookName(name);
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Get Book By Author
     @GetMapping("/author")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByAuthor(
-            @RequestParam String author) {
+        @RequestParam String author
+    ) {
         ApiResponse<List<BookResponse>> response = bookService.getBookByAuthor(author);
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -71,74 +66,39 @@ public class BookController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<BookResponse>>> getAllBooks() {
         ApiResponse<List<BookResponse>> response = bookService.getAllBooks();
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Add Book
     @PostMapping
     public ResponseEntity<ApiResponse<BookResponse>> addBook(
-            @Valid @RequestBody BookRequest bookRequest) {
+        @Valid @RequestBody BookRequest bookRequest
+    ) {
 
         ApiResponse<BookResponse> response = bookService.addBook(bookRequest);
-
-        // Duplicate Book
-        if (response.success() == false) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     // Update Book
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> updateBookById(
-            @PathVariable Long id,
-            @Valid @RequestBody BookRequest bookRequest) {
+        @PathVariable Long id,
+        @Valid @RequestBody BookRequest bookRequest
+    ) {
 
         ApiResponse<BookResponse> response = bookService.updateBookById(id, bookRequest);
-
-        if (response.success() == false) {
-            if (response.message().contains("doesnt exist")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            if (response.message().contains("less than")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-            if (response.message().contains("inactive")) {
-                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(response);
-            }
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
-
         return ResponseEntity.ok(response);
     }
 
-    // Delete Book
+
     // Delete Book
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> deleteBook(
-            @PathVariable Long id) {
-
+        @PathVariable Long id
+    ) {
         ApiResponse<BookResponse> response = bookService.deleteBook(id);
-
-        if (!response.success()) {
-
-            if (response.message().contains("not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-
-            if (response.message().contains("borrowed")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
-
-            if (response.message().contains("inactive")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
-        }
-
         return ResponseEntity.ok(response);
     }
 
@@ -146,16 +106,10 @@ public class BookController {
     // Reactivate Book
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ApiResponse<BookResponse>> activateBook(
-            @PathVariable Long id) {
+        @PathVariable Long id
+    ) {
 
         ApiResponse<BookResponse> response = bookService.activateBook(id);
-
-        if (!response.success()) {
-            if (response.message().contains("Not Found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-        }
-
         return ResponseEntity.ok(response);
     }
 

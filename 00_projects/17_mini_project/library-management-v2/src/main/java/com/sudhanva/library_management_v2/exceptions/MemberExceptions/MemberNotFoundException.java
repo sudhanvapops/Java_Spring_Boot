@@ -1,4 +1,4 @@
-package com.sudhanva.library_management_v2.exceptions;
+package com.sudhanva.library_management_v2.exceptions.MemberExceptions;
 
 
 public class MemberNotFoundException extends RuntimeException{

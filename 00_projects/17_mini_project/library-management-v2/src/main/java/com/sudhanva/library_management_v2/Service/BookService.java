@@ -9,6 +9,13 @@ import com.sudhanva.library_management_v2.Model.Book;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookResponse;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookAlreadyActiveException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookAlreadyExistsException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookCurrentlyBorrowedException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookInactiveException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.InvalidBookCopiesException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.NoBooksFoundException;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 
 @Service
@@ -31,10 +38,8 @@ public class BookService {
     private Book mapToBook(BookRequest bookRequest) {
 
         return Book.builder()
-                .name(
-                        normalizeString(bookRequest.name()))
-                .author(
-                        normalizeString(bookRequest.author()))
+                .name(normalizeString(bookRequest.name()))
+                .author(normalizeString(bookRequest.author()))
                 .availableCopy(bookRequest.availableCopies())
                 .totalCopies(bookRequest.totalCopies())
                 .isActive(bookRequest.isActive())
@@ -62,10 +67,7 @@ public class BookService {
         List<Book> books = bookRepo.findAll();
 
         if (books.isEmpty()) {
-            return new ApiResponse<>(
-                    false,
-                    "Book doesnt exsit",
-                    null);
+            throw new NoBooksFoundException();
         }
 
         List<BookResponse> bookResponse = books
@@ -84,14 +86,9 @@ public class BookService {
     @Transactional(readOnly = true)
     public ApiResponse<BookResponse> getBookById(Long id) {
 
-        Book book = bookRepo.findById(id).orElse(null);
-
-        if (book == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Book doesnt exsit",
-                    null);
-        }
+        Book book = bookRepo.findById(id).orElseThrow(
+                () -> BookNotFoundException.byId(id)
+        );
 
         return new ApiResponse<>(
                 true,
@@ -103,13 +100,11 @@ public class BookService {
     // Find book by Book Author
     @Transactional(readOnly = true)
     public ApiResponse<List<BookResponse>> getBookByAuthor(String author) {
+
         List<Book> books = bookRepo.findByAuthor(normalizeString(author));
 
         if (books.isEmpty()) {
-            return new ApiResponse<>(
-                    false,
-                    "No Book exsits",
-                    null);
+            throw BookNotFoundException.byAuthor(author);
         }
 
         List<BookResponse> bookResponse = books
@@ -129,10 +124,7 @@ public class BookService {
         List<Book> books = bookRepo.findByName(normalizeString(name));
 
         if (books.isEmpty()) {
-            return new ApiResponse<>(
-                    false,
-                    "No Book exsits",
-                    null);
+            throw BookNotFoundException.byTitle(name);
         }
 
         List<BookResponse> bookResponse = books
@@ -152,20 +144,21 @@ public class BookService {
 
         Book existingBook = bookRepo.findByNameAndAuthor(
                 normalizeString(bookRequest.name()),
-                normalizeString(bookRequest.author())).orElse(null);
+                normalizeString(bookRequest.author())
+            ).orElse(null);
+
 
         if (existingBook != null) {
-            return new ApiResponse<>(
-                    false,
-                    "Book Already Exist",
-                    mapToBookResponse(existingBook));
+            throw new BookAlreadyExistsException(
+                bookRequest.name(), bookRequest.author()
+            );
         }
 
         if (bookRequest.availableCopies() > bookRequest.totalCopies()) {
-            return new ApiResponse<>(
-                    false,
-                    "Total Copies should not be less than available copies",
-                    null);
+           throw new InvalidBookCopiesException(
+                bookRequest.availableCopies(),
+                bookRequest.totalCopies()
+           );
         }
 
         Book book = mapToBook(bookRequest);
@@ -176,33 +169,23 @@ public class BookService {
                 mapToBookResponse(bookRepo.save(book)));
     }
 
+
     // Update Book
     @Transactional
     public ApiResponse<BookResponse> updateBookById(
             Long id, BookRequest bookRequest) {
 
         // Find old copy
+        Book existingBook = bookRepo.findById(id).orElseThrow(
+            () -> BookNotFoundException.byId(id)
+        );
 
-        Book existingBook = bookRepo.findById(id).orElse(null);
-
-        if (existingBook == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Book doesnt exist: " + id,
-                    null);
-        }
 
         if (bookRequest.totalCopies() < bookRequest.availableCopies()) {
-            return new ApiResponse<>(
-                    false,
-                    "Total Copies cannot be less than Available Copies",
-                    BookResponse.builder()
-                            .id(id)
-                            .name(bookRequest.name())
-                            .author(bookRequest.author())
-                            .availableCopies(bookRequest.availableCopies())
-                            .totalCopies(bookRequest.totalCopies())
-                            .build());
+            throw new InvalidBookCopiesException(
+                bookRequest.availableCopies(),
+                bookRequest.totalCopies()
+           );
         }
 
         // Check New Name and Author book is unique
@@ -210,20 +193,24 @@ public class BookService {
                 normalizeString(bookRequest.name()),
                 normalizeString(bookRequest.author())).orElse(null);
 
+
         if (anotherBook != null && !anotherBook.getId().equals(id)) {
-            return new ApiResponse<>(
-                    false,
-                    "Another book with same name and author exists",
-                    mapToBookResponse(anotherBook));
+            throw new BookAlreadyExistsException(
+                bookRequest.name(),
+                bookRequest.author()
+            );
         }
 
+
         if (Boolean.FALSE.equals(existingBook.getIsActive())) {
-            return new ApiResponse<>(false, "Book is inactive cannot update", null);
+            throw new BookInactiveException();
         }
 
         existingBook.setName(normalizeString(bookRequest.name()));
         existingBook.setAuthor(normalizeString(bookRequest.author()));
-
+        
+        // TODO: Error can happen In setting Available Copies
+        // Derive it 
         existingBook.setAvailableCopy(bookRequest.availableCopies());
         existingBook.setTotalCopies(bookRequest.totalCopies());
 
@@ -235,24 +222,18 @@ public class BookService {
                 mapToBookResponse(updatedbook));
     }
 
+
     // Book Delete
     @Transactional
     public ApiResponse<BookResponse> deleteBook(Long id) {
 
-        Book book = bookRepo.findById(id).orElse(null);
+        Book book = bookRepo.findById(id).orElseThrow(
+            () -> BookNotFoundException.byId(id)
+        );
 
-        if (book == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Book not found with id: " + id,
-                    null);
-        }
 
         if (!book.getIsActive()) {
-            return new ApiResponse<>(
-                    false,
-                    "Book is already inactive.",
-                    null);
+            throw new BookInactiveException();
         }
 
         boolean isCurrentlyBorrowed = book.getBorrowRecords()
@@ -260,10 +241,7 @@ public class BookService {
                 .anyMatch(record -> record.getReturnDate() == null);
 
         if (isCurrentlyBorrowed) {
-            return new ApiResponse<>(
-                    false,
-                    "Book is currently borrowed and cannot be deactivated.",
-                    null);
+            throw new BookCurrentlyBorrowedException();
         }
 
         book.setIsActive(false);
@@ -274,21 +252,20 @@ public class BookService {
                 mapToBookResponse(book));
     }
 
+
     // Activate Book
     @Transactional
     public ApiResponse<BookResponse> activateBook(Long id) {
 
-        Book existingBook = bookRepo.findById(id).orElse(null);
+        Book existingBook = bookRepo.findById(id).orElseThrow(
+            () -> BookNotFoundException.byId(id)
+        );
 
-        if (existingBook == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Book Not Found: " + id,
-                    null);
-        }
 
         // If already active, no need to validate further
-
+        if(existingBook.getIsActive()){
+            throw new BookAlreadyActiveException(id);
+        }
         existingBook.setIsActive(true);
 
         Book book = bookRepo.save(existingBook);

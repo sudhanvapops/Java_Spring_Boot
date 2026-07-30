@@ -11,7 +11,7 @@ import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
-import com.sudhanva.library_management_v2.exceptions.MemberNotFoundException;
+import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
 @Service
@@ -81,6 +81,7 @@ public class MemberService {
     @Transactional
     public ApiResponse<MemberResponse> addMember(MemberRequest memberRequest) {
 
+        // TODO: email exception
         Member existingMember = memberRepo.findByEmail(memberRequest.email()).orElse(null);
 
         if (existingMember != null) {
@@ -102,18 +103,20 @@ public class MemberService {
     @Transactional
     public ApiResponse<MemberResponse> updateMember(Long id, MemberRequest memberRequest) {
 
-        Member existingMember = memberRepo.findById(id).orElse(null);
+        Member existingMember = memberRepo.findById(id).orElseThrow(
+            () -> new MemberNotFoundException(id)
+        );
 
-        if (existingMember == null) {
-            return new ApiResponse<>(false, "Member not found with id: " + id, null);
-        }
 
+        // TODO: email exception
         Optional<Member> memberWithEmail = memberRepo.findByEmail(memberRequest.email());
 
         if (memberWithEmail.isPresent() && !memberWithEmail.get().getId().equals(id)) {
             return new ApiResponse<>(false, "Email already exists for another member", null);
         }
 
+
+        // TODO: Member Inactive
         if (Boolean.FALSE.equals(existingMember.getIsActive())) {
             return new ApiResponse<>(false, "Member is inactive cannot update", null);
         }
@@ -128,18 +131,14 @@ public class MemberService {
                 mapToMemberResponse(memberRepo.save(existingMember)));
     }
 
+
     // Delete Member
     @Transactional
     public ApiResponse<MemberResponse> deleteMember(Long id) {
 
-        Member member = memberRepo.findById(id).orElse(null);
-
-        if (member == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Member Not Found: " + id,
-                    null);
-        }
+        Member member = memberRepo.findById(id).orElseThrow(
+            () -> new MemberNotFoundException(id)
+        );
 
         if (!member.getIsActive()) {
             return new ApiResponse<>(
@@ -147,6 +146,7 @@ public class MemberService {
                     "Member is already inactive.",
                     null);
         }
+
 
         boolean hasActiveBorrow = member.getBorrowTransactions()
                 .stream()
@@ -168,21 +168,17 @@ public class MemberService {
                 mapToMemberResponse(member));
     }
 
+
     // Reactive Member
     public ApiResponse<MemberResponse> activateMember(Long id) {
 
-        Member existingMember = memberRepo.findById(id).orElse(null);
+        Member existingMember = memberRepo.findById(id).orElseThrow(
+            () -> new MemberNotFoundException(id)
+        );
 
-        if (existingMember == null) {
-            return new ApiResponse<>(
-                    false,
-                    "Member Not Found: " + id,
-                    null);
-        }
 
         // If already active sedning another active request doesnt matter so skip
         // validation for that
-
         existingMember.setIsActive(true);
 
         Member member = memberRepo.save(existingMember);
