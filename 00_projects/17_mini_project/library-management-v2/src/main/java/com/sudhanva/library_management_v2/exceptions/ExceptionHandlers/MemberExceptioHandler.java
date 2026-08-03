@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
-import com.sudhanva.library_management_v2.enums.ErrorCode;
+import com.sudhanva.library_management_v2.enums.Error.ErrorCode;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberInactiveException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;

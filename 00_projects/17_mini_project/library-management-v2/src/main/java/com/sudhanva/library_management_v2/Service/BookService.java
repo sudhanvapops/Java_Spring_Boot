@@ -91,9 +91,10 @@ public class BookService {
         );
 
         return new ApiResponse<>(
-                true,
-                "Book Found: " + id,
-                mapToBookResponse(book));
+            true,
+            "Book Found: " + id,
+            mapToBookResponse(book)
+        );
 
     }
 

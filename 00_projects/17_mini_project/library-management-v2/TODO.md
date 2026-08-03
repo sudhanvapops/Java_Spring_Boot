@@ -28,3 +28,8 @@
 - Add Role Based and Autheriztion
 
 - Make Frontend For it
+
+
+- Add Spring Cache for not changing data 
+like Settings and all
+

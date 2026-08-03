@@ -19,13 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookResponse;
+import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.Service.BookService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Controller
 @RestController
 @RequestMapping("/api/book")
+@Tag(name = "Books", description = "Endpoints for managing the book catalog")
 public class BookController {
 
     private final BookService bookService;
@@ -35,9 +42,14 @@ public class BookController {
     }
 
     // Get Book By Id
+    @Operation(summary = "Get a book by id")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Book found",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given id",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping("/id/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> getBookById(
-            @PathVariable Long id
+            @Parameter(description = "Book id") @PathVariable Long id
         ) {
         ApiResponse<BookResponse> response = bookService.getBookById(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -45,24 +57,39 @@ public class BookController {
 
 
     // Get Book By Name
+    @Operation(summary = "Get books by name")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Matching books found",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given name",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping("/name")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByName(
-        @RequestParam String name
+        @Parameter(description = "Book name to search for") @RequestParam String name
     ) {
         ApiResponse<List<BookResponse>> response = bookService.getBookByBookName(name);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Get Book By Author
+    @Operation(summary = "Get books by author")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Matching books found",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given author",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping("/author")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByAuthor(
-        @RequestParam String author
+        @Parameter(description = "Author name to search for") @RequestParam String author
     ) {
         ApiResponse<List<BookResponse>> response = bookService.getBookByAuthor(author);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // Get All Book
+    @Operation(summary = "Get all books")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Books found",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No books exist in the library",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping
     public ResponseEntity<ApiResponse<List<BookResponse>>> getAllBooks() {
         ApiResponse<List<BookResponse>> response = bookService.getAllBooks();
@@ -70,6 +97,12 @@ public class BookController {
     }
 
     // Add Book
+    @Operation(summary = "Add a new book")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Book created",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Request failed validation, or available copies exceed total copies")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "A book with the same name and author already exists",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @PostMapping
     public ResponseEntity<ApiResponse<BookResponse>> addBook(
         @Valid @RequestBody BookRequest bookRequest
@@ -82,9 +115,17 @@ public class BookController {
 
 
     // Update Book
+    @Operation(summary = "Update an existing book")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Book updated",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Request failed validation, or available copies exceed total copies")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given id",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Book is inactive, or another book already has the same name and author",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> updateBookById(
-        @PathVariable Long id,
+        @Parameter(description = "Book id") @PathVariable Long id,
         @Valid @RequestBody BookRequest bookRequest
     ) {
 
@@ -94,19 +135,33 @@ public class BookController {
 
 
     // Delete Book
+    @Operation(summary = "Deactivate a book", description = "Soft-deletes a book by marking it inactive; it is not removed from the database")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Book deactivated",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given id",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Book is already inactive, or currently borrowed",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> deleteBook(
-        @PathVariable Long id
+        @Parameter(description = "Book id") @PathVariable Long id
     ) {
         ApiResponse<BookResponse> response = bookService.deleteBook(id);
         return ResponseEntity.ok(response);
     }
 
-    
+
     // Reactivate Book
+    @Operation(summary = "Reactivate a previously deactivated book")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Book reactivated",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given id",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Book is already active "
+        + "(currently returns a generic server error - no dedicated handler wired up for this case yet)")
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ApiResponse<BookResponse>> activateBook(
-        @PathVariable Long id
+        @Parameter(description = "Book id") @PathVariable Long id
     ) {
 
         ApiResponse<BookResponse> response = bookService.activateBook(id);

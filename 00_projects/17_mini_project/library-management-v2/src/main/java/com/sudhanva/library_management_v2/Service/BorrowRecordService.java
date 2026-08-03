@@ -25,6 +25,7 @@ import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BookReturnRespo
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowReturnItemResponse;
+import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
@@ -34,6 +35,7 @@ import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoBo
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoUnreturnedBooksFoundException;
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoActiveBorrowedBooksException;
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.BookNotBorrowedByMemberException;
+import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.InvalidReturnDateException;
 
 
 
@@ -44,16 +46,17 @@ public class BorrowRecordService {
     private final BookRepo bookRepo;
     final private BorrowRecordRepo borrowRecordRepo;
     final private MemberRepo memberRepo;
-
-    final private int FINE = 10;
+    final private LibrarySettingsService librarySettingsService;
 
     public BorrowRecordService(
         BorrowRecordRepo borrowRecordRepo,
-        MemberRepo memberRepo, BookRepo bookRepo
+        MemberRepo memberRepo, BookRepo bookRepo,
+        LibrarySettingsService librarySettingsService
     ){
         this.borrowRecordRepo = borrowRecordRepo;
         this.memberRepo = memberRepo;
         this.bookRepo = bookRepo;
+        this.librarySettingsService = librarySettingsService;
     }
 
     
@@ -240,8 +243,16 @@ public class BorrowRecordService {
         List<BorrowReturnItemResponse> returnedBooks = new ArrayList<>();
 
         BigDecimal totalFine = BigDecimal.ZERO;
-        LocalDateTime returnDate = LocalDateTime.now();
-        
+        LocalDateTime returnDate = bookReturnRequest.returnDate() != null
+            ? bookReturnRequest.returnDate()
+            : LocalDateTime.now();
+
+        if (returnDate.isAfter(LocalDateTime.now())) {
+            throw new InvalidReturnDateException(returnDate);
+        }
+
+        BigDecimal finePerDay = librarySettingsService.getDecimalSetting(SettingKey.FINE_PER_DAY);
+
         for (Long bookId : returningBookIds) {
 
             BorrowRecord record = borrowedBookMap.get(bookId);
@@ -259,7 +270,7 @@ public class BorrowRecordService {
                 )
             );
 
-            BigDecimal fine = BigDecimal.valueOf(daysLate * FINE);
+            BigDecimal fine = finePerDay.multiply(BigDecimal.valueOf(daysLate));
 
             record.setFine(fine);
 

@@ -21,6 +21,7 @@ import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
+import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 import com.sudhanva.library_management_v2.repo.BorrowRecordRepo;
 import com.sudhanva.library_management_v2.repo.BorrowTransactionRepo;
@@ -45,20 +46,20 @@ public class BorrowTransactionService {
     final private MemberRepo memberRepo;
     final private BookRepo bookRepo;
     final private BorrowRecordRepo borrowRecordRepo;
-    
-    final private static int MAX_BOOKS = 5;
-    final private static int PLUS_DATE = 5;
+    final private LibrarySettingsService librarySettingsService;
 
     BorrowTransactionService(
         BorrowTransactionRepo bTRepo,
         MemberRepo memberRepo,
         BookRepo bookRepo,
-        BorrowRecordRepo borrowRecordRepo
+        BorrowRecordRepo borrowRecordRepo,
+        LibrarySettingsService librarySettingsService
     ) {
         this.borrowTransactionRepo = bTRepo;
         this.memberRepo = memberRepo;
         this.bookRepo = bookRepo;
         this.borrowRecordRepo = borrowRecordRepo;
+        this.librarySettingsService = librarySettingsService;
     }
 
 
@@ -191,8 +192,6 @@ public class BorrowTransactionService {
         }
 
 
-
-
         // Dont use this approch
         // Getting broowTransactions and .getBorrwRecord()
         // Performance low
@@ -200,13 +199,14 @@ public class BorrowTransactionService {
         List<BorrowRecord> borrowExisitingRecords = borrowRecordRepo.findByBorrowTransactionMemberIdAndReturnDateIsNull(borrowRequest.memberId());
 
         // Max Book
+        int maxBooks = librarySettingsService.getIntSetting(SettingKey.MAX_BOOKS);
 
         // Here first part is redudent check
         if (
-            borrowExisitingRecords.size() >= MAX_BOOKS ||
-            ( borrowExisitingRecords.size() + borrowRequest.books().size()) > MAX_BOOKS
+            borrowExisitingRecords.size() >= maxBooks ||
+            ( borrowExisitingRecords.size() + borrowRequest.books().size()) > maxBooks
         ){
-            throw new MaxBookLimitExceededException(MAX_BOOKS);
+            throw new MaxBookLimitExceededException(maxBooks);
         }
 
 
@@ -277,7 +277,8 @@ public class BorrowTransactionService {
         // Borrow the Book
         LocalDateTime borrowDate = LocalDateTime.now();
         // For now later take borrow dates from users
-        LocalDateTime dueDate = borrowDate.plusDays(PLUS_DATE);
+        int maxBorrowDays = librarySettingsService.getIntSetting(SettingKey.MAX_BORROW_DAYS);
+        LocalDateTime dueDate = borrowDate.plusDays(maxBorrowDays);
 
 
         // Create Borrow Records

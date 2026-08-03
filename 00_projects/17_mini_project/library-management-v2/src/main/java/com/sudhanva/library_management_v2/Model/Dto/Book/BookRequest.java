@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Builder.Default;
 
 
 @Builder
@@ -27,5 +26,11 @@ public record BookRequest(
     Boolean isActive
 
 ) {
+
+    public BookRequest {
+        if (isActive == null) {
+            isActive = true;
+        }
+    }
     
 }

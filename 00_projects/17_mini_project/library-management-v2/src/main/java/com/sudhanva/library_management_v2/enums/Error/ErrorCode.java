@@ -1,4 +1,4 @@
-package com.sudhanva.library_management_v2.enums;
+package com.sudhanva.library_management_v2.enums.Error;
 
 public enum ErrorCode {
 
@@ -29,6 +29,13 @@ public enum ErrorCode {
     NO_UNRETURNED_BOOKS_FOUND,
     NO_ACTIVE_BORROWED_BOOKS,
     BOOK_NOT_BORROWED_BY_MEMBER,
+    INVALID_RETURN_DATE,
+
+    // Library Settings
+    NO_LIBRARY_SETTINGS_AVAILABLE,
+    SETTING_NOT_FOUND,
+    INVALID_SETTING_VALUE,
+    SETTING_ALREADY_EXISTS,
 
     // Generic
     VALIDATION_FAILED,

@@ -1,8 +1,12 @@
 package com.sudhanva.library_management_v2.config;
 
 import com.sudhanva.library_management_v2.Model.Book;
+import com.sudhanva.library_management_v2.Model.LibrarySettings;
 import com.sudhanva.library_management_v2.Model.Member;
+import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
+import com.sudhanva.library_management_v2.enums.Setting.SettingValueType;
 import com.sudhanva.library_management_v2.repo.BookRepo;
+import com.sudhanva.library_management_v2.repo.LibrarySettingsRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +49,37 @@ public class DataSeeder {
 
                 memberRepo.saveAll(members);
                 System.out.println("Dummy members inserted successfully!");
+            }
+        };
+    }
+
+    @Bean
+    CommandLineRunner seedLibrarySettings(LibrarySettingsRepo librarySettingsRepo) {
+        return args -> {
+            if (librarySettingsRepo.count() == 0) {
+                List<LibrarySettings> settings = List.of(
+                        LibrarySettings.builder()
+                                .settingKey(SettingKey.MAX_BOOKS)
+                                .settingValue("5")
+                                .valueType(SettingValueType.INTEGER)
+                                .description("Maximum number of books a member can borrow at once")
+                                .build(),
+                        LibrarySettings.builder()
+                                .settingKey(SettingKey.MAX_BORROW_DAYS)
+                                .settingValue("5")
+                                .valueType(SettingValueType.INTEGER)
+                                .description("Number of days a book can be borrowed for before it is due")
+                                .build(),
+                        LibrarySettings.builder()
+                                .settingKey(SettingKey.FINE_PER_DAY)
+                                .settingValue("10")
+                                .valueType(SettingValueType.DECIMAL)
+                                .description("Fine charged per day for overdue books")
+                                .build()
+                );
+
+                librarySettingsRepo.saveAll(settings);
+                System.out.println("Dummy library settings inserted successfully!");
             }
         };
     }

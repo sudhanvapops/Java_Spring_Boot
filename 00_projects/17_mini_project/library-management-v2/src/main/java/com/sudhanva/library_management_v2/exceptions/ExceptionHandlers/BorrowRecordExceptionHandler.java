@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
-import com.sudhanva.library_management_v2.enums.ErrorCode;
+import com.sudhanva.library_management_v2.enums.Error.ErrorCode;
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoBorrowRecordsFoundException;
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoUnreturnedBooksFoundException;
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.NoActiveBorrowedBooksException;
 import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.BookNotBorrowedByMemberException;
+import com.sudhanva.library_management_v2.exceptions.BorrowRecordExceptions.InvalidReturnDateException;
 
 @RestControllerAdvice
 public class BorrowRecordExceptionHandler {
@@ -74,6 +75,18 @@ public class BorrowRecordExceptionHandler {
                 .body(mapToErrorResponseDto(
                         exception,
                         ErrorCode.BOOK_NOT_BORROWED_BY_MEMBER
+                ));
+    }
+
+    @ExceptionHandler(InvalidReturnDateException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidReturnDate(
+            InvalidReturnDateException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.INVALID_RETURN_DATE
                 ));
     }
 
