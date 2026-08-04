@@ -76,7 +76,10 @@ public class BorrowTransactionService {
         for (BorrowRecord borrowRecord : brList) {
 
             borrowRecordList.add(
-                BorrowTransactionItemResponse.builder()
+                BorrowTransactionItemResponse
+                .builder()
+                .memberId(borrowRecord.getBorrowTransaction().getMember().getId())
+                .memberName(borrowRecord.getBorrowTransaction().getMember().getName())
                 .borrowedBookId(borrowRecord.getBook().getId())
                 .bookName(borrowRecord.getBook().getName())
                 .author(borrowRecord.getBook().getAuthor())

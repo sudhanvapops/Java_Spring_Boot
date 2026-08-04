@@ -5,4 +5,8 @@ public class NoUnreturnedBooksFoundException extends RuntimeException {
     public NoUnreturnedBooksFoundException(Long memberId) {
         super("No unreturned books found for member id: " + memberId);
     }
+
+    public NoUnreturnedBooksFoundException() {
+        super("No unreturned books found ");
+    }
 }

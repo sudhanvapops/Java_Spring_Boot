@@ -3,6 +3,7 @@ package com.sudhanva.library_management_v2.repo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -57,5 +58,13 @@ public interface BorrowRecordRepo extends JpaRepository<BorrowRecord,Long>{
             LocalDateTime start,
             LocalDateTime end
     );
+
+
+    @EntityGraph(attributePaths = {
+        "borrowTransaction",
+        "borrowTransaction.member",
+        "book"
+    })
+    List<BorrowRecord> findByReturnDateIsNull();
 
 }

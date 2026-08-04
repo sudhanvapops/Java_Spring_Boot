@@ -5,9 +5,10 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
-public record BorrowTransactionItemResponse(
+public record BorrowRecordResponse(
     Long memberId,
     String memberName,
+    
     Long borrowedBookId,
     String bookName,
     String author,

@@ -65,7 +65,10 @@ public class BorrowRecordService {
     private BorrowTransactionItemResponse mapToBorrowTransactionItemResponse(
         BorrowRecord borrowRecord
     ){
-        return BorrowTransactionItemResponse.builder()
+        return BorrowTransactionItemResponse
+            .builder()
+            .memberId(borrowRecord.getBorrowTransaction().getMember().getId())
+            .memberName(borrowRecord.getBorrowTransaction().getMember().getName())
             .bookName(borrowRecord.getBook().getName())
             .borrowedBookId(borrowRecord.getBook().getId())
             .author(borrowRecord.getBook().getAuthor())
@@ -120,9 +123,28 @@ public class BorrowRecordService {
     }
 
 
+    // Get All Unreturned Records
+    @Transactional(readOnly = true)
+    public ApiResponse<List<BorrowTransactionItemResponse>> getAllUnreturnedRecords(){
+
+        List<BorrowRecord> records =  borrowRecordRepo.findByReturnDateIsNull();
+
+        // Do i have to return error for this ?
+        if (records.isEmpty()){
+            throw new NoUnreturnedBooksFoundException();
+        }
+
+        return new ApiResponse<>(
+            true,
+            "All Borrow Records: ",
+            records.stream().map( record -> mapToBorrowTransactionItemResponse(record)).toList()
+        );
+    }
+
+
     // Get All Unreturned Records of a Member (return date null)
     @Transactional(readOnly = true)
-    public ApiResponse<List<BorrowTransactionItemResponse>> getAllUnreturnedRecords(Long memberId){
+    public ApiResponse<List<BorrowTransactionItemResponse>> getAllUnreturnedRecordsOfMember(Long memberId){
 
         // validate member id
         memberRepo.findById(memberId)

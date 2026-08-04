@@ -71,6 +71,16 @@ public class BorrowRecordController {
     }
 
 
+    // Get all unreturned books
+    @GetMapping("/unreturned/all")
+    public ResponseEntity<ApiResponse<List<BorrowTransactionItemResponse>>> getAllUnreturendBooks(){
+
+        ApiResponse<List<BorrowTransactionItemResponse>> response = borrowRecordService.getAllUnreturnedRecords();
+
+        return ResponseEntity.ok(response);
+    }
+    
+
     // unreturned
     @Operation(summary = "Get all unreturned (currently borrowed) books for a member")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Unreturned records found",
@@ -78,11 +88,11 @@ public class BorrowRecordController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No member exists with the given id, or the member has no unreturned books",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping("/unreturned/{memberId}")
-    public ResponseEntity<ApiResponse<List<BorrowTransactionItemResponse>>> getAllUnreturendBooks(
+    public ResponseEntity<ApiResponse<List<BorrowTransactionItemResponse>>> getAllUnreturendBooksOfMember(
         @Parameter(description = "Member id") @PathVariable Long memberId
     ){
 
-        ApiResponse<List<BorrowTransactionItemResponse>> response = borrowRecordService.getAllUnreturnedRecords(memberId);
+        ApiResponse<List<BorrowTransactionItemResponse>> response = borrowRecordService.getAllUnreturnedRecordsOfMember(memberId);
 
         return ResponseEntity.ok(response);
 
