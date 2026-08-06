@@ -1,0 +1,45 @@
+/* Type ladder. Geist Sans for display, Inter for interface,
+   JetBrains Mono for anything a librarian reads aloud, compares or copies. */
+:root{
+  /* Sizes */
+  --size-display-lg:80px;
+  --size-display-md:40px;
+  --size-headline:28px;
+  --size-card-title:22px;
+  --size-subhead:20px;
+  --size-body:16px;
+  --size-body-sm:14px;
+  --size-caption:12px;
+  --size-eyebrow:13px;
+  --size-mono:13px;
+
+  /* Weights */
+  --weight-regular:400;
+  --weight-medium:500;
+  --weight-semibold:600;
+
+  /* Tracking */
+  --track-display-md:-1px;
+  --track-headline:-.6px;
+  --track-card-title:-.4px;
+  --track-subhead:-.2px;
+  --track-eyebrow:.4px;
+
+  /* Line heights */
+  --leading-tight:1.1;
+  --leading-snug:1.25;
+  --leading-normal:1.5;
+  --leading-relaxed:1.6;
+
+  /* Composite roles — font shorthand plus tracking applied separately */
+  --type-display-md:var(--weight-semibold) var(--size-display-md)/var(--leading-tight) var(--font-display);
+  --type-headline:var(--weight-semibold) var(--size-headline)/var(--leading-snug) var(--font-display);
+  --type-card-title:var(--weight-medium) var(--size-card-title)/var(--leading-snug) var(--font-display);
+  --type-subhead:var(--weight-regular) var(--size-subhead)/var(--leading-snug) var(--font-display);
+  --type-body:var(--weight-regular) var(--size-body)/var(--leading-normal) var(--font-ui);
+  --type-body-sm:var(--weight-regular) var(--size-body-sm)/var(--leading-normal) var(--font-ui);
+  --type-caption:var(--weight-regular) var(--size-caption)/var(--leading-normal) var(--font-ui);
+  --type-button:var(--weight-medium) var(--size-body-sm)/1 var(--font-ui);
+  --type-eyebrow:var(--weight-medium) var(--size-eyebrow)/1.2 var(--font-ui);
+  --type-mono:var(--weight-regular) var(--size-mono)/var(--leading-normal) var(--font-mono);
+}

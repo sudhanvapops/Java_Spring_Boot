@@ -1,0 +1,21 @@
+/* Motion is allowed where the user is arriving, and forbidden where the user
+   is working. Tables, forms, /lend and /returns get hover and focus only. */
+:root{
+  --duration-instant:80ms; /* @kind other */
+  --duration-fast:150ms; /* @kind other */
+  --duration-medium:220ms; /* @kind other */
+  --duration-entrance:400ms; /* @kind other */
+  --duration-counter:800ms; /* @kind other */
+  --ease-out:cubic-bezier(.16,1,.3,1); /* @kind other */
+  --ease-standard:cubic-bezier(.2,0,0,1); /* @kind other */
+  --transition-hover:background-color var(--duration-fast) ease-out,border-color var(--duration-fast) ease-out,color var(--duration-fast) ease-out; /* @kind other */
+}
+@media (prefers-reduced-motion:reduce){
+  :root{
+    --duration-instant:0ms; /* @kind other */
+    --duration-fast:0ms; /* @kind other */
+    --duration-medium:0ms; /* @kind other */
+    --duration-entrance:0ms; /* @kind other */
+    --duration-counter:0ms; /* @kind other */
+  }
+}

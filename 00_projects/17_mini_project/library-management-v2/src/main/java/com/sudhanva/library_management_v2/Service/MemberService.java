@@ -11,6 +11,7 @@ import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
+import com.sudhanva.library_management_v2.enums.User.UserRoles;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberNotFoundException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberHasActiveBorrowsException;
@@ -34,6 +35,7 @@ public class MemberService {
                 .email(member.getEmail())
                 .age(member.getAge())
                 .isActive(member.getIsActive())
+                .role(UserRoles.MEMBER)
                 .build();
     }
 
@@ -43,6 +45,7 @@ public class MemberService {
                 .email(memberRequest.email())
                 .age(memberRequest.age())
                 .isActive(memberRequest.isActive())
+                .role(UserRoles.MEMBER)
                 .build();
     }
 

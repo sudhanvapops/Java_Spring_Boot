@@ -1,0 +1,1832 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Members",
+            "description": "Endpoints for managing library members"
+        },
+        {
+            "name": "Library Settings",
+            "description": "Endpoints for managing configurable library settings (e.g. max books, max borrow days, fine per day)"
+        },
+        {
+            "name": "Borrow Transactions",
+            "description": "Endpoints for borrowing books and viewing borrow transactions"
+        },
+        {
+            "name": "Books",
+            "description": "Endpoints for managing the book catalog"
+        },
+        {
+            "name": "Borrow Records",
+            "description": "Endpoints for returning books and viewing individual borrow records"
+        }
+    ],
+    "paths": {
+        "/api/settings": {
+            "put": {
+                "tags": [
+                    "Library Settings"
+                ],
+                "summary": "Update the value of an existing setting",
+                "description": "Fails if no setting exists for the given key; use POST to create a new setting instead",
+                "operationId": "setSetting",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SettingsRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Setting updated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation, or the new value does not match the setting's existing value type",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No setting exists with the given key",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Library Settings"
+                ],
+                "summary": "Create a new setting",
+                "description": "Fails if a setting already exists for the given key; use PUT to update an existing setting instead",
+                "operationId": "createSetting",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSettingRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Setting created",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation, or the setting value does not match the given value type",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "A setting already exists with the given key",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/member/{id}": {
+            "get": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Get a member by id",
+                "operationId": "getMemberById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Update an existing member",
+                "operationId": "updateMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Member updated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Member is inactive, or another member already has the same email",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Deactivate a member",
+                "description": "Soft-deletes a member by marking them inactive; they are not removed from the database",
+                "operationId": "deleteMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member deactivated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Member is already inactive, or has active (unreturned) borrows",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/book/{id}": {
+            "put": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Update an existing book",
+                "operationId": "updateBookById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Book id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Book updated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation, or available copies exceed total copies",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseBookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No book exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Book is inactive, or another book already has the same name and author",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Deactivate a book",
+                "description": "Soft-deletes a book by marking it inactive; it is not removed from the database",
+                "operationId": "deleteBook",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Book id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book deactivated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No book exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Book is already inactive, or currently borrowed",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/member": {
+            "get": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Get all members",
+                "operationId": "getAllMember",
+                "responses": {
+                    "200": {
+                        "description": "Members found (empty list if none exist)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Register a new member",
+                "operationId": "addMember",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Member created",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "A member with the same email already exists",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrowrecord/return": {
+            "post": {
+                "tags": [
+                    "Borrow Records"
+                ],
+                "summary": "Return one or more borrowed books",
+                "description": "Marks the given books as returned, calculates any overdue fine, and increases their available copy count. returnDate defaults to now if not provided.",
+                "operationId": "returnBooks",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookReturnRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Books returned successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookReturnResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation, duplicate books in request, member has no active borrowed books, one or more books were not borrowed by this member, return date is in the future, or the underlying fine-per-day setting value is malformed",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseBookReturnResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id, or the fine-per-day library setting has not been configured",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Member is inactive",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrow-transactions/borrow": {
+            "post": {
+                "tags": [
+                    "Borrow Transactions"
+                ],
+                "summary": "Borrow one or more books for a member",
+                "operationId": "borrowBook",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BorrowTransactionRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Books borrowed successfully",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation, duplicate books in request, member would exceed the max-books-per-member setting, or the underlying library setting value is malformed",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseBorrowTransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member/book exists with the given id, or a required library setting (e.g. max books, max borrow days) has not been configured",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Member is inactive, book is inactive, book has no available copies, or the member already has this book borrowed",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/book": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Get all books",
+                "operationId": "getAllBooks",
+                "responses": {
+                    "200": {
+                        "description": "Books found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No books exist in the library",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Add a new book",
+                "operationId": "addBook",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book created",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request failed validation, or available copies exceed total copies",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseBookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "A book with the same name and author already exists",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/member/{id}/activate": {
+            "patch": {
+                "tags": [
+                    "Members"
+                ],
+                "summary": "Reactivate a previously deactivated member",
+                "operationId": "activateMember",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Member reactivated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/book/{id}/activate": {
+            "patch": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Reactivate a previously deactivated book",
+                "operationId": "activateBook",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Book id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book reactivated",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No book exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Book is already active (currently returns a generic server error - no dedicated handler wired up for this case yet)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseBookResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/settings/{key}": {
+            "get": {
+                "tags": [
+                    "Library Settings"
+                ],
+                "summary": "Get a single setting by key",
+                "operationId": "getSettingByKey",
+                "parameters": [
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Setting key",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "MAX_BOOKS",
+                                "MAX_BORROW_DAYS",
+                                "FINE_PER_DAY"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Setting found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No setting exists with the given key",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Library Settings"
+                ],
+                "summary": "Delete a setting by key",
+                "operationId": "deleteSetting",
+                "parameters": [
+                    {
+                        "name": "key",
+                        "in": "path",
+                        "description": "Setting key",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "MAX_BOOKS",
+                                "MAX_BORROW_DAYS",
+                                "FINE_PER_DAY"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Setting deleted",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No setting exists with the given key",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/settings/all": {
+            "get": {
+                "tags": [
+                    "Library Settings"
+                ],
+                "summary": "Get all library settings",
+                "operationId": "getAllSettings",
+                "responses": {
+                    "200": {
+                        "description": "Settings found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsResponseDto"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No settings exist",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrowrecord/unreturned/{memberId}": {
+            "get": {
+                "tags": [
+                    "Borrow Records"
+                ],
+                "summary": "Get all unreturned (currently borrowed) books for a member",
+                "operationId": "getAllUnreturendBooksOfMember",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unreturned records found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionItemResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id, or the member has no unreturned books",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrowrecord/unreturned/all": {
+            "get": {
+                "tags": [
+                    "Borrow Records"
+                ],
+                "summary": "Get all unreturned (currently borrowed) books",
+                "operationId": "getAllUnreturendBooks",
+                "responses": {
+                    "200": {
+                        "description": "Unreturned records found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionItemResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No unreturned books found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrowrecord/member-id/{memberId}": {
+            "get": {
+                "tags": [
+                    "Borrow Records"
+                ],
+                "summary": "Get all borrow records for a member",
+                "operationId": "getRecordsOfMemberId",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Records found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionItemResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id, or the member has no borrow records",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrowrecord/due-today": {
+            "get": {
+                "tags": [
+                    "Borrow Records"
+                ],
+                "summary": "Get all records due today",
+                "operationId": "getDueRecordsToday",
+                "responses": {
+                    "200": {
+                        "description": "Due records found (empty list if none are due today)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DueTodayResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrowrecord/all": {
+            "get": {
+                "tags": [
+                    "Borrow Records"
+                ],
+                "summary": "Get all borrow records",
+                "operationId": "getAllRecords",
+                "responses": {
+                    "200": {
+                        "description": "Records found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionItemResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No borrow records exist",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrow-transactions/{id}": {
+            "get": {
+                "tags": [
+                    "Borrow Transactions"
+                ],
+                "summary": "Get a borrow transaction by id",
+                "operationId": "getTransaction",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Borrow transaction id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No transaction exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrow-transactions/member-id/{memberId}": {
+            "get": {
+                "tags": [
+                    "Borrow Transactions"
+                ],
+                "summary": "Get all borrow transactions for a member",
+                "operationId": "getAllTransactionsByMemberId",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "in": "path",
+                        "description": "Member id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transactions found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No member exists with the given id, or the member has no borrow transactions",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/borrow-transactions/all": {
+            "get": {
+                "tags": [
+                    "Borrow Transactions"
+                ],
+                "summary": "Get all borrow transactions",
+                "operationId": "getAllTransactions",
+                "responses": {
+                    "200": {
+                        "description": "Transactions found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BorrowTransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No borrow transactions exist",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/book/name": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Get books by name",
+                "operationId": "getBookByName",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Book name to search for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Matching books found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No book exists with the given name",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/book/id/{id}": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Get a book by id",
+                "operationId": "getBookById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Book id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No book exists with the given id",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/book/author": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "summary": "Get books by author",
+                "operationId": "getBookByAuthor",
+                "parameters": [
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "description": "Author name to search for",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Matching books found",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No book exists with the given author",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SettingsRequestDto": {
+                "type": "object",
+                "properties": {
+                    "settingKey": {
+                        "type": "string",
+                        "enum": [
+                            "MAX_BOOKS",
+                            "MAX_BORROW_DAYS",
+                            "FINE_PER_DAY"
+                        ]
+                    },
+                    "settingValue": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    }
+                },
+                "required": [
+                    "settingKey",
+                    "settingValue"
+                ]
+            },
+            "SettingsResponseDto": {
+                "type": "object",
+                "properties": {
+                    "settingKey": {
+                        "type": "string",
+                        "enum": [
+                            "MAX_BOOKS",
+                            "MAX_BORROW_DAYS",
+                            "FINE_PER_DAY"
+                        ]
+                    },
+                    "settingValue": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "valueType": {
+                        "type": "string",
+                        "enum": [
+                            "STRING",
+                            "INTEGER",
+                            "BOOLEAN",
+                            "DECIMAL"
+                        ]
+                    }
+                }
+            },
+            "ErrorResponseDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "errorCode": {
+                        "type": "string",
+                        "enum": [
+                            "MEMBER_NOT_FOUND",
+                            "MEMBER_INACTIVE",
+                            "MEMBER_EMAIL_ALREADY_EXISTS",
+                            "MEMBER_HAS_ACTIVE_BORROWS",
+                            "BOOK_NOT_FOUND",
+                            "BOOK_INACTIVE",
+                            "BOOK_NOT_AVAILABLE",
+                            "BOOK_ALREADY_EXISTS",
+                            "INVALID_BOOK_COPIES",
+                            "BOOK_CURRENTLY_BORROWED",
+                            "BORROW_TRANSACTION_NOT_FOUND",
+                            "NO_BORROW_TRANSACTIONS_FOUND",
+                            "MAX_BOOK_LIMIT_EXCEEDED",
+                            "DUPLICATE_BOOK_REQUEST",
+                            "BOOK_ALREADY_BORROWED_BY_MEMBER",
+                            "BORROW_RECORD_NOT_FOUND",
+                            "NO_BORROW_RECORDS_FOUND",
+                            "NO_UNRETURNED_BOOKS_FOUND",
+                            "NO_ACTIVE_BORROWED_BOOKS",
+                            "BOOK_NOT_BORROWED_BY_MEMBER",
+                            "INVALID_RETURN_DATE",
+                            "NO_LIBRARY_SETTINGS_AVAILABLE",
+                            "SETTING_NOT_FOUND",
+                            "INVALID_SETTING_VALUE",
+                            "SETTING_ALREADY_EXISTS",
+                            "VALIDATION_FAILED",
+                            "INTERNAL_SERVER_ERROR"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseSettingsResponseDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/SettingsResponseDto"
+                    }
+                }
+            },
+            "MemberRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "email": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "age": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "age",
+                    "email",
+                    "isActive",
+                    "name"
+                ]
+            },
+            "MemberResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ApiResponseMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/MemberResponse"
+                    }
+                }
+            },
+            "BookRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "author": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "totalCopies": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "availableCopies": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "author",
+                    "availableCopies",
+                    "isActive",
+                    "name",
+                    "totalCopies"
+                ]
+            },
+            "BookResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "availableCopies": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalCopies": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ApiResponseBookResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/BookResponse"
+                    }
+                }
+            },
+            "CreateSettingRequestDto": {
+                "type": "object",
+                "properties": {
+                    "settingKey": {
+                        "type": "string",
+                        "enum": [
+                            "MAX_BOOKS",
+                            "MAX_BORROW_DAYS",
+                            "FINE_PER_DAY"
+                        ]
+                    },
+                    "valueType": {
+                        "type": "string",
+                        "enum": [
+                            "STRING",
+                            "INTEGER",
+                            "BOOLEAN",
+                            "DECIMAL"
+                        ]
+                    },
+                    "settingValue": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    }
+                },
+                "required": [
+                    "settingKey",
+                    "settingValue",
+                    "valueType"
+                ]
+            },
+            "BookReturnRequest": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BorrowReturnItemRequest"
+                        },
+                        "minItems": 1
+                    },
+                    "returnDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "books"
+                ]
+            },
+            "BorrowReturnItemRequest": {
+                "type": "object",
+                "properties": {
+                    "bookId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "BookReturnResponse": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "memberName": {
+                        "type": "string"
+                    },
+                    "totalFine": {
+                        "type": "number"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BorrowReturnItemResponse"
+                        }
+                    }
+                }
+            },
+            "BorrowReturnItemResponse": {
+                "type": "object",
+                "properties": {
+                    "bookId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "bookName": {
+                        "type": "string"
+                    },
+                    "fine": {
+                        "type": "number"
+                    },
+                    "returnDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseBookReturnResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/BookReturnResponse"
+                    }
+                }
+            },
+            "BorrowTransactionItemRequest": {
+                "type": "object",
+                "properties": {
+                    "bookId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "required": [
+                    "bookId"
+                ]
+            },
+            "BorrowTransactionRequest": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BorrowTransactionItemRequest"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "books",
+                    "memberId"
+                ]
+            },
+            "BorrowTransactionItemResponse": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "memberName": {
+                        "type": "string"
+                    },
+                    "borrowedBookId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "bookName": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "BorrowTransactionResponse": {
+                "type": "object",
+                "properties": {
+                    "transactionId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "memberName": {
+                        "type": "string"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BorrowTransactionItemResponse"
+                        }
+                    },
+                    "borrowDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseBorrowTransactionResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/BorrowTransactionResponse"
+                    }
+                }
+            },
+            "DueTodayResponse": {
+                "type": "object",
+                "properties": {
+                    "borrowedBookId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "bookName": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "memberId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "memberName": {
+                        "type": "string"
+                    },
+                    "memberEmail": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

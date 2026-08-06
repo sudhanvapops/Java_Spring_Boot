@@ -1,0 +1,16 @@
+package com.sudhanva.library_management_v2.repo;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.sudhanva.library_management_v2.Model.User;
+
+
+import java.util.Optional;
+
+
+public interface UserRepo extends JpaRepository<User,Long>{
+    Optional<User> findByUsername(String username);
+
+    Optional<User> findByEmail(
+            String email);
+}

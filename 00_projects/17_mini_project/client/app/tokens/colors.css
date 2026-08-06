@@ -1,0 +1,68 @@
+/* Obsidian colour system. Dark-first, one accent.
+   Phase 1 has no light mode; do not add one. */
+:root{
+  /* Accent — interaction only, never decoration */
+  --primary:#4F7CFF;
+  --primary-hover:#7095FF;
+  --primary-focus:#3D6CFF;
+
+  /* Canvas + layered charcoal surfaces */
+  --canvas:#050506;
+  --surface-1:#101113;
+  --surface-2:#151618;
+  --surface-3:#1A1B1D;
+  --surface-4:#1F2023;
+
+  /* Hairlines */
+  --hairline:#27292E;
+  --hairline-strong:#373A40;
+  --hairline-tertiary:#43464D;
+
+  /* Ink */
+  --ink:#F7F8F8;
+  --ink-muted:#D0D6E0;
+  --ink-subtle:#8A8F98;
+  --ink-tertiary:#62666D;
+
+  /* Semantic — status only */
+  --success:#2DA44E;
+  --warning:#E6A700;
+  --danger:#E5484D;
+  --info:#4F7CFF;
+
+  /* Semantic tints, for status backgrounds at low weight */
+  --success-tint:rgba(45,164,78,.12);
+  --warning-tint:rgba(230,167,0,.12);
+  --danger-tint:rgba(229,72,77,.12);
+  --primary-tint:rgba(79,124,255,.12);
+
+  /* ---- Semantic aliases: use these in components ---- */
+  --bg-page:var(--canvas);
+  --bg-chrome:var(--canvas);
+  --surface-card:var(--surface-1);
+  --surface-raised:var(--surface-2);
+  --surface-nested:var(--surface-3);
+  --surface-overlay:var(--surface-4);
+  --surface-row-hover:var(--surface-1);
+  --surface-selected:var(--surface-2);
+
+  --border-default:var(--hairline);
+  --border-emphasis:var(--hairline-strong);
+  --border-divider:var(--hairline);
+  --border-focus:var(--primary-focus);
+
+  --text-heading:var(--ink);
+  --text-body:var(--ink);
+  --text-label:var(--ink-muted);
+  --text-helper:var(--ink-subtle);
+  --text-disabled:var(--ink-tertiary);
+  --text-eyebrow:var(--ink-tertiary);
+  --text-link:var(--primary);
+  --text-on-primary:#FFFFFF;
+
+  --status-out:var(--primary);
+  --status-returned:var(--success);
+  --status-due-today:var(--warning);
+  --status-overdue:var(--danger);
+  --status-inactive:var(--ink-tertiary);
+}

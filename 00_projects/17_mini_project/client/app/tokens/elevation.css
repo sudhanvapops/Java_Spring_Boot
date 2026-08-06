@@ -1,0 +1,9 @@
+/* Hierarchy comes from surface layering, not shadows.
+   Shadows exist only for things that genuinely float above the page. */
+:root{
+  --shadow-none:none;
+  --shadow-popover:0 8px 24px rgba(0,0,0,.55);
+  --shadow-overlay:0 24px 64px rgba(0,0,0,.65);
+  --focus-ring:0 0 0 2px var(--canvas),0 0 0 4px var(--primary-focus);
+  --focus-ring-inset:inset 0 0 0 1px var(--primary-focus);
+}

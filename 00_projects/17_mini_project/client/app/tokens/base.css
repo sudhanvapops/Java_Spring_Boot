@@ -1,0 +1,13 @@
+/* Minimal resets and shared primitives that every surface assumes. */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg-page);color:var(--text-body);font:var(--type-body);-webkit-font-smoothing:antialiased}
+a{color:var(--text-link);text-decoration:none}
+a:hover{color:var(--primary-hover);text-decoration:underline}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+::selection{background:var(--primary-tint);color:var(--ink)}
+.mono,.tabular{font:var(--type-mono);font-variant-numeric:tabular-nums}
+:root{color-scheme:dark}
+@keyframes stacks-spin{to{transform:rotate(360deg)}}
+@keyframes stacks-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes stacks-blur-in{from{opacity:0;filter:blur(6px);transform:translateY(6px)}to{opacity:1;filter:blur(0);transform:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}

@@ -10,7 +10,7 @@ scripts/
 output.txt
 combine.py
 **/application.properties
-
+**/stacks-design-system
 # =========================
 # Maven
 # =========================

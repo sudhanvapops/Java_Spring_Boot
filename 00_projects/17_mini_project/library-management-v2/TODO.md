@@ -1,5 +1,8 @@
 ### TODO
 
+### Current 
+Register User excpetions in Global handlers
+
 
 ### Done 
 - Standardize API error handling

@@ -1,0 +1,20 @@
+/* Spacing scale. Nothing outside it. */
+:root{
+  --space-xxs:4px;
+  --space-xs:8px;
+  --space-sm:12px;
+  --space-md:16px;
+  --space-lg:24px;
+  --space-xl:32px;
+  --space-xxl:48px;
+  --space-section:96px;
+
+  /* Layout constants from the spec */
+  --sidebar-width:240px;
+  --sidebar-collapsed:64px;
+  --topbar-height:56px;
+  --auth-card-width:420px;
+  --form-max-width:560px;
+  --empty-state-width:320px;
+  --touch-min:44px;
+}
