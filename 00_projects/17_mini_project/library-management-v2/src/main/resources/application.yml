@@ -19,7 +19,7 @@ spring:
             hibernate:
                 connection:
                     provider_disables_autocommit: true
-    security:
-        user:
-            name: sudhanva
-            password: 1234
+
+jwt:
+    secret: Qt20iylRG7UFc5wjL7u8wFQovTOlS8A1/DK8Mq6HqRU=
+    expiration: 3600000 # 1hour in milliseconds

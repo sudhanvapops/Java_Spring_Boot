@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
-import com.sudhanva.library_management_v2.Model.Dto.Auth.RegisterRequestDto;
-import com.sudhanva.library_management_v2.Model.Dto.Auth.RegisterResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.Service.AuthService;
 
 import jakarta.validation.Valid;
@@ -37,10 +39,12 @@ public class AuthController {
     }
 
 
-    // TODO: Login Route
     @PostMapping("/login")
-    public String login(){
-        return "login";
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(
+        @Valid @RequestBody LoginRequestDto request
+    ){
+
+        return ResponseEntity.ok(authService.login(request));
     }
 
 

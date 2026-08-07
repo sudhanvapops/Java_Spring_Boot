@@ -5,6 +5,7 @@ import com.sudhanva.library_management_v2.Model.LibrarySettings;
 import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
 import com.sudhanva.library_management_v2.enums.Setting.SettingValueType;
+import com.sudhanva.library_management_v2.enums.User.UserRoles;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 import com.sudhanva.library_management_v2.repo.LibrarySettingsRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
@@ -40,11 +41,11 @@ public class DataSeeder {
         return args -> {
             if (memberRepo.count() == 0) {
                 List<Member> members = List.of(
-                        Member.builder().name("Sudhanva").email("sudhanva@gmail.com").age(20).build(),
-                        Member.builder().name("Rahul").email("rahul@gmail.com").age(21).build(),
-                        Member.builder().name("Ananya").email("ananya@gmail.com").age(19).build(),
-                        Member.builder().name("Kiran").email("kiran@gmail.com").age(22).build(),
-                        Member.builder().name("Megha").email("megha@gmail.com").age(20).build()
+                        Member.builder().name("Sudhanva").email("sudhanva@gmail.com").age(20).role(UserRoles.MEMBER).build(),
+                        Member.builder().name("Rahul").email("rahul@gmail.com").age(21).role(UserRoles.MEMBER).build(),
+                        Member.builder().name("Ananya").email("ananya@gmail.com").age(19).role(UserRoles.MEMBER).build(),
+                        Member.builder().name("Kiran").email("kiran@gmail.com").age(22).role(UserRoles.MEMBER).build(),
+                        Member.builder().name("Megha").email("megha@gmail.com").age(20).role(UserRoles.MEMBER).build()
                 );
 
                 memberRepo.saveAll(members);

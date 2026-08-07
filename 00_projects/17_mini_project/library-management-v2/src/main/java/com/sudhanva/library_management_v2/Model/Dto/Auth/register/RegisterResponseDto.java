@@ -1,4 +1,4 @@
-package com.sudhanva.library_management_v2.Model.Dto.Auth;
+package com.sudhanva.library_management_v2.Model.Dto.Auth.register;
 
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
 
