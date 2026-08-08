@@ -18,6 +18,7 @@ import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmai
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UsernameAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
 import com.sudhanva.library_management_v2.repo.UserRepo;
+import com.sudhanva.library_management_v2.security.JwtService;
 import com.sudhanva.library_management_v2.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
@@ -68,6 +69,8 @@ public class AuthService {
             .build();
     }
 
+
+    // Service Methods
 
     @Transactional
     public ApiResponse<RegisterResponseDto> register(
@@ -126,6 +129,7 @@ public class AuthService {
         // DaoProvider 
         // load user
         // passwrod match
+        
         // generate token
         
         Authentication authentication = authenticationManager.authenticate(
@@ -135,6 +139,7 @@ public class AuthService {
             )
         );
 
+        // After Authentication
         UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
 
         // Generate JWT

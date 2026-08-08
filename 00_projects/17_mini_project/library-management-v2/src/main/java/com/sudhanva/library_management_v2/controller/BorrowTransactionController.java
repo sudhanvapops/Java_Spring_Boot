@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -29,6 +30,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/borrow-transactions")
 @Tag(name = "Borrow Transactions", description = "Endpoints for borrowing books and viewing borrow transactions")
+@SecurityRequirement(name = "bearerAuth")
 public class BorrowTransactionController {
 
 
