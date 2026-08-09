@@ -2,10 +2,10 @@ package com.sudhanva.library_management_v2.controller.Auth;
 
 import java.time.Duration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +21,7 @@ import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.Service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -93,11 +94,22 @@ public class AuthController {
     }
 
 
+    @Operation(summary = "Refresh the access token", description = "Reads the httpOnly refreshToken cookie set by /login, validates it against the stored record, "
+        + "and issues a new short-lived access token. The refresh token itself is not rotated or reissued.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Access token refreshed",
+        content = @Content(schema = @Schema(implementation = RefreshResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "refreshToken cookie is missing",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Refresh token is not of type refresh, has no matching record, "
+        + "has been revoked, or has expired",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshResponseDto>> refresh(
-
+        @Parameter(description = "httpOnly refreshToken cookie set by /login", required = true)
+        @CookieValue(value = "refreshToken", required = false) String refreshToken
     ){
-        return null;
+        ApiResponse<RefreshResponseDto> response = authService.refreshAccesssToken(refreshToken);
+        return ResponseEntity.ok(response);
     }
 
 

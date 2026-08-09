@@ -10,6 +10,7 @@ public record LoginResponseDto(
     String accessTokenType,
     
     String refreshToken,
+    String refreshTokenType,
     
     Long userId,
     String email,

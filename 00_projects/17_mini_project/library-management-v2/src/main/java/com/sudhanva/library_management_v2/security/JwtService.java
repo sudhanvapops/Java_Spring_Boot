@@ -1,15 +1,17 @@
 package com.sudhanva.library_management_v2.security;
 
+import com.sudhanva.library_management_v2.repo.UserRepo;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Service;
 
 import com.sudhanva.library_management_v2.config.JwtConfig;
+import com.sudhanva.library_management_v2.exceptions.UserExceptions.UserNotFoundException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -23,6 +25,7 @@ public class JwtService {
 
     private final JwtConfig jwtConfig;
 
+
     // generate secret key
     public SecretKey getSigningKey() {
         // Base64 string → bytes
@@ -35,11 +38,10 @@ public class JwtService {
     private String buildToken(
         Map<String, Object> claims,
         UserPrincipal user,
-        long expiration
+        Instant tokenExpiresAt
     ) {
 
-        long tokenExpiresAt = 
-            System.currentTimeMillis() + expiration;
+        
 
         return Jwts.builder()
 
@@ -54,7 +56,7 @@ public class JwtService {
                 .issuedAt(new Date())
                 // Token expiry time.
                 // Here: 1hour minutes from now.
-                .expiration(new Date(tokenExpiresAt))
+                .expiration(Date.from(tokenExpiresAt))
 
                 // Signature Part
 
@@ -74,26 +76,34 @@ public class JwtService {
         claims.put("id", user.getId());
         claims.put("email", user.getEmail());
 
-        return buildToken(claims, user,jwtConfig.getAccessTokenExpiration());
+        Instant tokenExpiresAt =
+            Instant.now().plusMillis(
+                jwtConfig.getAccessTokenExpiration()
+            );
+
+        return buildToken(claims, user,tokenExpiresAt);
 
     }
 
     // Generate Refresh Token
-    public String generateRefrehToken(UserPrincipal userDetails) {
+    // jti (jwt identifier) is passed in so the caller can persist the
+    // matching RefreshToken record without this service knowing about the DB.
+    public String generateRefrehToken(UserPrincipal userDetails, String jti) {
 
         Map<String,Object> claims = new HashMap<>();
-
-        // To look up from db
-        // jwt identifier
-        String jti = UUID.randomUUID().toString();
-
         claims.put("jti", jti);
+        claims.put("type", "refresh");
+
+        Instant tokenExpiresAt =
+            Instant.now().plusMillis(
+                jwtConfig.getRefreshTokenExpiration()
+            );
 
         return buildToken(
-            claims, 
+            claims,
             userDetails,
-            jwtConfig.getAccessTokenExpiration()
-        );    
+            tokenExpiresAt
+        );
     }
 
     // Get All Claims and verify

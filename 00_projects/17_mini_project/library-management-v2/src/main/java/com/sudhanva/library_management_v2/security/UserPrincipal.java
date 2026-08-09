@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.sudhanva.library_management_v2.Model.User;
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
 
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
+@Builder
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
 
@@ -20,6 +22,7 @@ public class UserPrincipal implements UserDetails {
     private final String email;
     private final UserRoles role;
     private final String password;
+    private final User user;
 
     public UserPrincipal(User user) {
         this.id = user.getId();
@@ -27,6 +30,7 @@ public class UserPrincipal implements UserDetails {
         this.email = user.getEmail();
         this.role = user.getRole();
         this.password = user.getPassword();
+        this.user = user;
     }
 
     public Long getId() {
@@ -39,6 +43,10 @@ public class UserPrincipal implements UserDetails {
 
     public UserRoles getRole() {
         return role;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override

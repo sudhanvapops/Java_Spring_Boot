@@ -1,19 +1,30 @@
 package com.sudhanva.library_management_v2.Service;
 
 
+import com.sudhanva.library_management_v2.repo.RefreshTokenRepo;
+import java.time.Instant;
+import java.util.UUID;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sudhanva.library_management_v2.Model.RefreshToken;
 import com.sudhanva.library_management_v2.Model.User;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenExistsException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenRecordExists;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NotRefreshTokenException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenExpiredException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenRevokedException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UsernameAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
@@ -21,6 +32,7 @@ import com.sudhanva.library_management_v2.repo.UserRepo;
 import com.sudhanva.library_management_v2.security.JwtService;
 import com.sudhanva.library_management_v2.security.UserPrincipal;
 
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -30,10 +42,13 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
 
+    private final RefreshTokenRepo refreshTokenRepo;
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
+
 
 
     private RegisterResponseDto mapToRegisterResponseDto(User user){
@@ -67,6 +82,21 @@ public class AuthService {
             .accessTokenType("Bearer")
             .accessToken(accessToken)
             .refreshToken(refreshToken)
+            .refreshTokenType("Cookie")
+            .userId(principal.getId())
+            .build();
+    }
+
+    private RefreshResponseDto mapToRefreshResponseDto(
+        String accessToken,
+        UserPrincipal principal
+    ){
+        return RefreshResponseDto
+            .builder()
+            .email(principal.getEmail())
+            .role(principal.getRole())
+            .accessTokenType("Bearer")
+            .accessToken(accessToken)
             .userId(principal.getId())
             .build();
     }
@@ -147,10 +177,14 @@ public class AuthService {
         // Generate JWT
         String jwtToken = jwtService.generateAccessToken(userDetails);
 
-        // Generate Refresh Token
-        String refreshToken = jwtService.generateRefrehToken(userDetails);
+        // Generate Refresh Token (token creation only)
+        String jti = UUID.randomUUID().toString();
+        String refreshToken = jwtService.generateRefrehToken(userDetails, jti);
 
-        // TODO: Save RefreshToken to DB
+        // Persist Refresh Token 
+        Instant refreshTokenExpiresAt = jwtService.getExpiration(refreshToken).toInstant();
+        refreshTokenService.save(jti, userDetails.getUser(), refreshTokenExpiresAt);
+
 
         return new ApiResponse<>(
             true,
@@ -161,6 +195,53 @@ public class AuthService {
     }
 
 
+    @Transactional
+    public ApiResponse<RefreshResponseDto> refreshAccesssToken(
+        String refreshToken
+    ){
 
+        // validate token
+        // extract claims
+        Claims claims = jwtService.getAllClaims(refreshToken);
+
+        String jti = claims.get("jti",String.class);
+        String tokenType = claims.get("type",String.class);
+
+        if (!"refresh".equals(tokenType)){
+            throw new NotRefreshTokenException();
+        }
+
+        // search db
+        RefreshToken storedToken = refreshTokenRepo
+            .findByJti(jti)
+            .orElseThrow(
+                () -> new NoRefreshTokenRecordExists(jti)
+            );
+
+        // check revoked
+        if(storedToken.isRevoked()){
+            throw new TokenRevokedException();
+        }
+
+        // check expiration
+        if (storedToken.getExpiresAt().isBefore(Instant.now())){
+            throw new TokenExpiredException();
+        }
+
+        // genrate Access Token
+        User user = storedToken.getUser();
+
+        UserPrincipal userDetails = new UserPrincipal(user);
+
+        // return response
+        String newAccessToken = jwtService.generateAccessToken(userDetails);
+        RefreshResponseDto responseDto =  mapToRefreshResponseDto(newAccessToken,userDetails);
+
+        return new ApiResponse<>(
+            true,
+            "Access Token Has Refershed",
+            responseDto
+        );
+    }
 
 }

@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.enums.Error.ErrorCode;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenExistsException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenRecordExists;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NotRefreshTokenException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenExpiredException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenRevokedException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UserEmailAlreadyExistsException;
@@ -93,6 +98,66 @@ public class AuthExcptionHandlers {
                 .body(mapToErrorResponseDto(
                         "Invalid email or password",
                         ErrorCode.UNAUTHORIZED));
+    }
+
+    // /api/auth/refresh - no refreshToken cookie was sent
+    @ExceptionHandler(NoRefreshTokenExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleNoRefreshTokenExistsException(
+        NoRefreshTokenExistsException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.NO_REFRESH_TOKEN_EXISTS));
+    }
+
+    // /api/auth/refresh - cookie held a valid JWT, but it wasn't issued as a refresh token
+    @ExceptionHandler(NotRefreshTokenException.class)
+    public ResponseEntity<ErrorResponseDto> handleNotRefreshTokenException(
+        NotRefreshTokenException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.NOT_REFRESH_TOKEN));
+    }
+
+    // /api/auth/refresh - token's jti has no matching RefreshToken row (unknown/forged)
+    @ExceptionHandler(NoRefreshTokenRecordExists.class)
+    public ResponseEntity<ErrorResponseDto> handleNoRefreshTokenRecordExists(
+        NoRefreshTokenRecordExists exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.NO_REFRESH_TOKEN_RECORD_EXISTS));
+    }
+
+    // /api/auth/refresh - token was explicitly revoked (e.g. logout)
+    @ExceptionHandler(TokenRevokedException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenRevokedException(
+        TokenRevokedException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.TOKEN_REVOKED));
+    }
+
+    // /api/auth/refresh - stored record says this refresh token's validity window has passed
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenExpiredException(
+        TokenExpiredException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.TOKEN_EXPIRED));
     }
 
 }
