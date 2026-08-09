@@ -56,15 +56,17 @@ public class AuthService {
     }
 
     private LoginResponseDto mapToLoginResposeDto(
-        String token,
-        UserPrincipal principal
+        String accessToken,
+        UserPrincipal principal,
+        String refreshToken
     ){
         return LoginResponseDto
             .builder()
             .email(principal.getEmail())
             .role(principal.getRole())
-            .tokenType("Bearer")
-            .accessToken(token)
+            .accessTokenType("Bearer")
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
             .userId(principal.getId())
             .build();
     }
@@ -143,12 +145,17 @@ public class AuthService {
         UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
 
         // Generate JWT
-        String jwtToken = jwtService.generateToken(userDetails);
+        String jwtToken = jwtService.generateAccessToken(userDetails);
+
+        // Generate Refresh Token
+        String refreshToken = jwtService.generateRefrehToken(userDetails);
+
+        // TODO: Save RefreshToken to DB
 
         return new ApiResponse<>(
             true,
             "User logged In",
-            mapToLoginResposeDto(jwtToken,userDetails)
+            mapToLoginResposeDto(jwtToken,userDetails,refreshToken)
         );
        
     }

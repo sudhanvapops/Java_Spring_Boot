@@ -1,6 +1,5 @@
     package com.sudhanva.jwtsec.service;
 
-    import java.sql.Time;
     import java.util.Date;
     import java.util.HashMap;
     import java.util.Map;
@@ -9,7 +8,6 @@
     import javax.crypto.SecretKey;
 
     import org.jspecify.annotations.Nullable;
-    import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.security.core.userdetails.UserDetails;
     import org.springframework.stereotype.Service;
 

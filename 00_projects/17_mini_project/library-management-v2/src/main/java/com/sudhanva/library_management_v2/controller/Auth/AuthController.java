@@ -1,6 +1,10 @@
 package com.sudhanva.library_management_v2.controller.Auth;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
@@ -19,6 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -60,14 +66,42 @@ public class AuthController {
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> login(
-        @Valid @RequestBody LoginRequestDto request
+        @Valid @RequestBody LoginRequestDto request,
+        HttpServletResponse response
     ){
-        return ResponseEntity.ok(authService.login(request));
+
+        ApiResponse<LoginResponseDto> result = authService.login(request);
+
+        ResponseCookie refreshCookie = ResponseCookie
+            .from("refreshToken",result.data().refreshToken())
+            .httpOnly(true)
+            // can send it http and https
+            // production make it true
+            .secure(false)
+            // cross site
+            .sameSite("strict")
+            .path("/api/auth/refresh")
+            .maxAge(Duration.ofDays(7))
+            .build();
+        
+        response.addHeader(
+            HttpHeaders.SET_COOKIE,
+            refreshCookie.toString()
+        );
+
+        return ResponseEntity.ok(result);
+    }
+
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<RefreshResponseDto>> refresh(
+
+    ){
+        return null;
     }
 
 
     // TODO: Logout Route
-    // TODO: Refresh Route
     // TODO: Delete USER
 
 }

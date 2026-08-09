@@ -1,9 +1,9 @@
 package com.sudhanva.library_management_v2.security;
 
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -23,7 +23,6 @@ public class JwtService {
 
     private final JwtConfig jwtConfig;
 
-
     // generate secret key
     public SecretKey getSigningKey() {
         // Base64 string → bytes
@@ -32,32 +31,15 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // Build the Access Token
+    private String buildToken(
+        Map<String, Object> claims,
+        UserPrincipal user,
+        long expiration
+    ) {
 
-    // Generate Token
-    public String generateToken(UserPrincipal user) {
-
-        long expiresAt = System.currentTimeMillis() + jwtConfig.getExpiration();
-
-        // -----------------------------------------------------------------
-        // Claims = Extra information stored inside the JWT payload.
-        //
-        // Some claims are predefined:
-        // sub -> Subject (usually username)
-        // exp -> Expiration time
-        // iat -> Issued at
-        //
-        // You can also add custom claims like:
-        // role
-        // email
-        // userId
-        // -----------------------------------------------------------------
-        Map<String, Object> claims = new HashMap<>();
-
-        
-
-        claims.put("role", user.getRole());
-        claims.put("id", user.getId());
-        claims.put("email", user.getEmail());
+        long tokenExpiresAt = 
+            System.currentTimeMillis() + expiration;
 
         return Jwts.builder()
 
@@ -72,7 +54,7 @@ public class JwtService {
                 .issuedAt(new Date())
                 // Token expiry time.
                 // Here: 1hour minutes from now.
-                .expiration(new Date(expiresAt))
+                .expiration(new Date(tokenExpiresAt))
 
                 // Signature Part
 
@@ -83,27 +65,57 @@ public class JwtService {
     }
 
 
-    // Get All Claims and verify
-    public Claims getAllClaims(String token){
+    // Generate Access Token
+    public String generateAccessToken(UserPrincipal user) {
 
-        // It also Handles Expiry Check 
-        return Jwts.parser()
-            // Verify the signature
-            .verifyWith(getSigningKey())
-            // if true build jwt
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("role", user.getRole());
+        claims.put("id", user.getId());
+        claims.put("email", user.getEmail());
+
+        return buildToken(claims, user,jwtConfig.getAccessTokenExpiration());
 
     }
 
+    // Generate Refresh Token
+    public String generateRefrehToken(UserPrincipal userDetails) {
+
+        Map<String,Object> claims = new HashMap<>();
+
+        // To look up from db
+        // jwt identifier
+        String jti = UUID.randomUUID().toString();
+
+        claims.put("jti", jti);
+
+        return buildToken(
+            claims, 
+            userDetails,
+            jwtConfig.getAccessTokenExpiration()
+        );    
+    }
+
+    // Get All Claims and verify
+    public Claims getAllClaims(String token) {
+
+        // It also Handles Expiry Check
+        return Jwts.parser()
+                // Verify the signature
+                .verifyWith(getSigningKey())
+                // if true build jwt
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+    }
 
     public String getUsername(String token) {
         return getAllClaims(token).getSubject();
     }
 
     public String getEmail(String token) {
-        return getAllClaims(token).get("email",String.class);
+        return getAllClaims(token).get("email", String.class);
     }
 
     public Date getExpiration(String token) {
@@ -113,7 +125,5 @@ public class JwtService {
     public Date getIssuedAt(String token) {
         return getAllClaims(token).getIssuedAt();
     }
-
-
 
 }
