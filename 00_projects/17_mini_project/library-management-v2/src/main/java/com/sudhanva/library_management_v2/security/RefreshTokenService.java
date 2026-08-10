@@ -1,4 +1,4 @@
-package com.sudhanva.library_management_v2.Service;
+package com.sudhanva.library_management_v2.security;
 
 import java.time.Instant;
 

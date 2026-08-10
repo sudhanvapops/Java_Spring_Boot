@@ -15,10 +15,13 @@ import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTok
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NotRefreshTokenException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenExpiredException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenRevokedException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenSubjectMismatchException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UserEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UsernameAlreadyExistsException;
+
+import io.jsonwebtoken.JwtException;
 
 @RestControllerAdvice
 public class AuthExcptionHandlers {
@@ -158,6 +161,33 @@ public class AuthExcptionHandlers {
                 .body(mapToErrorResponseDto(
                         exception,
                         ErrorCode.TOKEN_EXPIRED));
+    }
+
+    // /api/auth/refresh - token's subject no longer matches its associated user
+    // (e.g. the account's email changed after this refresh token was issued)
+    @ExceptionHandler(TokenSubjectMismatchException.class)
+    public ResponseEntity<ErrorResponseDto> handleTokenSubjectMismatchException(
+        TokenSubjectMismatchException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.TOKEN_SUBJECT_MISMATCH));
+    }
+
+    // /api/auth/refresh, /api/auth/logout - cookie held a malformed, tampered, or
+    // already-expired JWT. JwtService throws this before a jti is even available to
+    // look up, so without this handler it falls through to GlobalExceptionHandler as a 500.
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponseDto> handleJwtException(
+        JwtException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapToErrorResponseDto(
+                        "Invalid or expired refresh token",
+                        ErrorCode.INVALID_REFRESH_TOKEN));
     }
 
 }

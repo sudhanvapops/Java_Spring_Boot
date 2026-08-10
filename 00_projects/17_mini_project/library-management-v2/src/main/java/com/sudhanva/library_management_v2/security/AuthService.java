@@ -1,4 +1,4 @@
-package com.sudhanva.library_management_v2.Service;
+package com.sudhanva.library_management_v2.security;
 
 
 import com.sudhanva.library_management_v2.repo.RefreshTokenRepo;
@@ -17,21 +17,19 @@ import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.logout.LogoutResponseDto;
-import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshServiceResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
-import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenExistsException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenRecordExists;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NotRefreshTokenException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenExpiredException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenRevokedException;
+import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenSubjectMismatchException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UsernameAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
 import com.sudhanva.library_management_v2.repo.UserRepo;
-import com.sudhanva.library_management_v2.security.JwtService;
-import com.sudhanva.library_management_v2.security.UserPrincipal;
 
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
@@ -50,6 +48,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
+    private static final String REFRESH_TOKEN_TYPE = "refresh";
 
 
     private RegisterResponseDto mapToRegisterResponseDto(User user){
@@ -88,22 +87,38 @@ public class AuthService {
             .build();
     }
 
-    private RefreshResponseDto mapToRefreshResponseDto(
+    private RefreshServiceResponseDto mapToRefreshServiceResponseDto(
         String accessToken,
+        String newRefrshToken,
         UserPrincipal principal
     ){
-        return RefreshResponseDto
+        return RefreshServiceResponseDto
             .builder()
             .email(principal.getEmail())
             .role(principal.getRole())
             .accessTokenType("Bearer")
             .accessToken(accessToken)
+            .newRefrshToken(newRefrshToken)
             .userId(principal.getId())
             .build();
     }
 
     private LogoutResponseDto mapToLogoutResponseDto(Claims claims){
         return LogoutResponseDto.builder().user(claims.getSubject()).build();
+    }
+
+    // Shared by refreshAccessToken() and logout(): confirms the JWT is actually a
+    // refresh token and resolves its persisted RefreshToken record.
+    private RefreshToken findValidatedRefreshToken(Claims claims){
+        String tokenType = claims.get("type", String.class);
+        if (!REFRESH_TOKEN_TYPE.equals(tokenType)){
+            throw new NotRefreshTokenException();
+        }
+
+        String jti = claims.get("jti", String.class);
+        return refreshTokenRepo
+            .findByJti(jti)
+            .orElseThrow(() -> new NoRefreshTokenRecordExists(jti));
     }
 
 
@@ -195,83 +210,60 @@ public class AuthService {
 
 
     @Transactional
-    public ApiResponse<RefreshResponseDto> refreshAccesssToken(
+    public ApiResponse<RefreshServiceResponseDto> refreshAccessToken(
         String refreshToken
     ){
 
-        // validate token
-        // extract claims
         Claims claims = jwtService.getAllClaims(refreshToken);
+        RefreshToken storedToken = findValidatedRefreshToken(claims);
 
-        String jti = claims.get("jti",String.class);
-        String tokenType = claims.get("type",String.class);
-
-        if (!"refresh".equals(tokenType)){
-            throw new NotRefreshTokenException();
-        }
-
-        // search db
-        RefreshToken storedToken = refreshTokenRepo
-            .findByJti(jti)
-            .orElseThrow(
-                () -> new NoRefreshTokenRecordExists(jti)
-            );
-
-        // check revoked
-        if(storedToken.isRevoked()){
+        if (storedToken.isRevoked()){
             throw new TokenRevokedException();
         }
 
-        // check expiration
         if (storedToken.getExpiresAt().isBefore(Instant.now())){
             throw new TokenExpiredException();
         }
 
-        // genrate Access Token
         User user = storedToken.getUser();
+
+        // Guards against a stale refresh token outliving an email change on the account
+        if (!claims.getSubject().equals(user.getEmail())){
+            throw new TokenSubjectMismatchException();
+        }
 
         UserPrincipal userDetails = new UserPrincipal(user);
 
-        // return response
+        // Rotate: mint a new access + refresh token pair, then revoke the old refresh token
         String newAccessToken = jwtService.generateAccessToken(userDetails);
-        RefreshResponseDto responseDto =  mapToRefreshResponseDto(newAccessToken,userDetails);
+
+        String newJti = UUID.randomUUID().toString();
+        String newRefreshToken = jwtService.generateRefrehToken(userDetails, newJti);
+        Instant newRefreshTokenExpiresAt = jwtService.getExpiration(newRefreshToken).toInstant();
+
+        storedToken.setRevoked(true);
+        refreshTokenRepo.save(storedToken);
+        refreshTokenService.save(newJti, user, newRefreshTokenExpiresAt);
 
         return new ApiResponse<>(
             true,
-            "Access Token Has Refershed",
-            responseDto
+            "Access token refreshed",
+            mapToRefreshServiceResponseDto(newAccessToken, newRefreshToken, userDetails)
         );
     }
 
+    @Transactional
     public ApiResponse<LogoutResponseDto> logout(String refreshToken) {
-       
-        // Validate Token
+
         Claims claims = jwtService.getAllClaims(refreshToken);
+        RefreshToken storedToken = findValidatedRefreshToken(claims);
 
-
-        // Get Credentials
-        String jti = claims.get("jti",String.class);
-        String tokenType = claims.get("type",String.class);
-
-        if (!"refresh".equals(tokenType)){
-            throw new NotRefreshTokenException();
-        }
-
-        // seacrh Db
-        RefreshToken storedToken = refreshTokenRepo.findByJti(jti)
-            .orElseThrow(
-                () -> new NoRefreshTokenRecordExists(jti)
-            );
-
-        // revoke
         storedToken.setRevoked(true);
-
         refreshTokenRepo.save(storedToken);
 
-        // return
         return new ApiResponse<>(
             true,
-            "User has been Revoked: ",
+            "User has been logged out",
             mapToLogoutResponseDto(claims)
         );
 

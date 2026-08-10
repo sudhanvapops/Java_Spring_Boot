@@ -1,4 +1,4 @@
-package com.sudhanva.library_management_v2.controller.Auth;
+package com.sudhanva.library_management_v2.security.Auth;
 
 import java.time.Duration;
 
@@ -16,10 +16,11 @@ import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.logout.LogoutResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshServiceResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
-import com.sudhanva.library_management_v2.Service.AuthService;
+import com.sudhanva.library_management_v2.security.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,6 +40,21 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     final AuthService authService;
+
+
+    // Helper Method
+    
+    private RefreshResponseDto mapToRefreshResponseDto(RefreshServiceResponseDto result) {
+         return RefreshResponseDto
+            .builder()
+            .email(result.email())
+            .role(result.role())
+            .accessTokenType("Bearer")
+            .accessToken(result.accessToken())
+            .userId(result.userId())
+            .build();
+    }
+
 
 
     // Public signup (MEMBER only)
@@ -97,21 +113,47 @@ public class AuthController {
 
 
     @Operation(summary = "Refresh the access token", description = "Reads the httpOnly refreshToken cookie set by /login, validates it against the stored record, "
-        + "and issues a new short-lived access token. The refresh token itself is not rotated or reissued.")
+        + "and issues a new short-lived access token together with a rotated refresh token (the old refresh token is revoked).")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Access token refreshed",
-        content = @Content(schema = @Schema(implementation = RefreshResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = RefreshServiceResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "refreshToken cookie is missing",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Refresh token is not of type refresh, has no matching record, "
-        + "has been revoked, or has expired",
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Refresh token is malformed/expired (as a JWT), not of type refresh, "
+        + "has no matching record, has been revoked, has expired (per the stored record), or its subject no longer matches the associated user",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshResponseDto>> refresh(
         @Parameter(description = "httpOnly refreshToken cookie set by /login", required = true)
-        @CookieValue(value = "refreshToken") String refreshToken
+        @CookieValue(value = "refreshToken") String refreshToken,
+        HttpServletResponse response
     ){
-        ApiResponse<RefreshResponseDto> response = authService.refreshAccesssToken(refreshToken);
-        return ResponseEntity.ok(response);
+        ApiResponse<RefreshServiceResponseDto> result = authService.refreshAccessToken(refreshToken);
+
+        ResponseCookie refreshCookie = ResponseCookie
+            .from("refreshToken",result.data().newRefrshToken())
+            .httpOnly(true)
+            // can send it http and https
+            // production make it true
+            .secure(false)
+            // cross site
+            .sameSite("strict")
+            .path("/api/auth")
+            .maxAge(Duration.ofDays(7))
+            .build();
+
+        response.addHeader(
+            HttpHeaders.SET_COOKIE,
+            refreshCookie.toString()
+        );
+
+
+        return ResponseEntity.ok(
+            new ApiResponse<>(
+                result.success(),
+                result.message(),
+                mapToRefreshResponseDto(result.data())
+            )
+        );
     }
 
 
