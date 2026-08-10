@@ -11,7 +11,6 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Service;
 
 import com.sudhanva.library_management_v2.config.JwtConfig;
-import com.sudhanva.library_management_v2.exceptions.UserExceptions.UserNotFoundException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

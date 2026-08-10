@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.logout.LogoutResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +83,7 @@ public class AuthController {
             .secure(false)
             // cross site
             .sameSite("strict")
-            .path("/api/auth/refresh")
+            .path("/api/auth")
             .maxAge(Duration.ofDays(7))
             .build();
         
@@ -106,14 +108,35 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<RefreshResponseDto>> refresh(
         @Parameter(description = "httpOnly refreshToken cookie set by /login", required = true)
-        @CookieValue(value = "refreshToken", required = false) String refreshToken
+        @CookieValue(value = "refreshToken") String refreshToken
     ){
         ApiResponse<RefreshResponseDto> response = authService.refreshAccesssToken(refreshToken);
         return ResponseEntity.ok(response);
     }
 
 
-    // TODO: Logout Route
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<LogoutResponseDto>> logout(
+        @CookieValue(value = "refreshToken") String refreshToken,
+        HttpServletResponse response
+    ){
+        
+        ApiResponse<LogoutResponseDto> result = 
+            authService.logout(refreshToken);
+
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/api/auth");
+        cookie.setMaxAge(0);
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(result);
+
+    }
+
+
     // TODO: Delete USER
 
 }

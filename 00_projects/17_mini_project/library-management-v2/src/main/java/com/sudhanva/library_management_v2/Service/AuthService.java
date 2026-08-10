@@ -16,6 +16,7 @@ import com.sudhanva.library_management_v2.Model.User;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.login.LoginResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.logout.LogoutResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
@@ -101,6 +102,10 @@ public class AuthService {
             .build();
     }
 
+    private LogoutResponseDto mapToLogoutResponseDto(Claims claims){
+        return LogoutResponseDto.builder().user(claims.getSubject()).build();
+    }
+
 
     // Service Methods
 
@@ -116,19 +121,13 @@ public class AuthService {
 
 
         // 2. Check user already exists
-        User existingUser = userRepo.existsByUsername(request.username())
-            .orElse(null);
-
-        if (existingUser != null){
+        if (userRepo.existsByUsername(request.username())){
             throw new UsernameAlreadyExistsException(request.username());
         }
 
 
         // 3. Check email uniqueness
-        User existingUserByEmail = userRepo.existsByEmail(request.email())
-            .orElse(null);
-
-        if(existingUserByEmail != null){
+        if (userRepo.existsByEmail(request.email())){
             throw new MemberEmailAlreadyExistsException(request.email());
         }
 
@@ -242,6 +241,40 @@ public class AuthService {
             "Access Token Has Refershed",
             responseDto
         );
+    }
+
+    public ApiResponse<LogoutResponseDto> logout(String refreshToken) {
+       
+        // Validate Token
+        Claims claims = jwtService.getAllClaims(refreshToken);
+
+
+        // Get Credentials
+        String jti = claims.get("jti",String.class);
+        String tokenType = claims.get("type",String.class);
+
+        if (!"refresh".equals(tokenType)){
+            throw new NotRefreshTokenException();
+        }
+
+        // seacrh Db
+        RefreshToken storedToken = refreshTokenRepo.findByJti(jti)
+            .orElseThrow(
+                () -> new NoRefreshTokenRecordExists(jti)
+            );
+
+        // revoke
+        storedToken.setRevoked(true);
+
+        refreshTokenRepo.save(storedToken);
+
+        // return
+        return new ApiResponse<>(
+            true,
+            "User has been Revoked: ",
+            mapToLogoutResponseDto(claims)
+        );
+
     }
 
 }
