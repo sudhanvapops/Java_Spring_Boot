@@ -51,6 +51,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // GrantedAuthority represents something that the authenticated user is allowed to have/do.
         return Collections.singleton(
                 new SimpleGrantedAuthority("ROLE_" + role)
         );

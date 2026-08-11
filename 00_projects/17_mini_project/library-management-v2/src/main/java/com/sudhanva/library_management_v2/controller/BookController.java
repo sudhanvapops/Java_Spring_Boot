@@ -21,6 +21,7 @@ import com.sudhanva.library_management_v2.Model.Dto.Book.BookRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.Service.BookService;
+import com.sudhanva.library_management_v2.security.authorization.StaffOnly;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -105,6 +106,7 @@ public class BookController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Request failed validation, or available copies exceed total copies")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "A book with the same name and author already exists",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @StaffOnly
     @PostMapping
     public ResponseEntity<ApiResponse<BookResponse>> addBook(
         @Valid @RequestBody BookRequest bookRequest
@@ -125,6 +127,7 @@ public class BookController {
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Book is inactive, or another book already has the same name and author",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @StaffOnly
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> updateBookById(
         @Parameter(description = "Book id") @PathVariable Long id,
@@ -144,6 +147,7 @@ public class BookController {
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Book is already inactive, or currently borrowed",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @StaffOnly
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> deleteBook(
         @Parameter(description = "Book id") @PathVariable Long id
@@ -161,6 +165,7 @@ public class BookController {
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Book is already active "
         + "(currently returns a generic server error - no dedicated handler wired up for this case yet)")
+    @StaffOnly
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ApiResponse<BookResponse>> activateBook(
         @Parameter(description = "Book id") @PathVariable Long id

@@ -17,6 +17,7 @@ import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenExpired
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenRevokedException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenSubjectMismatchException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
+import com.sudhanva.library_management_v2.exceptions.UserExceptions.InvalidStaffRoleException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UserEmailAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UsernameAlreadyExistsException;
@@ -87,6 +88,18 @@ public class AuthExcptionHandlers {
                 .body(mapToErrorResponseDto(
                         exception,
                         ErrorCode.USERNAME_ALREADY_EXISTS_EXCEPTION));
+    }
+
+    // /api/auth/register-staff - requested role wasn't ADMIN or LIBRARIAN
+    @ExceptionHandler(InvalidStaffRoleException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidStaffRoleException(
+        InvalidStaffRoleException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapToErrorResponseDto(
+                        exception,
+                        ErrorCode.INVALID_STAFF_ROLE));
     }
 
     // Covers BadCredentialsException (wrong password) and the UsernameNotFoundException

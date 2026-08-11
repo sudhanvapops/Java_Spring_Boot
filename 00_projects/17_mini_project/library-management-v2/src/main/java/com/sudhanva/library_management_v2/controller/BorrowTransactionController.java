@@ -16,6 +16,7 @@ import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransacti
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
+import com.sudhanva.library_management_v2.security.authorization.StaffOnly;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +32,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/borrow-transactions")
 @Tag(name = "Borrow Transactions", description = "Endpoints for borrowing books and viewing borrow transactions")
 @SecurityRequirement(name = "bearerAuth")
+@StaffOnly
 public class BorrowTransactionController {
 
 

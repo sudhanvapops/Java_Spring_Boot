@@ -20,6 +20,7 @@ import com.sudhanva.library_management_v2.Model.Dto.Auth.logout.LogoutResponseDt
 import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshServiceResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.register.StaffRegisterRequestDto;
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenRecordExists;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NotRefreshTokenException;
@@ -27,6 +28,7 @@ import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenExpired
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenRevokedException;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.TokenSubjectMismatchException;
 import com.sudhanva.library_management_v2.exceptions.MemberExceptions.MemberEmailAlreadyExistsException;
+import com.sudhanva.library_management_v2.exceptions.UserExceptions.InvalidStaffRoleException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.UsernameAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.UserExceptions.PasswordAndConfirmPasswordDoesntMatchException;
 import com.sudhanva.library_management_v2.repo.UserRepo;
@@ -60,12 +62,25 @@ public class AuthService {
             .build();
     }
 
+    // Public self-signup always creates a MEMBER account - it's the only
+    // role that isn't a privilege escalation for an anonymous caller.
+    // ADMIN/LIBRARIAN accounts are provisioned via registerStaff() instead.
     private User getUser(RegisterRequestDto request) {
         User user = User.builder()
             .email(request.email())
             .username(request.username())
             .isActive(true)
-            .role(UserRoles.LIBRARIAN)
+            .role(UserRoles.MEMBER)
+            .build();
+        return user;
+    }
+
+    private User getStaffUser(StaffRegisterRequestDto request) {
+        User user = User.builder()
+            .email(request.email())
+            .username(request.username())
+            .isActive(true)
+            .role(request.role())
             .build();
         return user;
     }
@@ -159,7 +174,54 @@ public class AuthService {
         // 6. Return response
         return new ApiResponse<>(
             true,
-            "Librarain Account created Successfully",
+            "Member Account created Successfully",
+            mapToRegisterResponseDto(savedUser)
+        );
+    }
+
+
+    // Admin-only: provisions LIBRARIAN or ADMIN accounts. Kept separate from
+    // register() so the public signup path can never be used to self-assign
+    // a privileged role.
+    @Transactional
+    public ApiResponse<RegisterResponseDto> registerStaff(
+        StaffRegisterRequestDto request
+    ) {
+
+        // 1. Validate requested role is actually a staff role
+        if (request.role() != UserRoles.ADMIN && request.role() != UserRoles.LIBRARIAN) {
+            throw new InvalidStaffRoleException(request.role());
+        }
+
+        // 2. Validate password confirmation
+        if(!request.password().equals(request.confirmPassword())){
+            throw new PasswordAndConfirmPasswordDoesntMatchException();
+        }
+
+        // 3. Check user already exists
+        if (userRepo.existsByUsername(request.username())){
+            throw new UsernameAlreadyExistsException(request.username());
+        }
+
+        // 4. Check email uniqueness
+        if (userRepo.existsByEmail(request.email())){
+            throw new MemberEmailAlreadyExistsException(request.email());
+        }
+
+        // 5. Create User
+        User user = getStaffUser(request);
+
+        // hash Password
+        String hashedPassword = passwordEncoder.encode(request.password());
+        user.setPassword(hashedPassword);
+
+        // 6. Save
+        User savedUser = userRepo.save(user);
+
+        // 7. Return response
+        return new ApiResponse<>(
+            true,
+            request.role() + " Account created Successfully",
             mapToRegisterResponseDto(savedUser)
         );
     }

@@ -20,6 +20,8 @@ import com.sudhanva.library_management_v2.Model.Dto.Settings.SettingsRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Settings.SettingsResponseDto;
 import com.sudhanva.library_management_v2.Service.LibrarySettingsService;
 import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
+import com.sudhanva.library_management_v2.security.authorization.AdminOnly;
+import com.sudhanva.library_management_v2.security.authorization.StaffOnly;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +36,9 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/settings")
 @Tag(name = "Library Settings", description = "Endpoints for managing configurable library settings (e.g. max books, max borrow days, fine per day)")
 @SecurityRequirement(name = "bearerAuth")
+// Default for the whole controller is staff-read; mutating endpoints below
+// tighten this to @AdminOnly since they change library-wide policy.
+@StaffOnly
 public class LibrarySettingsController {
 
 
@@ -80,6 +85,7 @@ public class LibrarySettingsController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Request failed validation, or the setting value does not match the given value type")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "A setting already exists with the given key",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @AdminOnly
     @PostMapping
     public ResponseEntity<ApiResponse<SettingsResponseDto>> createSetting(
         @Valid @RequestBody CreateSettingRequestDto createSettingRequestDto
@@ -97,6 +103,7 @@ public class LibrarySettingsController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Request failed validation, or the new value does not match the setting's existing value type")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No setting exists with the given key",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @AdminOnly
     @PutMapping
     public ResponseEntity<ApiResponse<SettingsResponseDto>> setSetting(
         @Valid @RequestBody SettingsRequestDto settingsRequestDto
@@ -113,6 +120,7 @@ public class LibrarySettingsController {
         content = @Content(schema = @Schema(implementation = SettingsResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No setting exists with the given key",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @AdminOnly
     @DeleteMapping("/{key}")
     public ResponseEntity<ApiResponse<SettingsResponseDto>> deleteSetting(
         @Parameter(description = "Setting key") @PathVariable SettingKey key

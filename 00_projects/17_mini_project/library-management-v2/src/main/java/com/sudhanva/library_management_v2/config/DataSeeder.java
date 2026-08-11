@@ -3,15 +3,18 @@ package com.sudhanva.library_management_v2.config;
 import com.sudhanva.library_management_v2.Model.Book;
 import com.sudhanva.library_management_v2.Model.LibrarySettings;
 import com.sudhanva.library_management_v2.Model.Member;
+import com.sudhanva.library_management_v2.Model.User;
 import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
 import com.sudhanva.library_management_v2.enums.Setting.SettingValueType;
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 import com.sudhanva.library_management_v2.repo.LibrarySettingsRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
+import com.sudhanva.library_management_v2.repo.UserRepo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -50,6 +53,29 @@ public class DataSeeder {
 
                 memberRepo.saveAll(members);
                 System.out.println("Dummy members inserted successfully!");
+            }
+        };
+    }
+
+    // Dev-only bootstrap: without this there's no way to reach an ADMIN
+    // account at all, since public registration only ever creates MEMBER
+    // accounts and staff accounts can only be created by an existing admin
+    // (see AuthService.registerStaff / AuthController#registerStaff).
+    // Change/rotate this password before deploying anywhere real.
+    @Bean
+    CommandLineRunner seedAdminUser(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (userRepo.count() == 0) {
+                User admin = User.builder()
+                        .username("admin")
+                        .email("admin@library.local")
+                        .password(passwordEncoder.encode("Admin@12345"))
+                        .role(UserRoles.ADMIN)
+                        .isActive(true)
+                        .build();
+
+                userRepo.save(admin);
+                System.out.println("Seeded default admin user - email: admin@library.local / password: Admin@12345 (change this before deploying anywhere real)");
             }
         };
     }

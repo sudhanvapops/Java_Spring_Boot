@@ -13,6 +13,7 @@ import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
 import com.sudhanva.library_management_v2.Service.MemberService;
+import com.sudhanva.library_management_v2.security.authorization.StaffOnly;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/member")
 @Tag(name = "Members", description = "Endpoints for managing library members")
 @SecurityRequirement(name = "bearerAuth")
+@StaffOnly
 public class MemberController {
 
     private final MemberService memberService;

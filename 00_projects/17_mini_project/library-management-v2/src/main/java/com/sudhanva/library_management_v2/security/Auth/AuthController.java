@@ -19,13 +19,16 @@ import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshResponse
 import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshServiceResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Auth.register.StaffRegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
 import com.sudhanva.library_management_v2.security.AuthService;
+import com.sudhanva.library_management_v2.security.authorization.AdminOnly;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,7 +61,8 @@ public class AuthController {
 
 
     // Public signup (MEMBER only)
-    @Operation(summary = "Register a new librarian account", description = "Public signup; accounts are always created with the LIBRARIAN role")
+    @Operation(summary = "Register a new member account", description = "Public signup; accounts are always created with the MEMBER role. "
+        + "ADMIN/LIBRARIAN accounts can only be created by an existing admin via /register-staff")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Account created",
         content = @Content(schema = @Schema(implementation = RegisterResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "password and confirmPassword do not match",
@@ -72,6 +76,32 @@ public class AuthController {
 
         ApiResponse<RegisterResponseDto> response =
             authService.register(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    // Admin-only staff provisioning (ADMIN or LIBRARIAN)
+    @Operation(summary = "Register a new staff account", description = "Creates an ADMIN or LIBRARIAN account. Restricted to existing admins.")
+    @SecurityRequirement(name = "bearerAuth")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Account created",
+        content = @Content(schema = @Schema(implementation = RegisterResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Requested role was not ADMIN or LIBRARIAN",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Caller is not an admin",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "password and confirmPassword do not match",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "A user with the same email or username already exists",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @AdminOnly
+    @PostMapping("/register-staff")
+    public ResponseEntity<ApiResponse<RegisterResponseDto>> registerStaff(
+       @Valid @RequestBody StaffRegisterRequestDto request
+    ){
+
+        ApiResponse<RegisterResponseDto> response =
+            authService.registerStaff(request);
 
         return ResponseEntity.ok(response);
     }
