@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as settingsApi from "@/lib/api/services/settings";
 import { isNormalizedApiError } from "@/lib/api/client";
@@ -10,13 +11,14 @@ export function useSettingsRaw() {
 }
 
 /** Parsed { MAX_BOOKS, MAX_BORROW_DAYS, FINE_PER_DAY }, null for any key not
- * yet configured. */
+ * yet configured. Memoized on query.data — deriveSettings would otherwise
+ * return a new object every render, and callers that put this in a useMemo/
+ * useEffect dependency array (e.g. useMember) would recompute on every
+ * render, which for a useEffect that calls setState is an infinite loop. */
 export function useSettings() {
   const query = useSettingsRaw();
-  return {
-    ...query,
-    data: query.data ? deriveSettings(query.data) : undefined,
-  };
+  const data = useMemo(() => (query.data ? deriveSettings(query.data) : undefined), [query.data]);
+  return { ...query, data };
 }
 
 /** Save independently per key: PUT if the key already exists, POST if not

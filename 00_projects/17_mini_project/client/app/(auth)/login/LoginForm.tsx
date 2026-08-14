@@ -14,6 +14,7 @@ import { loginSchema, type LoginFormValues } from "@/lib/schemas/auth";
 import { useLogin } from "@/lib/hooks/useAuth";
 import { isNormalizedApiError } from "@/lib/api/client";
 import { safeNextPath } from "@/lib/utils/url";
+import { homeFor } from "@/lib/utils/rbac";
 
 export function LoginForm() {
     const router = useRouter();
@@ -33,15 +34,21 @@ export function LoginForm() {
 
     const onSubmit = handleSubmit(async (values) => {
         try {
-            await login.mutateAsync({ email: values.email, password: values.password });
-            router.push(safeNextPath(searchParams.get("next")));
+            const data = await login.mutateAsync({ email: values.email, password: values.password });
+            router.push(safeNextPath(searchParams.get("next"), homeFor(data.role)));
         } catch {
             // handled by login.error below — credential failures sit above the
-            // form, never on a field, per uploads/09-error-codes.md INVALID_CREDENTIALS.
+            // form, never on a field (BACKEND_HANDOFF.md §3.10: UNAUTHORIZED on
+            // /login is deliberately generic for any bad email/password combo).
         }
     });
 
-    const formError = login.error && isNormalizedApiError(login.error) ? login.error.userMessage : null;
+    const formError =
+        login.error && isNormalizedApiError(login.error)
+            ? login.error.errorCode === "UNAUTHORIZED"
+                ? "That email and password don't match."
+                : login.error.userMessage
+            : null;
 
     return (
         <AuthCard
@@ -50,7 +57,7 @@ export function LoginForm() {
             error={formError}
             footer={
                 <>
-                    New here? <Link href="/signup">Create an account</Link>
+                    Not staff? <Link href="/signup">Register as a member</Link>
                 </>
             }
         >
@@ -60,9 +67,7 @@ export function LoginForm() {
                     <Input id="email" type="email" autoComplete="email" autoFocus invalid={!!errors.email} error={errors.email?.message} {...register("email")} />
                 </div>
                 <div>
-                    <Label htmlFor="password" hint={<Link href="/forgot-password">Forgot password?</Link>}>
-                        Password
-                    </Label>
+                    <Label htmlFor="password">Password</Label>
                     <PasswordField
                         id="password"
                         autoComplete="current-password"

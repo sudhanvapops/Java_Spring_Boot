@@ -1,6 +1,8 @@
 package com.sudhanva.library_management_v2.config;
 
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.sudhanva.library_management_v2.exceptions.ExceptionHandlers.CustomAccessDeniedHandler;
 import com.sudhanva.library_management_v2.security.CustomAuthenticationEntryPoint;
@@ -56,7 +61,7 @@ public class SecurityConfig {
                     ).permitAll()
                     .anyRequest().authenticated()
             )
-            // TODO: Enable CORS
+            .cors( cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf( csrf -> csrf.disable())
             .sessionManagement( session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -68,6 +73,28 @@ public class SecurityConfig {
             ;
 
         return http.build();
+    }
+
+
+    // The frontend (localhost:3000) and API (localhost:8080) are cross-origin.
+    // withCredentials/cookies require the exact origin here — "*" is not
+    // legal alongside allowCredentials(true).
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        // X-Correlation-Id: lib/api/client.ts on the frontend adds it to every
+        // apiClient request outside production for request tracing in the
+        // console. "*" isn't honored here once allowCredentials is true (the
+        // Fetch spec treats it as a literal header name, not a wildcard), so
+        // it has to be listed explicitly like the rest.
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Correlation-Id"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
 

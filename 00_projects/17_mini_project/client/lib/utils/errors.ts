@@ -68,21 +68,30 @@ export const ERROR_DEFINITIONS: Partial<Record<ErrorCode, ErrorDefinition>> = {
     treatment: "toast",
   },
 
-  // Auth — PROPOSED
-  INVALID_CREDENTIALS: { message: "That email and password don't match.", treatment: "banner" },
-  ACCOUNT_INACTIVE: {
-    message: "This account is deactivated. Contact a librarian to reactivate it.",
-    treatment: "blocking",
+  // Auth (enums/Error/ErrorCode.java — see BACKEND_HANDOFF.md §3.9/§3.10)
+  PASSWORD_AND_CONFIRM_PASSWORD_DOESNT_MATCH: {
+    message: "Those passwords don't match.",
+    treatment: "inline",
   },
-  EMAIL_NOT_VERIFIED: { message: "Verify your email before signing in.", treatment: "blocking" },
-  ACCOUNT_ALREADY_EXISTS: { message: "That email is already registered.", treatment: "inline" },
-  TOKEN_EXPIRED: { message: "This link has expired. Request a new one.", treatment: "blocking" },
-  TOKEN_INVALID: { message: "This link isn't valid. Request a new one.", treatment: "blocking" },
-  TOKEN_ALREADY_USED: { message: "This link has already been used. Request a new one.", treatment: "blocking" },
-  PASSWORD_TOO_WEAK: { message: "Choose a longer password.", treatment: "inline" },
-  RATE_LIMIT_EXCEEDED: { message: "Too many attempts. Try again in a moment.", treatment: "banner" },
+  USER_EMAIL_ALREADY_EXISTS: { message: "That email is already registered.", treatment: "inline" },
+  USERNAME_ALREADY_EXISTS_EXCEPTION: { message: "That username is taken.", treatment: "inline" },
+  // On /login this reads as "That email and password don't match." — the
+  // generic UNAUTHORIZED message below is a deliberately-vague fallback for
+  // every other 401 (missing/expired token), so login overrides it inline
+  // (see LoginForm.tsx).
   UNAUTHORIZED: { message: "Sign in to continue.", treatment: "blocking" },
-  FORBIDDEN: { message: "You don't have access to this page.", treatment: "blocking" },
+  // Signed in, just not allowed — never redirect to login on this one.
+  FORBIDDEN: { message: "You do not have permission to access this resource.", treatment: "blocking" },
+  INVALID_STAFF_ROLE: { message: "Choose admin or librarian.", treatment: "inline" },
+
+  // Refresh
+  NO_REFRESH_TOKEN_EXISTS: { message: "Sign in to continue.", treatment: "blocking" },
+  NOT_REFRESH_TOKEN: { message: "Sign in to continue.", treatment: "blocking" },
+  NO_REFRESH_TOKEN_RECORD_EXISTS: { message: "Sign in to continue.", treatment: "blocking" },
+  TOKEN_REVOKED: { message: "Your session has ended. Sign in again.", treatment: "blocking" },
+  TOKEN_EXPIRED: { message: "Your session has ended. Sign in again.", treatment: "blocking" },
+  TOKEN_SUBJECT_MISMATCH: { message: "Your session has ended. Sign in again.", treatment: "blocking" },
+  INVALID_REFRESH_TOKEN: { message: "Your session has ended. Sign in again.", treatment: "blocking" },
 
   // Client-synthesized
   NETWORK_ERROR: {

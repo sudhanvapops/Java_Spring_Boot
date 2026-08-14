@@ -52,19 +52,21 @@ export type ErrorCode =
   | "SETTING_ALREADY_EXISTS"
   | "VALIDATION_FAILED"
   | "INTERNAL_SERVER_ERROR"
-  // Auth — PROPOSED
-  | "INVALID_CREDENTIALS"
-  | "ACCOUNT_INACTIVE"
-  | "EMAIL_NOT_VERIFIED"
-  | "ACCOUNT_ALREADY_EXISTS"
-  | "TOKEN_EXPIRED"
-  | "TOKEN_INVALID"
-  | "TOKEN_ALREADY_USED"
-  | "PASSWORD_TOO_WEAK"
-  | "PASSWORD_MISMATCH"
-  | "RATE_LIMIT_EXCEEDED"
+  // Auth (enums/Error/ErrorCode.java — see BACKEND_HANDOFF.md §3.10)
+  | "PASSWORD_AND_CONFIRM_PASSWORD_DOESNT_MATCH"
+  | "USER_EMAIL_ALREADY_EXISTS"
+  | "USERNAME_ALREADY_EXISTS_EXCEPTION"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
+  | "INVALID_STAFF_ROLE"
+  // Refresh
+  | "NO_REFRESH_TOKEN_EXISTS"
+  | "NOT_REFRESH_TOKEN"
+  | "NO_REFRESH_TOKEN_RECORD_EXISTS"
+  | "TOKEN_REVOKED"
+  | "TOKEN_EXPIRED"
+  | "TOKEN_SUBJECT_MISMATCH"
+  | "INVALID_REFRESH_TOKEN"
   // Client-synthesized
   | "NETWORK_ERROR"
   | "TIMEOUT"
@@ -115,6 +117,9 @@ export interface MemberResponseDto {
   email: string;
   age: number;
   isActive: boolean;
+  /** Always literally "MEMBER" — MemberService hardcodes it; a DTO artifact
+   * since Member and User aren't linked (see BACKEND_HANDOFF.md §3.2/§4). */
+  role: "MEMBER";
 }
 
 // ---- Borrow transactions --------------------------------------------
@@ -199,37 +204,39 @@ export interface SettingsRequestDto {
   settingValue: string;
 }
 
-// ---- Auth — PROPOSED, none of this exists in the backend yet ----------
+// ---- Auth — real, implemented contract (BACKEND_HANDOFF.md §3) --------
 
-export type AccountRole = "LIBRARIAN" | "MEMBER";
+export type AccountRole = "MEMBER" | "ADMIN" | "LIBRARIAN";
 
-export interface AccountDto {
-  id: number;
+/** Public signup registers the caller as a Member (a library patron staff
+ * can look up and lend books to), not a User login account — Members have
+ * no password, and User accounts are staff-only (created via
+ * /register-staff). Same shape as MemberRequestDto minus `isActive`, which
+ * the backend always sets true for a new signup. */
+export interface RegisterRequestDto {
   name: string;
   email: string;
-  role: AccountRole;
-  isActive: boolean;
-  emailVerified: boolean;
-  memberId: number | null;
-  createdAt: ISODateString;
+  age: number;
 }
 
-export interface AuthResponseDto {
-  accessToken: string;
-  expiresIn: number;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: AccountRole;
-    memberId: number | null;
-  };
-}
+/** Identical to MemberResponseDto — /api/auth/register delegates straight
+ * to the same MemberService the staff-only /api/member endpoints use. */
+export type RegisterResponseDto = MemberResponseDto;
 
-export interface SignupRequestDto {
-  name: string;
+/** POST /api/auth/register-staff — @AdminOnly. Same shape as register plus
+ * a required role. */
+export interface StaffRegisterRequestDto {
+  username: string;
   email: string;
   password: string;
+  confirmPassword: string;
+  role: "ADMIN" | "LIBRARIAN";
+}
+
+export interface StaffRegisterResponseDto {
+  username: string;
+  email: string;
+  role: "ADMIN" | "LIBRARIAN";
 }
 
 export interface LoginRequestDto {
@@ -237,16 +244,29 @@ export interface LoginRequestDto {
   password: string;
 }
 
-export interface ForgotPasswordRequestDto {
+/** `refreshToken` arrives in the body AND via Set-Cookie — both real. There
+ * is no `username`/`name` field anywhere in this response. */
+export interface LoginResponseDto {
+  accessToken: string;
+  accessTokenType: "Bearer";
+  refreshToken: string;
+  refreshTokenType: "Cookie";
+  userId: number;
   email: string;
+  role: AccountRole;
 }
 
-export interface ResetPasswordRequestDto {
-  token: string;
-  password: string;
+/** POST /api/auth/refresh — no body, reads the `refreshToken` cookie.
+ * Carries full identity, so this response alone rehydrates a session on
+ * app load; there is no separate /me endpoint. */
+export interface RefreshResponseDto {
+  accessToken: string;
+  accessTokenType: "Bearer";
+  userId: number;
+  email: string;
+  role: AccountRole;
 }
 
-export interface ChangePasswordRequestDto {
-  currentPassword: string;
-  newPassword: string;
+export interface LogoutResponseDto {
+  user: string;
 }

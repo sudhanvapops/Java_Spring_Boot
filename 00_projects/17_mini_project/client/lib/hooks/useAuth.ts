@@ -1,32 +1,40 @@
-import { useCallback } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as authApi from "@/lib/api/services/auth";
 import { refreshAccessToken } from "@/lib/api/client";
 import { useAuthStore } from "@/lib/stores/auth";
-import type {
-  ChangePasswordFormValues,
-  LoginFormValues,
-  ResetPasswordFormValues,
-  SignupFormValues,
-} from "@/lib/schemas/auth";
+import type { LoginFormValues, StaffRegisterFormValues } from "@/lib/schemas/auth";
+import type { MemberFormValues } from "@/lib/schemas/member";
 
-function toAccount(user: { id: number; name: string; email: string; role: "LIBRARIAN" | "MEMBER"; memberId: number | null }) {
-  return { id: user.id, name: user.name, email: user.email, role: user.role, memberId: user.memberId };
-}
+/** The access token lives 30s (BACKEND_HANDOFF.md §3.5) — refresh well
+ * before it expires rather than only reactively on 401, or normal usage
+ * spends a lot of time retrying. */
+const PROACTIVE_REFRESH_MS = 15_000;
 
 export function useLogin() {
   const setSession = useAuthStore((s) => s.setSession);
   return useMutation({
     mutationFn: (values: Pick<LoginFormValues, "email" | "password">) => authApi.login(values),
-    onSuccess: (data) => setSession(toAccount(data.user), data.accessToken),
+    onSuccess: (data) => setSession({ id: data.userId, email: data.email, role: data.role }, data.accessToken),
   });
 }
 
-export function useSignup() {
-  const setSession = useAuthStore((s) => s.setSession);
+/** Public self-signup — registers the caller as a Member (library patron),
+ * not a login account (§3.2/§3.3; user accounts are staff-only). No
+ * onSuccess session handling: there's nothing to log in to. */
+export function useRegister() {
   return useMutation({
-    mutationFn: (values: Pick<SignupFormValues, "name" | "email" | "password">) => authApi.signup(values),
-    onSuccess: (data) => setSession(toAccount(data.user), data.accessToken),
+    mutationFn: (values: MemberFormValues) => authApi.register(values),
+  });
+}
+
+/** @AdminOnly — only usable by an already-signed-in admin. Does not touch
+ * the caller's own session. */
+export function useRegisterStaff() {
+  return useMutation({
+    mutationFn: (
+      values: Pick<StaffRegisterFormValues, "username" | "email" | "password" | "confirmPassword" | "role">,
+    ) => authApi.registerStaff(values),
   });
 }
 
@@ -42,39 +50,6 @@ export function useLogout() {
   });
 }
 
-export function useForgotPassword() {
-  return useMutation({ mutationFn: (values: { email: string }) => authApi.forgotPassword(values) });
-}
-
-/** Gates the /reset-password form on mount per uploads/05-auth-spec.md —
- * a missing token never even calls the network. */
-export function useValidateResetToken(token: string | null) {
-  return useQuery({
-    queryKey: ["auth", "reset-password", "validate", token],
-    queryFn: () => authApi.validateResetToken(token as string),
-    enabled: !!token,
-    retry: false,
-    staleTime: 0,
-  });
-}
-
-export function useResetPassword() {
-  return useMutation({
-    mutationFn: (payload: Pick<ResetPasswordFormValues, "token" | "password">) => authApi.resetPassword(payload),
-  });
-}
-
-export function useChangePassword() {
-  return useMutation({
-    mutationFn: (payload: Pick<ChangePasswordFormValues, "currentPassword" | "newPassword">) =>
-      authApi.changePassword({ currentPassword: payload.currentPassword, newPassword: payload.newPassword }),
-  });
-}
-
-export function useResendVerification() {
-  return useMutation({ mutationFn: (email: string) => authApi.resendVerification(email) });
-}
-
 /** Called once on (app) layout mount: attempt a refresh to silently
  * rehydrate the session from the httpOnly cookie. Resolves to
  * 'authenticated' or 'unauthenticated' — callers gate rendering on status,
@@ -86,4 +61,18 @@ export function useHydrateAuth() {
     const token = await refreshAccessToken();
     setStatus(token ? "authenticated" : "unauthenticated");
   }, [setStatus]);
+}
+
+/** Keeps the 30s access token alive proactively while a session is active —
+ * see PROACTIVE_REFRESH_MS. Mount once, near the top of the authenticated
+ * shell. */
+export function useProactiveRefresh() {
+  const status = useAuthStore((s) => s.status);
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    const id = setInterval(() => {
+      refreshAccessToken();
+    }, PROACTIVE_REFRESH_MS);
+    return () => clearInterval(id);
+  }, [status]);
 }

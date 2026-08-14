@@ -8,7 +8,7 @@ import { DropdownMenu } from "@/components/navigation/DropdownMenu";
 import { CommandPalette, type CommandItem } from "@/components/navigation/CommandPalette";
 import { IconButton } from "@/components/forms/IconButton";
 import { MotionDiv, Presence, EASE } from "@/components/core/Motion";
-import { NAV_GROUPS, sectionFor } from "@/lib/config/nav";
+import { navGroupsFor, sectionFor } from "@/lib/config/nav";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useUiStore } from "@/lib/stores/ui";
 import { useLogout } from "@/lib/hooks/useAuth";
@@ -17,6 +17,7 @@ import { useMembersRaw } from "@/lib/hooks/useMembers";
 import { useDueToday } from "@/lib/hooks/useRecords";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { useClickOutside } from "@/lib/hooks/useClickOutside";
+import { isStaffRole } from "@/lib/utils/rbac";
 import { useBreadcrumbs } from "./Breadcrumbs";
 
 function withDueTodayCount(groups: SidebarGroup[], count: number): SidebarGroup[] {
@@ -35,6 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const isStaff = isStaffRole(user?.role);
 
   const sidebarCollapsedPref = useUiStore((s) => s.sidebarCollapsed);
   const commandPaletteOpen = useUiStore((s) => s.commandPaletteOpen);
@@ -52,11 +54,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   useClickOutside(accountRef, () => setAccountOpen(false), accountOpen);
 
   const breadcrumb = useBreadcrumbs(pathname);
-  const { data: dueToday } = useDueToday();
-  const navGroups = useMemo(() => withDueTodayCount(NAV_GROUPS, dueToday?.length ?? 0), [dueToday]);
+  const { data: dueToday } = useDueToday({ enabled: isStaff });
+  const navGroups = useMemo(
+    () => withDueTodayCount(navGroupsFor(user?.role), dueToday?.length ?? 0),
+    [user?.role, dueToday],
+  );
 
   const { data: books } = useBooks();
-  const { data: members } = useMembersRaw();
+  const { data: members } = useMembersRaw({ enabled: isStaff });
   const logout = useLogout();
 
   const goTo = useCallback((href: string) => router.push(href), [router]);
@@ -114,7 +119,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     logout.mutate(undefined, { onSuccess: () => router.push("/login") });
   }, [logout, router]);
 
-  const account = user ? { name: user.name, role: user.role === "LIBRARIAN" ? "Librarian" : "Member" } : undefined;
+  const ROLE_LABEL: Record<string, string> = { ADMIN: "Admin", LIBRARIAN: "Librarian", MEMBER: "Member" };
+  // No display name comes back from login/refresh — see lib/types/domain.ts.
+  const account = user ? { name: user.email, role: ROLE_LABEL[user.role] ?? user.role } : undefined;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--canvas)" }}>
@@ -156,16 +163,22 @@ export function AppShell({ children }: { children: ReactNode }) {
                         goTo("/settings/account");
                       },
                     },
-                    {
-                      label: "Library rules",
-                      icon: "settings",
-                      onClick: () => {
-                        setAccountOpen(false);
-                        goTo("/settings/library");
-                      },
-                    },
+                    // LibrarySettingsController is @StaffOnly to read — hide
+                    // the link rather than send a MEMBER into a 403.
+                    ...(isStaff
+                      ? [
+                          {
+                            label: "Library rules",
+                            icon: "settings",
+                            onClick: () => {
+                              setAccountOpen(false);
+                              goTo("/settings/library");
+                            },
+                          },
+                        ]
+                      : []),
                     { separator: true },
-                    { label: "Sign out", icon: "log-out", tone: "danger", onClick: handleSignOut },
+                    { label: "Sign out", icon: "log-out", tone: "danger" as const, onClick: handleSignOut },
                   ]}
                 />
               </div>

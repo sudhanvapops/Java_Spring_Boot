@@ -21,6 +21,9 @@ import com.sudhanva.library_management_v2.Model.Dto.Auth.refresh.RefreshServiceR
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.StaffRegisterRequestDto;
+import com.sudhanva.library_management_v2.Model.Dto.Member.MemberRequest;
+import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
+import com.sudhanva.library_management_v2.Service.MemberService;
 import com.sudhanva.library_management_v2.enums.User.UserRoles;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NoRefreshTokenRecordExists;
 import com.sudhanva.library_management_v2.exceptions.AuthExceptions.NotRefreshTokenException;
@@ -49,6 +52,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final MemberService memberService;
 
     private static final String REFRESH_TOKEN_TYPE = "refresh";
 
@@ -60,19 +64,6 @@ public class AuthService {
             .email(user.getEmail())
             .role(user.getRole())
             .build();
-    }
-
-    // Public self-signup always creates a MEMBER account - it's the only
-    // role that isn't a privilege escalation for an anonymous caller.
-    // ADMIN/LIBRARIAN accounts are provisioned via registerStaff() instead.
-    private User getUser(RegisterRequestDto request) {
-        User user = User.builder()
-            .email(request.email())
-            .username(request.username())
-            .isActive(true)
-            .role(UserRoles.MEMBER)
-            .build();
-        return user;
     }
 
     private User getStaffUser(StaffRegisterRequestDto request) {
@@ -139,44 +130,24 @@ public class AuthService {
 
     // Service Methods
 
+    // Public self-signup registers the caller as a Member (a library patron
+    // a librarian can look up and lend books to) - not a User login account.
+    // User accounts are staff-only; see registerStaff() below. A Member has
+    // no password, so there's nothing to hash or confirm here - this just
+    // delegates to the same MemberService.addMember() that /api/member uses,
+    // reusing its email-uniqueness check (MemberEmailAlreadyExistsException).
     @Transactional
-    public ApiResponse<RegisterResponseDto> register(
+    public ApiResponse<MemberResponse> register(
         RegisterRequestDto request
     ) {
+        MemberRequest memberRequest = MemberRequest.builder()
+            .name(request.name())
+            .email(request.email())
+            .age(request.age())
+            .isActive(true)
+            .build();
 
-        // 1. Validate password confirmation
-        if(!request.password().equals(request.confirmPassword())){
-            throw new PasswordAndConfirmPasswordDoesntMatchException();
-        }
-
-
-        // 2. Check user already exists
-        if (userRepo.existsByUsername(request.username())){
-            throw new UsernameAlreadyExistsException(request.username());
-        }
-
-
-        // 3. Check email uniqueness
-        if (userRepo.existsByEmail(request.email())){
-            throw new MemberEmailAlreadyExistsException(request.email());
-        }
-
-        // 4. Create User
-        User user = getUser(request);
-        
-        // hash Password
-        String hashedPassword = passwordEncoder.encode(request.password());
-        user.setPassword(hashedPassword);
-
-        // 5. Save
-        User savedUser = userRepo.save(user);
-
-        // 6. Return response
-        return new ApiResponse<>(
-            true,
-            "Member Account created Successfully",
-            mapToRegisterResponseDto(savedUser)
-        );
+        return memberService.addMember(memberRequest);
     }
 
 

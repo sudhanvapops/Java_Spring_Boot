@@ -48,12 +48,14 @@ public class LibrarySettingsController {
         this.librarySettingsService = librarySettingsService;
     }
 
+
     // Get All Settings
     @Operation(summary = "Get all library settings")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Settings found",
         content = @Content(schema = @Schema(implementation = SettingsResponseDto.class)))
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No settings exist",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @AdminOnly
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<SettingsResponseDto>>> getAllSettings(){
 
@@ -61,6 +63,7 @@ public class LibrarySettingsController {
 
         return ResponseEntity.ok(response);
     }
+
 
     // Get Setting
     @Operation(summary = "Get a single setting by key")
@@ -77,6 +80,7 @@ public class LibrarySettingsController {
 
         return ResponseEntity.ok(response);
     }
+
 
     // Create Setting
     @Operation(summary = "Create a new setting", description = "Fails if a setting already exists for the given key; use PUT to update an existing setting instead")
@@ -96,6 +100,7 @@ public class LibrarySettingsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     // Set Setting
     @Operation(summary = "Update the value of an existing setting", description = "Fails if no setting exists for the given key; use POST to create a new setting instead")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Setting updated",
@@ -113,6 +118,7 @@ public class LibrarySettingsController {
 
         return ResponseEntity.ok(response);
     }
+
 
     // Delete Setting
     @Operation(summary = "Delete a setting by key")

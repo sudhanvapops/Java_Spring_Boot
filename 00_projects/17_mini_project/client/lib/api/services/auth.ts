@@ -1,64 +1,46 @@
 import { apiClient, bareClient } from "@/lib/api/client";
 import type {
-  AuthResponseDto,
-  ChangePasswordRequestDto,
-  ForgotPasswordRequestDto,
   LoginRequestDto,
-  ResetPasswordRequestDto,
-  SignupRequestDto,
+  LoginResponseDto,
+  LogoutResponseDto,
+  RefreshResponseDto,
+  RegisterRequestDto,
+  RegisterResponseDto,
+  StaffRegisterRequestDto,
+  StaffRegisterResponseDto,
 } from "@/lib/types/api";
 
 /**
- * PROPOSED — uploads/05-auth-spec.md. None of these endpoints exist in the
- * Spring Boot backend yet; this is written so the frontend is ready the
- * moment they're added. login/refresh use the bare client (no interceptors)
- * to avoid a recursive refresh loop; everything else uses the normal client.
+ * The real, implemented contract — BACKEND_HANDOFF.md §3.3/§3.4. login/
+ * refresh use the bare client (no interceptors) to avoid a recursive
+ * refresh loop; everything else uses the normal client.
  */
 
-export async function signup(payload: SignupRequestDto): Promise<AuthResponseDto> {
-  const res = await apiClient.post<AuthResponseDto>("/api/auth/signup", payload);
+/** Public — registers the caller as a Member (library patron), not a User
+ * login account. No password; the response has no login/session outcome. */
+export async function register(payload: RegisterRequestDto): Promise<RegisterResponseDto> {
+  const res = await apiClient.post<RegisterResponseDto>("/api/auth/register", payload);
   return res.data;
 }
 
-export async function login(payload: LoginRequestDto): Promise<AuthResponseDto> {
-  const res = await bareClient.post<AuthResponseDto>("/api/auth/login", payload);
+/** @AdminOnly — requires an existing admin session's bearer token. */
+export async function registerStaff(payload: StaffRegisterRequestDto): Promise<StaffRegisterResponseDto> {
+  const res = await apiClient.post<StaffRegisterResponseDto>("/api/auth/register-staff", payload);
   return res.data;
 }
 
-export async function logout(): Promise<void> {
-  await apiClient.post("/api/auth/logout");
-}
-
-export async function me(): Promise<AuthResponseDto["user"]> {
-  const res = await apiClient.get<AuthResponseDto["user"]>("/api/auth/me");
+export async function login(payload: LoginRequestDto): Promise<LoginResponseDto> {
+  const res = await bareClient.post<LoginResponseDto>("/api/auth/login", payload);
   return res.data;
 }
 
-export async function forgotPassword(payload: ForgotPasswordRequestDto): Promise<void> {
-  await apiClient.post("/api/auth/forgot-password", payload);
+/** No body — reads the httpOnly `refreshToken` cookie. */
+export async function refresh(): Promise<RefreshResponseDto> {
+  const res = await bareClient.post<RefreshResponseDto>("/api/auth/refresh");
+  return res.data;
 }
 
-export async function validateResetToken(token: string): Promise<boolean> {
-  try {
-    await apiClient.get("/api/auth/reset-password/validate", { params: { token } });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export async function resetPassword(payload: ResetPasswordRequestDto): Promise<void> {
-  await apiClient.post("/api/auth/reset-password", payload);
-}
-
-export async function changePassword(payload: ChangePasswordRequestDto): Promise<void> {
-  await apiClient.post("/api/auth/change-password", payload);
-}
-
-export async function verifyEmail(token: string): Promise<void> {
-  await apiClient.post("/api/auth/verify-email", { token });
-}
-
-export async function resendVerification(email: string): Promise<void> {
-  await apiClient.post("/api/auth/resend-verification", { email });
+export async function logout(): Promise<LogoutResponseDto> {
+  const res = await apiClient.post<LogoutResponseDto>("/api/auth/logout");
+  return res.data;
 }

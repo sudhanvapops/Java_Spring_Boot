@@ -21,6 +21,7 @@ import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterReques
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.RegisterResponseDto;
 import com.sudhanva.library_management_v2.Model.Dto.Auth.register.StaffRegisterRequestDto;
 import com.sudhanva.library_management_v2.Model.Dto.Exception.ErrorResponseDto;
+import com.sudhanva.library_management_v2.Model.Dto.Member.MemberResponse;
 import com.sudhanva.library_management_v2.security.AuthService;
 import com.sudhanva.library_management_v2.security.authorization.AdminOnly;
 
@@ -60,21 +61,22 @@ public class AuthController {
 
 
 
-    // Public signup (MEMBER only)
-    @Operation(summary = "Register a new member account", description = "Public signup; accounts are always created with the MEMBER role. "
-        + "ADMIN/LIBRARIAN accounts can only be created by an existing admin via /register-staff")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Account created",
-        content = @Content(schema = @Schema(implementation = RegisterResponseDto.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "password and confirmPassword do not match",
-        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "A user with the same email or username already exists",
+    // Public signup - registers the caller as a Member (library patron), not
+    // a User login account. User accounts (which can sign in) are staff-only
+    // and provisioned exclusively via /register-staff by an existing admin.
+    @Operation(summary = "Register as a library member", description = "Public signup; creates a Member record (name/email/age) that staff can look up "
+        + "to lend books, not a login account. Members have no password and cannot sign in - "
+        + "ADMIN/LIBRARIAN login accounts can only be created by an existing admin via /register-staff")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Member registered",
+        content = @Content(schema = @Schema(implementation = MemberResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "A member with the same email already exists",
         content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<RegisterResponseDto>> register(
+    public ResponseEntity<ApiResponse<MemberResponse>> register(
        @Valid @RequestBody RegisterRequestDto request
     ){
 
-        ApiResponse<RegisterResponseDto> response =
+        ApiResponse<MemberResponse> response =
             authService.register(request);
 
         return ResponseEntity.ok(response);

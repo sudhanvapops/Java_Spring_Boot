@@ -5,6 +5,8 @@ import type { Crumb } from "@/components/navigation/Topbar";
 import { staticCrumbsFor } from "@/lib/config/nav";
 import { useBook } from "@/lib/hooks/useBooks";
 import { useMemberRaw } from "@/lib/hooks/useMembers";
+import { useAuthStore } from "@/lib/stores/auth";
+import { homeFor } from "@/lib/utils/rbac";
 
 const BOOK_RE = /^\/books\/(\d+)$/;
 const BOOK_EDIT_RE = /^\/books\/(\d+)\/edit$/;
@@ -25,11 +27,12 @@ export function useBreadcrumbs(pathname: string): Crumb[] {
 
   const book = useBook(bookId);
   const member = useMemberRaw(memberId);
+  const role = useAuthStore((s) => s.user?.role);
 
   return useMemo(() => {
     const parts = resolveParts(pathname, book.data?.title, member.data?.name);
-    return parts.map((label, i) => ({ label, href: i === 0 ? "/dashboard" : undefined }));
-  }, [pathname, book.data?.title, member.data?.name]);
+    return parts.map((label, i) => ({ label, href: i === 0 ? homeFor(role) : undefined }));
+  }, [pathname, book.data?.title, member.data?.name, role]);
 }
 
 function resolveParts(pathname: string, bookTitle?: string, memberName?: string): string[] {

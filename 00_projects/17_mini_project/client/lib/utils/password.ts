@@ -1,8 +1,8 @@
 /**
- * Advisory strength signal only — the meter never gates submit
- * (uploads/05-auth-spec.md "Password rules": length beats composition, so
- * the actual validation in lib/schemas/auth.ts only checks length + a
- * blocklist). These three checks mirror the reference StrengthMeter usage.
+ * Advisory strength signal only — the meter never gates submit. The actual
+ * validation in lib/schemas/auth.ts only checks the backend's real 8-char
+ * minimum plus a blocklist (BACKEND_HANDOFF.md §3.8: no composition rules
+ * are enforced server-side, so these extra checks are UI-only encouragement).
  */
 export interface PasswordCheck {
   label: string;
@@ -11,7 +11,7 @@ export interface PasswordCheck {
 
 export function passwordChecks(password: string): PasswordCheck[] {
   return [
-    { label: "At least 12 characters", met: password.length >= 12 },
+    { label: "At least 8 characters", met: password.length >= 8 },
     { label: "One number", met: /\d/.test(password) },
     { label: "One symbol", met: /[^A-Za-z0-9]/.test(password) },
   ];

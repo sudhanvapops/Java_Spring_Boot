@@ -6,8 +6,15 @@ import { deriveMember, deriveOverdueMemberIds, groupBooksOutByMember } from "@/l
 import { useUnreturnedAll } from "./useRecords";
 import { useSettings } from "./useSettings";
 
-export function useMembersRaw() {
-  return useQuery({ queryKey: ["members"], queryFn: membersApi.listMembers, staleTime: 60_000 });
+/** MemberController is @StaffOnly — pass `enabled: false` for a MEMBER
+ * session so the shell doesn't fire a request that can only 403. */
+export function useMembersRaw(opts?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["members"],
+    queryFn: membersApi.listMembers,
+    staleTime: 60_000,
+    enabled: opts?.enabled ?? true,
+  });
 }
 
 export function useMemberRaw(id: number) {

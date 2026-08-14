@@ -3,25 +3,33 @@
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
-import { useHydrateAuth } from "@/lib/hooks/useAuth";
+import { useHydrateAuth, useProactiveRefresh } from "@/lib/hooks/useAuth";
+import { isAllowedForMember, MEMBER_HOME } from "@/lib/utils/rbac";
 import { AppShell } from "@/components/shell/AppShell";
 import { Skeleton } from "@/components/data/Skeleton";
 
-/** Mirrors proxy.ts's flag — see .env.local for why/how to turn it back off. */
+/** Mirrors .env.local — see the comment there for why/how to turn it back off. */
 const AUTH_DISABLED = process.env.NEXT_PUBLIC_DISABLE_AUTH === "true";
 
 /**
- * Layer 2 of the 3-layer route protection (uploads/05-auth-spec.md "Route
- * protection"): waits for the refresh call, shows a skeleton — never a
- * login-screen flash — and redirects on failure. Layer 1 is proxy.ts
- * (fast cookie-presence check); layer 3, real token verification, only
- * exists once the backend implements the PROPOSED auth endpoints.
+ * Route protection (BACKEND_HANDOFF.md §3.6's three-layer caveat — layer 1,
+ * the edge cookie check, was removed in proxy.ts because it structurally
+ * can't see the backend's path-scoped cookie): waits for the refresh call,
+ * shows a skeleton — never a login-screen flash — and redirects on failure.
+ * The server's @PreAuthorize is the only actual security either way.
+ *
+ * Also enforces the MEMBER-role scope client-side: a MEMBER account can only
+ * browse books server-side (§3.2), so anything else redirects to /books
+ * rather than rendering a screen full of 403s.
  */
 export default function AppLayout({ children }: { children: ReactNode }) {
   const status = useAuthStore((s) => s.status);
+  const role = useAuthStore((s) => s.user?.role);
   const hydrate = useHydrateAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  useProactiveRefresh();
 
   useEffect(() => {
     if (!AUTH_DISABLED && status === "idle") hydrate();
@@ -33,7 +41,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     }
   }, [status, pathname, router]);
 
+  useEffect(() => {
+    if (status === "authenticated" && role === "MEMBER" && !isAllowedForMember(pathname)) {
+      router.replace(MEMBER_HOME);
+    }
+  }, [status, role, pathname, router]);
+
   if (!AUTH_DISABLED && status !== "authenticated") {
+    return <FullPageSkeleton />;
+  }
+
+  if (status === "authenticated" && role === "MEMBER" && !isAllowedForMember(pathname)) {
     return <FullPageSkeleton />;
   }
 

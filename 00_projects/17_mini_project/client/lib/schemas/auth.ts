@@ -1,28 +1,28 @@
 import { z } from "zod";
 
 /**
- * PROPOSED — none of these endpoints exist in the backend yet.
- * uploads/05-auth-spec.md "Password rules": 12-128 chars, no composition
- * requirements (NIST-current, length beats complexity), blocklist common
- * passwords, never allow reuse of the account's own email/name.
+ * Matches the real backend contract — BACKEND_HANDOFF.md §3.4/§3.8.
+ * `password`: @NotBlank, @Size(min = 8) server-side, nothing else enforced.
+ * No stricter client-only minimum — there's no backend rationale for it on
+ * a practice project, and a mismatch just adds friction (see §3.8).
  */
 const COMMON_PASSWORDS = new Set([
   "password",
-  "password123",
+  "password1",
   "12345678",
   "123456789",
   "qwertyuiop",
-  "letmein12345",
-  "iloveyou1234",
-  "welcome12345",
-  "changeme1234",
-  "admin1234567",
+  "letmein123",
+  "iloveyou1",
+  "welcome123",
+  "changeme1",
+  "admin1234",
 ]);
 
 function passwordField(label = "password") {
   return z
     .string()
-    .min(12, `Use at least 12 characters for your ${label}.`)
+    .min(8, `Use at least 8 characters for your ${label}.`)
     .max(128, `Your ${label} can be at most 128 characters.`)
     .refine((v) => !COMMON_PASSWORDS.has(v.toLowerCase()), {
       message: "Choose a less common password.",
@@ -43,83 +43,35 @@ export const loginSchema = z.object({
 });
 export type LoginFormValues = z.infer<typeof loginSchema>;
 
-export const signupSchema = z
-  .object({
-    name: z
-      .string()
-      .trim()
-      .min(2, "Enter your full name.")
-      .max(120, "Names can't be longer than 120 characters."),
-    email: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .min(1, "Enter an email address.")
-      .email("That doesn't look like an email address."),
-    password: passwordField(),
-    confirmPassword: z.string().min(1, "Confirm your password."),
-  })
-  .superRefine((values, ctx) => {
-    if (values.password !== values.confirmPassword) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["confirmPassword"],
-        message: "Those passwords don't match.",
-      });
-    }
-    const local = values.email.split("@")[0]?.toLowerCase();
-    const pw = values.password.toLowerCase();
-    if (
-      (local && local.length > 2 && pw.includes(local)) ||
-      (values.name.trim().length > 2 && pw.includes(values.name.trim().toLowerCase()))
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["password"],
-        message: "Don't use your name or email in your password.",
-      });
-    }
-  });
-export type SignupFormValues = z.infer<typeof signupSchema>;
-
-export const forgotPasswordSchema = z.object({
+/** User accounts (which can sign in) are staff-only, created exclusively via
+ * /register-staff by an existing admin — see lib/schemas/member.ts's
+ * memberFormSchema for the public /signup form, which registers a Member
+ * (no password) instead. */
+const accountFields = {
+  username: z
+    .string()
+    .trim()
+    .min(2, "Enter a username.")
+    .max(50, "Usernames can't be longer than 50 characters."),
   email: z
     .string()
     .trim()
     .toLowerCase()
     .min(1, "Enter an email address.")
     .email("That doesn't look like an email address."),
-});
-export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+  password: passwordField(),
+  confirmPassword: z.string().min(1, "Confirm your password."),
+};
 
-export const resetPasswordSchema = z
-  .object({
-    token: z.string().min(1),
-    password: passwordField(),
-    confirmPassword: z.string().min(1, "Confirm your password."),
-  })
-  .refine((values) => values.password === values.confirmPassword, {
-    message: "Those passwords don't match.",
-    path: ["confirmPassword"],
-  });
-export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+function checkPasswordsMatch(values: { password: string; confirmPassword: string }, ctx: z.RefinementCtx) {
+  if (values.password !== values.confirmPassword) {
+    ctx.addIssue({ code: "custom", path: ["confirmPassword"], message: "Those passwords don't match." });
+  }
+}
 
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Enter your current password."),
-    newPassword: passwordField("new password"),
-    confirmPassword: z.string().min(1, "Confirm your new password."),
-  })
-  .superRefine((values, ctx) => {
-    if (values.newPassword !== values.confirmPassword) {
-      ctx.addIssue({ code: "custom", path: ["confirmPassword"], message: "Those passwords don't match." });
-    }
-    if (values.newPassword === values.currentPassword) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["newPassword"],
-        message: "Choose a password you haven't used here before.",
-      });
-    }
-  });
-export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+/** A required role on top of the shared account fields — @AdminOnly, see
+ * BACKEND_HANDOFF.md §3.3. */
+export const staffRegisterSchema = z
+  .object({ ...accountFields, role: z.enum(["ADMIN", "LIBRARIAN"], { message: "Choose a role." }) })
+  .superRefine(checkPasswordsMatch);
+export type StaffRegisterFormValues = z.infer<typeof staffRegisterSchema>;

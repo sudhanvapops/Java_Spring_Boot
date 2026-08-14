@@ -97,10 +97,13 @@ export interface LibrarySettings {
   FINE_PER_DAY: number | null;
 }
 
+/**
+ * Login/refresh responses carry `userId`, `email`, `role` — no display name
+ * (`User` has `username`, but neither endpoint returns it; see
+ * BACKEND_HANDOFF.md §3.4). UI that wants a name falls back to the email.
+ */
 export interface Account {
   id: number;
-  name: string;
   email: string;
   role: AccountRole;
-  memberId: number | null;
 }

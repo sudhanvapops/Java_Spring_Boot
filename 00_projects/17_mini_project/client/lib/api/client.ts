@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosHeaders, type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 import { getAuthState, useAuthStore } from "@/lib/stores/auth";
-import type { ApiErrorEnvelope, AuthResponseDto, NormalizedApiError } from "@/lib/types/api";
+import type { ApiErrorEnvelope, NormalizedApiError, RefreshResponseDto } from "@/lib/types/api";
 import { formatErrorMessage, isEmptyStateCode } from "@/lib/utils/errors";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -96,16 +96,10 @@ export async function refreshAccessToken(): Promise<string | null> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
       try {
-        const res = await bareClient.post<AuthResponseDto>("/api/auth/refresh");
+        const res = await bareClient.post<RefreshResponseDto>("/api/auth/refresh");
         const data = res.data;
         useAuthStore.getState().setSession(
-          {
-            id: data.user.id,
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role,
-            memberId: data.user.memberId,
-          },
+          { id: data.userId, email: data.email, role: data.role },
           data.accessToken,
         );
         return data.accessToken;

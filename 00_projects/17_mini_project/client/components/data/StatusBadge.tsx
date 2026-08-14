@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Icon } from "@/components/core/Icon";
 
-export type Status = "active" | "inactive" | "out" | "returned" | "due-today" | "overdue" | "librarian";
+export type Status = "active" | "inactive" | "out" | "returned" | "due-today" | "overdue" | "librarian" | "admin" | "member";
 
 export interface StatusBadgeProps {
   status: Status;
@@ -18,6 +18,8 @@ const STATUSES: Record<Status, { label: string; color: string; dot?: string; ico
   "due-today": { label: "Due today", color: "var(--warning)", icon: "clock" },
   overdue: { label: "Overdue", color: "var(--danger)", icon: "triangle-alert" },
   librarian: { label: "Librarian", color: "var(--ink-muted)", dot: "var(--primary)" },
+  admin: { label: "Admin", color: "var(--ink-muted)", dot: "var(--primary)" },
+  member: { label: "Member", color: "var(--ink-muted)", dot: "var(--ink-tertiary)" },
 };
 
 export function StatusBadge({ status, children, style }: StatusBadgeProps) {

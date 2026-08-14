@@ -1,17 +1,21 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as transactionsApi from "@/lib/api/services/transactions";
 import type { BorrowTransactionRequestDto } from "@/lib/types/api";
 import { deriveTransaction } from "@/lib/utils/derive";
 
 /** ['transactions'], 60s — BorrowTransactionResponse nests full book
- * details, so cache aggressively rather than re-deriving. */
+ * details, so cache aggressively rather than re-deriving. Derivation is
+ * memoized on query.data — recomputing (and returning a new array/object)
+ * on every render breaks any useMemo/useEffect a caller keys on `data`. */
 export function useTransactions() {
   const query = useQuery({
     queryKey: ["transactions"],
     queryFn: transactionsApi.listAllTransactions,
     staleTime: 60_000,
   });
-  return { ...query, data: query.data?.map(deriveTransaction) };
+  const data = useMemo(() => query.data?.map(deriveTransaction), [query.data]);
+  return { ...query, data };
 }
 
 export function useTransaction(id: number) {
@@ -21,7 +25,8 @@ export function useTransaction(id: number) {
     staleTime: 60_000,
     enabled: Number.isFinite(id),
   });
-  return { ...query, data: query.data ? deriveTransaction(query.data) : undefined };
+  const data = useMemo(() => (query.data ? deriveTransaction(query.data) : undefined), [query.data]);
+  return { ...query, data };
 }
 
 export function useTransactionsForMember(memberId: number) {
@@ -31,7 +36,8 @@ export function useTransactionsForMember(memberId: number) {
     staleTime: 60_000,
     enabled: Number.isFinite(memberId),
   });
-  return { ...query, data: query.data?.map(deriveTransaction) };
+  const data = useMemo(() => query.data?.map(deriveTransaction), [query.data]);
+  return { ...query, data };
 }
 
 export function useBorrowBooks() {

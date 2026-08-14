@@ -42,7 +42,9 @@ export default function DashboardPage() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const firstName = user?.name?.split(" ")[0] ?? "there";
+  // Login/refresh never return a display name (lib/types/domain.ts) — the
+  // email's local part is the closest thing to one.
+  const firstName = user?.email?.split("@")[0] ?? "there";
 
   const dueList = due.data ?? [];
 

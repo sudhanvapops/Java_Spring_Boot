@@ -12,6 +12,8 @@ import { AvailabilityBar } from "@/components/data/AvailabilityBar";
 import { StatusBadge } from "@/components/data/StatusBadge";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { useBooks } from "@/lib/hooks/useBooks";
+import { useAuthStore } from "@/lib/stores/auth";
+import { isStaffRole } from "@/lib/utils/rbac";
 import type { Book } from "@/lib/types/domain";
 
 type Filter = "all" | "available" | "unavailable" | "inactive";
@@ -22,6 +24,9 @@ type Filter = "all" | "available" | "unavailable" | "inactive";
 export default function BooksPage() {
   const router = useRouter();
   const { data: books, isLoading, isError, refetch } = useBooks();
+  // Book mutations are @StaffOnly server-side (BACKEND_HANDOFF.md §3.6) —
+  // hide the affordances for a MEMBER session instead of letting them 403.
+  const isStaff = isStaffRole(useAuthStore((s) => s.user?.role));
 
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
@@ -67,7 +72,11 @@ export default function BooksPage() {
 
   return (
     <div>
-      <PageHeader title="Books" subtitle="Everything the library owns." action={<Button iconLeft="plus" onClick={() => router.push("/books/new")}>Add a book</Button>} />
+      <PageHeader
+        title="Books"
+        subtitle="Everything the library owns."
+        action={isStaff ? <Button iconLeft="plus" onClick={() => router.push("/books/new")}>Add a book</Button> : undefined}
+      />
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-sm) var(--space-md)", marginBottom: "var(--space-md)" }}>
         <Input iconLeft="search" placeholder="Search by title or author…" value={q} onChange={(e) => setQ(e.target.value)} width={280} />
         <Tabs
@@ -103,14 +112,16 @@ export default function BooksPage() {
                 router.push(`/books/${b.id}`);
               }}
             />
-            <IconButton
-              icon="pencil"
-              label={`Edit ${b.title}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/books/${b.id}/edit`);
-              }}
-            />
+            {isStaff ? (
+              <IconButton
+                icon="pencil"
+                label={`Edit ${b.title}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/books/${b.id}/edit`);
+                }}
+              />
+            ) : null}
           </>
         )}
         error={

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -125,6 +126,23 @@ public class AuthExcptionHandlers {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(mapToErrorResponseDto(
                         exception,
+                        ErrorCode.NO_REFRESH_TOKEN_EXISTS));
+    }
+
+    // /api/auth/refresh, /api/auth/logout - the @CookieValue binding itself
+    // fails when the browser sends no refreshToken cookie at all, before the
+    // controller body (and NoRefreshTokenExistsException above) ever runs.
+    // Without this handler it falls through to GlobalExceptionHandler as a
+    // 500, which is wrong for "you're not signed in" - every first visit
+    // with no session hits this path.
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingRequestCookieException(
+        MissingRequestCookieException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapToErrorResponseDto(
+                        "No refresh token cookie present",
                         ErrorCode.NO_REFRESH_TOKEN_EXISTS));
     }
 

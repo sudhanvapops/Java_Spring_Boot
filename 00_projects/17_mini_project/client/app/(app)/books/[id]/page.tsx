@@ -17,6 +17,8 @@ import { useUnreturnedAll } from "@/lib/hooks/useRecords";
 import { useMembersRaw } from "@/lib/hooks/useMembers";
 import { useToast } from "@/lib/hooks/useToast";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+import { useAuthStore } from "@/lib/stores/auth";
+import { isStaffRole } from "@/lib/utils/rbac";
 import { daysOverdue as computeDaysOverdue, fmt, parseApiDate } from "@/lib/utils/date";
 
 export default function BookDetailPage() {
@@ -25,9 +27,13 @@ export default function BookDetailPage() {
   const router = useRouter();
   const toast = useToast();
 
+  // "Currently out" + activate/deactivate all touch @StaffOnly endpoints
+  // (BACKEND_HANDOFF.md §3.6) — a MEMBER can view the book, nothing more.
+  const isStaff = isStaffRole(useAuthStore((s) => s.user?.role));
+
   const { data: book, isLoading, isError } = useBook(id);
-  const unreturned = useUnreturnedAll();
-  const members = useMembersRaw();
+  const unreturned = useUnreturnedAll({ enabled: isStaff });
+  const members = useMembersRaw({ enabled: isStaff });
   const isNarrow = useMediaQuery("(max-width:767px)");
   const activateBook = useActivateBook();
   const deactivateBook = useDeactivateBook();
@@ -104,6 +110,7 @@ export default function BookDetailPage() {
           </>
         }
         action={
+          isStaff ? (
           <>
             <Button variant="secondary" iconLeft="pencil" onClick={() => router.push(`/books/${book.id}/edit`)}>
               Edit
@@ -118,10 +125,11 @@ export default function BookDetailPage() {
               </Button>
             )}
           </>
+          ) : null
         }
       />
 
-      {!book.isActive ? (
+      {!book.isActive && isStaff ? (
         <div style={{ marginBottom: "var(--space-lg)" }}>
           <Banner
             tone="warning"
@@ -136,7 +144,7 @@ export default function BookDetailPage() {
         </div>
       ) : null}
 
-      <div style={{ display: "grid", gridTemplateColumns: isNarrow ? "1fr" : "260px 1fr", gap: "var(--space-lg)", alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isNarrow || !isStaff ? "1fr" : "260px 1fr", gap: "var(--space-lg)", alignItems: "start" }}>
         <Panel title="Copies">
           <div
             style={{
@@ -154,25 +162,27 @@ export default function BookDetailPage() {
           </div>
         </Panel>
 
-        <Panel title={`Currently out${lent.length ? ` (${lent.length})` : ""}`} padded={!lent.length}>
-          {lent.length ? (
-            lent.map((r, i) => (
-              <MemberRow
-                key={`${r.memberId}`}
-                member={{ id: r.memberId, name: r.memberName, email: r.email }}
-                style={{ borderTop: i ? "1px solid var(--hairline)" : "none" }}
-                action={
-                  <span style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
-                    <span style={{ font: "var(--type-mono)", color: r.daysOverdue ? "var(--danger)" : "var(--ink-muted)" }}>due {r.dueDateLabel}</span>
-                    {r.daysOverdue ? <StatusBadge status="overdue">{r.daysOverdue} days over</StatusBadge> : null}
-                  </span>
-                }
-              />
-            ))
-          ) : (
-            <EmptyState icon="circle-check" headline="Every copy is on the shelf." pattern={false} />
-          )}
-        </Panel>
+        {isStaff ? (
+          <Panel title={`Currently out${lent.length ? ` (${lent.length})` : ""}`} padded={!lent.length}>
+            {lent.length ? (
+              lent.map((r, i) => (
+                <MemberRow
+                  key={`${r.memberId}`}
+                  member={{ id: r.memberId, name: r.memberName, email: r.email }}
+                  style={{ borderTop: i ? "1px solid var(--hairline)" : "none" }}
+                  action={
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
+                      <span style={{ font: "var(--type-mono)", color: r.daysOverdue ? "var(--danger)" : "var(--ink-muted)" }}>due {r.dueDateLabel}</span>
+                      {r.daysOverdue ? <StatusBadge status="overdue">{r.daysOverdue} days over</StatusBadge> : null}
+                    </span>
+                  }
+                />
+              ))
+            ) : (
+              <EmptyState icon="circle-check" headline="Every copy is on the shelf." pattern={false} />
+            )}
+          </Panel>
+        ) : null}
       </div>
 
       <Dialog
