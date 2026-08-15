@@ -13,12 +13,18 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: validate
         show-sql: false
         properties:
             hibernate:
                 connection:
                     provider_disables_autocommit: true
+
+    flyway:
+        enabled: true
+        locations: classpath:db/migrations
+        baseline-on-migrate: true
+        baseline-version: 0
 
 jwt:
     secret: Qt20iylRG7UFc5wjL7u8wFQovTOlS8A1/DK8Mq6HqRU=

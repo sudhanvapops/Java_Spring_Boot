@@ -17,3 +17,16 @@ The baseline is not a migration that reconstructs the database. It's Flyway's ch
         ▼
     02__add_indexes
 
+
+Baseline:
+    "I already have this database."
+
+Initial migration:
+    "Here's how to build this database from empty."
+
+
+existing LMS needs the first.
+A fresh LMS needs the second.
+
+
+V0__create_initial_schema.sql
