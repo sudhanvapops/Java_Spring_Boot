@@ -11,6 +11,7 @@ import com.sudhanva.library_management_v2.Model.Dto.Book.BookRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookResponse;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookAlreadyActiveException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookAlreadyExistsException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookIsbnAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookCurrentlyBorrowedException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotFoundException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookInactiveException;
@@ -40,6 +41,7 @@ public class BookService {
         return Book.builder()
                 .name(normalizeString(bookRequest.name()))
                 .author(normalizeString(bookRequest.author()))
+                .isbn(bookRequest.isbn())
                 .availableCopy(bookRequest.availableCopies())
                 .totalCopies(bookRequest.totalCopies())
                 .isActive(bookRequest.isActive())
@@ -52,6 +54,7 @@ public class BookService {
                 .id(book.getId())
                 .name(book.getName())
                 .author(book.getAuthor())
+                .isbn(book.getIsbn())
                 .availableCopies(book.getAvailableCopy())
                 .totalCopies(book.getTotalCopies())
                 .isActive(book.getIsActive())
@@ -119,6 +122,21 @@ public class BookService {
                 bookResponse);
     }
 
+    // Find book by ISBN
+    @Transactional(readOnly = true)
+    public ApiResponse<BookResponse> getBookByIsbn(String isbn) {
+
+        Book book = bookRepo.findByIsbn(isbn.trim()).orElseThrow(
+                () -> BookNotFoundException.byIsbn(isbn)
+        );
+
+        return new ApiResponse<>(
+            true,
+            "Book Found: " + isbn,
+            mapToBookResponse(book)
+        );
+    }
+
     // Find book by Book Name
     @Transactional(readOnly = true)
     public ApiResponse<List<BookResponse>> getBookByBookName(String name) {
@@ -153,6 +171,10 @@ public class BookService {
             throw new BookAlreadyExistsException(
                 bookRequest.name(), bookRequest.author()
             );
+        }
+
+        if (bookRepo.findByIsbn(bookRequest.isbn()).isPresent()) {
+            throw new BookIsbnAlreadyExistsException(bookRequest.isbn());
         }
 
         if (bookRequest.availableCopies() > bookRequest.totalCopies()) {
@@ -202,6 +224,13 @@ public class BookService {
             );
         }
 
+        // Check New Isbn is unique
+        Book bookWithSameIsbn = bookRepo.findByIsbn(bookRequest.isbn()).orElse(null);
+
+        if (bookWithSameIsbn != null && !bookWithSameIsbn.getId().equals(id)) {
+            throw new BookIsbnAlreadyExistsException(bookRequest.isbn());
+        }
+
 
         if (Boolean.FALSE.equals(existingBook.getIsActive())) {
             throw new BookInactiveException();
@@ -209,7 +238,8 @@ public class BookService {
 
         existingBook.setName(normalizeString(bookRequest.name()));
         existingBook.setAuthor(normalizeString(bookRequest.author()));
-        
+        existingBook.setIsbn(bookRequest.isbn());
+
         // TODO: Error can happen In setting Available Copies
         // Derive it 
         existingBook.setAvailableCopy(bookRequest.availableCopies());

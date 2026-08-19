@@ -26,11 +26,11 @@ public class DataSeeder {
         return args -> {
             if (bookRepo.count() == 0) {
                 List<Book> books = List.of(
-                        Book.builder().name("The Alchemist").author("Paulo Coelho").availableCopy(5).totalCopies(5).build(),
-                        Book.builder().name("Atomic Habits").author("James Clear").availableCopy(4).totalCopies(4).build(),
-                        Book.builder().name("Clean Code").author("Robert C. Martin").availableCopy(3).totalCopies(3).build(),
-                        Book.builder().name("Rich Dad Poor Dad").author("Robert Kiyosaki").availableCopy(6).totalCopies(6).build(),
-                        Book.builder().name("Think and Grow Rich").author("Napoleon Hill").availableCopy(2).totalCopies(2).build()
+                         Book.builder().name("The Alchemist").author("Paulo Coelho").isbn("9780062315007").availableCopy(5).totalCopies(5).build(),
+                        Book.builder().name("Atomic Habits").author("James Clear").isbn("9780735211292").availableCopy(4).totalCopies(4).build(),
+                        Book.builder().name("Clean Code").author("Robert C. Martin").isbn("9780132350884").availableCopy(3).totalCopies(3).build(),
+                        Book.builder().name("Rich Dad Poor Dad").author("Robert Kiyosaki").isbn("9781612680194").availableCopy(6).totalCopies(6).build(),
+                        Book.builder().name("Think and Grow Rich").author("Napoleon Hill").isbn("9781585424337").availableCopy(2).totalCopies(2).build()
                 );
 
                 bookRepo.saveAll(books);

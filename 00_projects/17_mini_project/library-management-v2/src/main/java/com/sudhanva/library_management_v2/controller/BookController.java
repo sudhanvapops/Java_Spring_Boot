@@ -73,6 +73,20 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // Get Book By Isbn
+    @Operation(summary = "Get a book by isbn")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Book found",
+        content = @Content(schema = @Schema(implementation = BookResponse.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No book exists with the given isbn",
+        content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    @GetMapping("/isbn")
+    public ResponseEntity<ApiResponse<BookResponse>> getBookByIsbn(
+        @Parameter(description = "Isbn to search for") @RequestParam String isbn
+    ) {
+        ApiResponse<BookResponse> response = bookService.getBookByIsbn(isbn);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     // Get Book By Author
     @Operation(summary = "Get books by author")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Matching books found",

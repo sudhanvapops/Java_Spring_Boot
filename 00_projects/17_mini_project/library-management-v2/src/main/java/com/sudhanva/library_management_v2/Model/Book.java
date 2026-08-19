@@ -47,6 +47,9 @@ public class Book {
     @Column(nullable = false)
     private Integer totalCopies;
 
+    @Column(nullable = false, unique = true)
+    private String isbn;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean isActive = true;

@@ -18,4 +18,8 @@ public class BookNotFoundException extends RuntimeException{
     public static BookNotFoundException byTitle(String title) {
         return new BookNotFoundException("Book not found with name: " + title);
     }
+
+    public static BookNotFoundException byIsbn(String isbn) {
+        return new BookNotFoundException("Book not found with isbn: " + isbn);
+    }
 }
