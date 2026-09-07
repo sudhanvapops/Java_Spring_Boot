@@ -109,6 +109,16 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>12.4.0</version>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5432/spring_mvc_lib_mang_v2</url>
+					<user>postgres</user>
+					<password>P@SSW0RDs3003</password>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
