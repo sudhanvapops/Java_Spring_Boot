@@ -3,12 +3,14 @@ package com.example.junittesting;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
+
+@SpringBootTest
 public class CalcTests {
 
 
     // One test should generally represent one behavior/scenario, while having as many assertions as make sense for that behavior.
-
     @Test
     void testAdd() {
         
@@ -25,7 +27,7 @@ public class CalcTests {
         result = calc.add(2, 0);
 
         // assert
-        assertEquals(5, result);
+        assertEquals(2, result);
     }
 
     // above is correct but use AAA

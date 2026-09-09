@@ -5,6 +5,7 @@
 - testing a part of code
 - or a single class
 
+- Unit testing tests one small unit of behavior in isolation from its dependencies.
 
 2. Integration testing 
 
@@ -22,6 +23,11 @@
 so diffrernt modules are wotking together here
 
 
+### How Maven Runs Tests
+
+
+JUnit itself doesn't normally discover and run your tests when you execute Maven.
+Maven uses a plugin called Maven Surefire Plugin for normal tests.
 
 ### Naming Convention
 
