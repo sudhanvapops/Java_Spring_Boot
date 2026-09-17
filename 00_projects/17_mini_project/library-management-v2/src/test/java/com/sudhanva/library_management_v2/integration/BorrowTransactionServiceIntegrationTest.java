@@ -1,33 +1,40 @@
 package com.sudhanva.library_management_v2.integration;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestConstructor;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.sudhanva.library_management_v2.Model.Book;
-import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionRequest;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
+import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
 import com.sudhanva.library_management_v2.Service.LibrarySettingsService;
 import com.sudhanva.library_management_v2.enums.Setting.SettingKey;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
+import lombok.RequiredArgsConstructor;
+
+
+@RequiredArgsConstructor
 @SpringBootTest
 @Testcontainers
+// It doesn't automatically know that those parameters are supposed to be Spring beans.so down line
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class BorrowTransactionServiceIntegrationTest {
 
 
@@ -38,14 +45,10 @@ public class BorrowTransactionServiceIntegrationTest {
 
     
     // DEpendecy Repos and Services
-    @Autowired 
-    private BorrowTransactionService borrowTransactionService;
-    @Autowired 
-    private LibrarySettingsService librarySettingsService;
-    @Autowired 
-    private MemberRepo memberRepo;
-    @Autowired 
-    private BookRepo bookRepo;
+    private final BorrowTransactionService borrowTransactionService;
+    private final LibrarySettingsService librarySettingsService;
+    private final MemberRepo memberRepo;
+    private final BookRepo bookRepo;
 
 
     private Member member;
@@ -55,6 +58,7 @@ public class BorrowTransactionServiceIntegrationTest {
     // Test Data
     @BeforeEach
     void setup(){
+
 
         member = memberRepo.save(
             Member.builder()
@@ -129,6 +133,14 @@ public class BorrowTransactionServiceIntegrationTest {
 
 
     }
+
+
+
+    // Test For Returning Books
+    // @Test
+    // void memberReturnBook(){
+    //     System.out.println(member);
+    // }
 
 
 }
