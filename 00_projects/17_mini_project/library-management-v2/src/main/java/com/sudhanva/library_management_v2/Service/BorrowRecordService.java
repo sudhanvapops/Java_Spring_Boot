@@ -236,7 +236,7 @@ public class BorrowRecordService {
         }
 
 
-        // Map Active Nooks: bookId -> BorrowRecord
+        // Map Active Books: bookId -> BorrowRecord
         Map<Long,BorrowRecord> borrowedBookMap = activeBorrowedBooks.stream().collect(
             Collectors.toMap(
                 record -> record.getBook().getId(),
