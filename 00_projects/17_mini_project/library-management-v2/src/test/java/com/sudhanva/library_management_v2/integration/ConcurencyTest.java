@@ -115,11 +115,130 @@ public class ConcurencyTest {
     }
 
 
+
+    @Test
+    void sameTestMyVersion() throws Exception {
+
+        // Make 10 threads
+        // Wait till all the 10 threads submited
+        // relase all at once
+        // boorw the book all of them
+        // wait till all finsihes
+
+        int requestCount = 10;
+        ExecutorService executor = Executors.newFixedThreadPool(requestCount);
+
+
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch finishLatch = new CountDownLatch(10);
+
+        List<Future<Boolean>> futureList = new ArrayList<>();
+
+        int successfulRequests = 0;
+
+        // have 10 concurrent requests, and you want all 10 to reach the gate and then say GO together.
+        // all the thread encounter .await() and wait
+        // when .countdown() hits all the threads go together
+
+
+        for (int i=0; i<requestCount; i++){
+
+            int memberIndex = i;
+
+            Future<Boolean> future = executor.submit(()->{
+                try {
+
+                    startLatch.await();
+
+                    System.out.println(Thread.currentThread().getName()+" Started request for member: "+memberIndex);
+
+                    BorrowTransactionRequest request = 
+                            BorrowTransactionRequest.builder()
+                                .memberId(
+                                        members
+                                            .get(memberIndex)
+                                            .getId())
+                                .books(
+                                        List.of(
+                                            BorrowTransactionItemRequest
+                                                .builder()
+                                                .bookId(
+                                                        book.getId())
+                                                .build())
+                                            )
+                                .build();
+                    
+                    ApiResponse<BorrowTransactionResponse> response = borrowTransactionService
+                            .borrowBook(request);
+
+                    System.out.println(
+                        Thread.currentThread().getName()
+                            + " SUCCESS for member "
+                            + memberIndex
+                            + " -> "
+                            + response
+                    );
+                    
+                    return true;
+
+                } finally {
+                    finishLatch.countDown();
+                }
+            });
+
+            futureList.add(future);
+        }
+
+        System.out.println("========== RELEASING 10 REQUESTS ==========");
+        startLatch.countDown();
+        // Wait for all 10 requests
+        finishLatch.await();
+        executor.shutdown();
+
+        // Count Successfull Request
+        for(Future<Boolean> future : futureList){
+            if(future.get()){
+                successfulRequests++;
+            }
+        }
+
+
+        // Reloading the book from DB
+        Book finalBook = bookRepo
+            .findById(book.getId())
+            .orElseThrow();
+
+        Integer finalAvailableCopy = finalBook.getAvailableCopy();
+
+
+        // Printing final states
+        System.out.println();
+        System.out.println("\n\n==========================================");
+        System.out.println("CONCURRENCY TEST RESULT");
+        System.out.println("==========================================");
+        System.out.println(
+                "Total requests     = " + requestCount);
+        System.out.println(
+                "Successful requests = " + successfulRequests);
+        System.out.println(
+                "Final available     = " + finalAvailableCopy);
+        System.out.println("==========================================\n\n");
+
+        
+        assertNotNull(finalBook); // db book not null
+        assertEquals(0, finalAvailableCopy,"\nAvailable copies should be 0 after the only copy is borrowed\n");
+        assertEquals(1, successfulRequests,"\nOnly one of the 10 concurrent requests should succeed\n");
+
+    }
+
+
     // 1 copy available
     // 10 successful borrowers
     // Concurency Bug
+    // All will return 0 beacuse its doing -= 1 in its own object copy every request
+    // so its not -ve
 
-    @Test
+    // @Test
     void should_handle_10_concurrent_borrow_requests() throws Exception {
 
         int requestCount = 10;
@@ -152,6 +271,8 @@ public class ConcurencyTest {
          * Store the result of every concurrent request.
          */
         List<Future<Boolean>> results = new ArrayList<>();
+
+
 
         /*
          * Create 10 concurrent requests.
