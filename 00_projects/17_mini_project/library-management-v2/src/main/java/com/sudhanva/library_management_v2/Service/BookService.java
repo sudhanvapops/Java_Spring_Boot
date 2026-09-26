@@ -11,25 +11,24 @@ import com.sudhanva.library_management_v2.Model.Dto.Book.BookRequest;
 import com.sudhanva.library_management_v2.Model.Dto.Book.BookResponse;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookAlreadyActiveException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookAlreadyExistsException;
-import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookIsbnAlreadyExistsException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookCurrentlyBorrowedException;
-import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotFoundException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookInactiveException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookIsbnAlreadyExistsException;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotFoundException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.InvalidBookCopiesException;
 import com.sudhanva.library_management_v2.exceptions.BookExceptions.NoBooksFoundException;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor 
 public class BookService {
 
     private final BookRepo bookRepo;
 
-    BookService(BookRepo bookRepo) {
-        this.bookRepo = bookRepo;
-    }
-
+    
     // Utility Methods
-
     private String normalizeString(String s) {
         return s.trim()
                 .replaceAll("\\s+", " ")

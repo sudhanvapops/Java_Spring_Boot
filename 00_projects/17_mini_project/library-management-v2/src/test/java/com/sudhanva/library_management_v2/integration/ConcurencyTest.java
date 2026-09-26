@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.TestConstructor;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -27,6 +28,7 @@ import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransacti
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionResponse;
 import com.sudhanva.library_management_v2.Model.Member;
 import com.sudhanva.library_management_v2.Service.BorrowTransactionService;
+import com.sudhanva.library_management_v2.exceptions.BookExceptions.BookNotAvailableException;
 import com.sudhanva.library_management_v2.repo.BookRepo;
 import com.sudhanva.library_management_v2.repo.MemberRepo;
 
@@ -51,7 +53,6 @@ public class ConcurencyTest {
      *
      * We want all 10 requests to compete for the same database row.
      */
-
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
@@ -75,7 +76,7 @@ public class ConcurencyTest {
                     Member.builder()
                             .name("Test Member " + i)
                             .email(
-                                "test-"
+                                    "test-"
                                     + System.nanoTime()
                                     + "-"
                                     + i
@@ -86,7 +87,6 @@ public class ConcurencyTest {
 
             members.add(member);
         }
-
 
         book = bookRepo.save(
                 Book.builder()
@@ -114,8 +114,6 @@ public class ConcurencyTest {
                         """);
     }
 
-
-
     @Test
     void sameTestMyVersion() throws Exception {
 
@@ -124,10 +122,8 @@ public class ConcurencyTest {
         // relase all at once
         // boorw the book all of them
         // wait till all finsihes
-
         int requestCount = 10;
         ExecutorService executor = Executors.newFixedThreadPool(requestCount);
-
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch finishLatch = new CountDownLatch(10);
@@ -139,48 +135,63 @@ public class ConcurencyTest {
         // have 10 concurrent requests, and you want all 10 to reach the gate and then say GO together.
         // all the thread encounter .await() and wait
         // when .countdown() hits all the threads go together
-
-
-        for (int i=0; i<requestCount; i++){
+        for (int i = 0; i < requestCount; i++) {
 
             int memberIndex = i;
 
-            Future<Boolean> future = executor.submit(()->{
+            Future<Boolean> future = executor.submit(() -> {
                 try {
 
                     startLatch.await();
 
-                    System.out.println(Thread.currentThread().getName()+" Started request for member: "+memberIndex);
+                    System.out.println(Thread.currentThread().getName() + " Started request for member: " + memberIndex);
 
-                    BorrowTransactionRequest request = 
-                            BorrowTransactionRequest.builder()
-                                .memberId(
-                                        members
-                                            .get(memberIndex)
-                                            .getId())
-                                .books(
-                                        List.of(
-                                            BorrowTransactionItemRequest
-                                                .builder()
-                                                .bookId(
-                                                        book.getId())
-                                                .build())
-                                            )
-                                .build();
-                    
+                    BorrowTransactionRequest request
+                            = BorrowTransactionRequest.builder()
+                                    .memberId(
+                                            members
+                                                    .get(memberIndex)
+                                                    .getId())
+                                    .books(
+                                            List.of(
+                                                    BorrowTransactionItemRequest
+                                                            .builder()
+                                                            .bookId(
+                                                                    book.getId())
+                                                            .build())
+                                    )
+                                    .build();
+
                     ApiResponse<BorrowTransactionResponse> response = borrowTransactionService
                             .borrowBook(request);
 
                     System.out.println(
-                        Thread.currentThread().getName()
+                            Thread.currentThread().getName()
                             + " SUCCESS for member "
                             + memberIndex
                             + " -> "
                             + response
                     );
-                    
+
                     return true;
 
+                } catch (BookNotAvailableException e) {
+
+                    System.out.println(
+                            Thread.currentThread().getName()
+                            + " FAILED for member "
+                            + memberIndex
+                            + " -> Book unavailable"
+                    );
+
+                    return false;
+
+                } catch (ObjectOptimisticLockingFailureException e) {
+                    System.out.println(Thread.currentThread().getName()
+                            + " FAILED for member "
+                            + memberIndex
+                            + " -> Book unavailable");
+                    return false;
                 } finally {
                     finishLatch.countDown();
                 }
@@ -196,20 +207,18 @@ public class ConcurencyTest {
         executor.shutdown();
 
         // Count Successfull Request
-        for(Future<Boolean> future : futureList){
-            if(future.get()){
+        for (Future<Boolean> future : futureList) {
+            if (future.get()) {
                 successfulRequests++;
             }
         }
 
-
         // Reloading the book from DB
         Book finalBook = bookRepo
-            .findById(book.getId())
-            .orElseThrow();
+                .findById(book.getId())
+                .orElseThrow();
 
         Integer finalAvailableCopy = finalBook.getAvailableCopy();
-
 
         // Printing final states
         System.out.println();
@@ -224,20 +233,17 @@ public class ConcurencyTest {
                 "Final available     = " + finalAvailableCopy);
         System.out.println("==========================================\n\n");
 
-        
         assertNotNull(finalBook); // db book not null
-        assertEquals(0, finalAvailableCopy,"\nAvailable copies should be 0 after the only copy is borrowed\n");
-        assertEquals(1, successfulRequests,"\nOnly one of the 10 concurrent requests should succeed\n");
+        assertEquals(0, finalAvailableCopy, "\nAvailable copies should be 0 after the only copy is borrowed\n");
+        assertEquals(1, successfulRequests, "\nOnly one of the 10 concurrent requests should succeed\n");
 
     }
-
 
     // 1 copy available
     // 10 successful borrowers
     // Concurency Bug
     // All will return 0 beacuse its doing -= 1 in its own object copy every request
     // so its not -ve
-
     // @Test
     void should_handle_10_concurrent_borrow_requests() throws Exception {
 
@@ -272,8 +278,6 @@ public class ConcurencyTest {
          */
         List<Future<Boolean>> results = new ArrayList<>();
 
-
-
         /*
          * Create 10 concurrent requests.
          */
@@ -294,10 +298,9 @@ public class ConcurencyTest {
 
                     System.out.println(
                             Thread.currentThread().getName()
-                                    + " STARTED request for member "
-                                    + memberIndex);
+                            + " STARTED request for member "
+                            + memberIndex);
 
-                
                     BorrowTransactionRequest request = BorrowTransactionRequest.builder()
                             .memberId(
                                     members
@@ -323,10 +326,10 @@ public class ConcurencyTest {
 
                     System.out.println(
                             Thread.currentThread().getName()
-                                    + " SUCCESS for member "
-                                    + memberIndex
-                                    + " -> "
-                                    + response);
+                            + " SUCCESS for member "
+                            + memberIndex
+                            + " -> "
+                            + response);
 
                     return true;
 
