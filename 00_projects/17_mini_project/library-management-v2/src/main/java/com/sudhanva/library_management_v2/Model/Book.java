@@ -58,8 +58,8 @@ public class Book {
     @OneToMany(mappedBy = "book")
     private List<BorrowRecord> borrowRecords;
 
-    @Version
-    @Column(nullable=false)
-    private Long Version;
+    // @Version
+    // @Column(nullable=false)
+    // private Long Version;
 
 }

@@ -8,6 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import com.sudhanva.library_management_v2.Model.Book;
 
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
+
 
 @Repository
 public interface BookRepo extends JpaRepository<Book,Long>{
@@ -18,8 +24,8 @@ public interface BookRepo extends JpaRepository<Book,Long>{
     List<Book> findByName(String name);
     Optional<Book> findByIsbn(String isbn);
 
-    // @Lock(LockModeType.PESSIMISTIC_WRITE)
-    // @Query("SELECT b FROM Book b WHERE b.id IN :ids")
-    // List<Book> findAllById(@Param("ids") List<Long> ids);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT b FROM Book b WHERE b.id IN :ids")
+    List<Book> findAllById(@Param("ids") List<Long> ids);
 
 }

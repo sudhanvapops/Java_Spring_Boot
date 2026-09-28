@@ -70,7 +70,7 @@ public class ConcurencyTest {
 
         members = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
 
             Member member = memberRepo.save(
                     Member.builder()
@@ -122,15 +122,16 @@ public class ConcurencyTest {
         // relase all at once
         // boorw the book all of them
         // wait till all finsihes
-        int requestCount = 10;
+        int requestCount = 50;
         ExecutorService executor = Executors.newFixedThreadPool(requestCount);
 
         CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch finishLatch = new CountDownLatch(10);
+        CountDownLatch finishLatch = new CountDownLatch(50);
 
         List<Future<Boolean>> futureList = new ArrayList<>();
 
         int successfulRequests = 0;
+        int failureRequests = 0;
 
         // have 10 concurrent requests, and you want all 10 to reach the gate and then say GO together.
         // all the thread encounter .await() and wait
@@ -150,8 +151,8 @@ public class ConcurencyTest {
                             = BorrowTransactionRequest.builder()
                                     .memberId(
                                             members
-                                                    .get(memberIndex)
-                                                    .getId())
+                                                .get(memberIndex)
+                                                .getId())
                                     .books(
                                             List.of(
                                                     BorrowTransactionItemRequest
@@ -208,8 +209,10 @@ public class ConcurencyTest {
 
         // Count Successfull Request
         for (Future<Boolean> future : futureList) {
-            if (future.get()) {
+            if (future.get() == true) {
                 successfulRequests++;
+            } else if (future.get() == false) {
+                failureRequests ++;
             }
         }
 
@@ -226,9 +229,11 @@ public class ConcurencyTest {
         System.out.println("CONCURRENCY TEST RESULT");
         System.out.println("==========================================");
         System.out.println(
-                "Total requests     = " + requestCount);
+                "Total requests      = " + requestCount);
         System.out.println(
                 "Successful requests = " + successfulRequests);
+        System.out.println(
+                "Failed requests     = " + failureRequests);
         System.out.println(
                 "Final available     = " + finalAvailableCopy);
         System.out.println("==========================================\n\n");
