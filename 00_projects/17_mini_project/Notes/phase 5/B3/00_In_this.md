@@ -93,55 +93,62 @@ with:
 
 
 Chapter 5 — Transaction Effects in Your LMS
-Topics
+
+Topics:
 
 Apply everything to your actual:
+    borrowBook()
 
-borrowBook()
+    Understand:
 
-Understand:
+    @Transactional
+        ↓
+    find Book
+        ↓
+    Book becomes managed
+        ↓
+    check available copies
+        ↓
+    modify Book
+        ↓
+    create BorrowRecord
+        ↓
+    dirty checking
+        ↓
+    flush
+        ↓
+    SQL UPDATE + INSERT
+        ↓
+    commit
 
-@Transactional
-      ↓
-find Book
-      ↓
-Book becomes managed
-      ↓
-check available copies
-      ↓
-modify Book
-      ↓
-create BorrowRecord
-      ↓
-dirty checking
-      ↓
-flush
-      ↓
-SQL UPDATE + INSERT
-      ↓
-commit
-You earn
 
-You can explain the complete lifecycle of one borrow operation, instead of seeing Spring Data repository calls as isolated operations.
+    You can explain the complete lifecycle of one borrow operation, instead of seeing Spring Data repository calls as isolated operations.
+
+
 
 Chapter 6 — Spring Proxying
+
 Topics
+
 How Spring implements @Transactional
 Proxy around your service
+
 Why this:
-Controller
-   ↓
-Spring Proxy
-   ↓
-@Transactional method
+    Controller
+    ↓
+    Spring Proxy
+    ↓
+    @Transactional method
+    
+    works.
+    
+    Why this causes a problem:
+    this.someTransactionalMethod();
+    You earn
+    
+    You understand why @Transactional sometimes appears to "not work."
 
-works.
 
-Why this causes a problem:
-this.someTransactionalMethod();
-You earn
-
-You understand why @Transactional sometimes appears to "not work."
 
 Chapter 7 — Self-Invocation
 Topics

@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -57,6 +56,14 @@ public class Book {
 
     @OneToMany(mappedBy = "book")
     private List<BorrowRecord> borrowRecords;
+
+    @Override
+    public String toString() {
+        return "Book [id=" + id + ", name=" + name + ", author=" + author + ", availableCopy=" + availableCopy
+                + ", totalCopies=" + totalCopies + ", isbn=" + isbn + ", isActive=" + isActive + "]";
+    }
+
+    
 
     // @Version
     // @Column(nullable=false)
