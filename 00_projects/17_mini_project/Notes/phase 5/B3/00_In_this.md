@@ -64,35 +64,33 @@ This is one of the main things B3 is trying to teach you.
 
 
 Chapter 4 — Flush vs Commit
-Topics
-What is flush()?
-When Hibernate sends SQL
-Flush vs commit
-Why SQL doesn't necessarily execute at the exact line where you modify the entity
-Basic flush timing
-You earn
+    Topics
+      What is flush()?
+      When Hibernate sends SQL
+      Flush vs commit
+      Why SQL doesn't necessarily execute at the exact line where you modify the entity
+      Basic flush timing
 
 You can distinguish:
-
-Java object changed
-        ↓
-Hibernate knows about change
-        ↓
-FLUSH
-        ↓
-SQL reaches database
-        ↓
-COMMIT
-        ↓
-transaction becomes permanent
-
+      Java object changed
+            ↓
+      Hibernate knows about change
+            ↓
+      FLUSH
+            ↓
+      SQL reaches database
+            ↓
+      COMMIT
+            ↓
+      transaction becomes permanent
+      
 So you won't confuse:
-
-"Hibernate generated the UPDATE"
+    "Hibernate generated the UPDATE"
 
 with:
+    "The transaction committed."
 
-"The transaction committed."
+
 
 Chapter 5 — Transaction Effects in Your LMS
 Topics
