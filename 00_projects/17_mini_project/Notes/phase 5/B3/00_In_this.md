@@ -151,31 +151,39 @@ Why this:
 
 
 Chapter 7 — Self-Invocation
+
 Topics
+
 Calling a @Transactional method from the same class
+
 Why self-invocation bypasses the Spring proxy
 What actually happens
+
 How to fix/structure it
 
 The B3 source specifically asks you to break this and prove what happens.
 
-You earn
 
 You can answer:
-
-"Why doesn't @Transactional work when I call the method using this.method()?"
+      "Why doesn't @Transactional work when I call the method using this.method()?"
 
 without memorizing a rule.
 
+
+
+
 Chapter 8 — Transaction Propagation
+
 Topics
+
 REQUIRED
 REQUIRES_NEW
-Existing transaction
-Joining an existing transaction
-Starting an independent transaction
-Suspending the outer transaction
-Main example
+
+- Existing transaction
+- Joining an existing transaction
+- Starting an independent transaction
+- Suspending the outer transaction
+- Main example
 
 Audit logging:
 
