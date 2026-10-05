@@ -176,8 +176,8 @@ Chapter 8 — Transaction Propagation
 
 Topics
 
-REQUIRED
-REQUIRES_NEW
+- REQUIRED
+- REQUIRES_NEW
 
 - Existing transaction
 - Joining an existing transaction
@@ -203,14 +203,17 @@ REQUIRES_NEW
       ↓
 COMMIT
 
-so the audit record survives the outer rollback.
 
-You earn
+so the audit record survives the outer rollback.
 
 You understand why multiple transaction boundaries can exist inside one call chain.
 
+
+
 Chapter 9 — LazyInitializationException
+
 Topics
+
 Lazy loading
 Persistence context closing
 Accessing a lazy collection after the transaction
@@ -219,7 +222,6 @@ Fixing it in different ways
 
 The source specifically asks you to reproduce this by returning an entity with a lazy collection and touching it in the controller.
 
-You earn
 
 Instead of seeing:
 
@@ -269,6 +271,8 @@ At the end, the real thing you're supposed to gain is this:
                 │
                 ↓
           Commit/Rollback
+
+
 
 And then one level deeper:
 
