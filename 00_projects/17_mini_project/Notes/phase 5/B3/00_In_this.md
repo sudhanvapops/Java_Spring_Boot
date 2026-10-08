@@ -224,10 +224,9 @@ The source specifically asks you to reproduce this by returning an entity with a
 
 
 Instead of seeing:
+    LazyInitializationException
+    as some mysterious Hibernate error, you'll understand:
 
-LazyInitializationException
-
-as some mysterious Hibernate error, you'll understand:
 
 Controller
    ↓
@@ -242,6 +241,7 @@ lazy collection requested
 Hibernate cannot load it
    ↓
 LazyInitializationException
+
 Final B3 Skill
 
 At the end, the real thing you're supposed to gain is this:
