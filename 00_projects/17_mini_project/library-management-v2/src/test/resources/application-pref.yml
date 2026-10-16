@@ -1,0 +1,33 @@
+spring:
+    application:
+        name: library-management-v2
+
+    datasource:
+        url: jdbc:postgresql://localhost:5432/spring_mvc_lib_mang_v2
+        username: postgres
+        password: P@SSW0RDs3003
+        driver-class-name: org.postgresql.Driver
+
+        hikari:
+            auto-commit: false
+
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        show-sql: false
+        properties:
+            hibernate:
+                connection:
+                    provider_disables_autocommit: true
+
+    flyway:
+        enabled: true
+        locations: classpath:db/migrations
+        baseline-on-migrate: true
+        baseline-version: 0
+
+jwt:
+    secret: Qt20iylRG7UFc5wjL7u8wFQovTOlS8A1/DK8Mq6HqRU=
+    # access-token-expiration: 900000 # 15 min in milliseconds
+    access-token-expiration: 120000 # 1 min in milliseconds
+    refresh-token-expiration: 604800000 # 7 Days in milli seconds

@@ -39,7 +39,7 @@ when the object is being managed
 it can lazy load
 
 once the transaction ends
-theobject is no more managed
+the object is no more managed
 The persistence context that Hibernate needed to perform that lazy loading is already gone.
 and then teh lazy load cannot happen
 the hibernate cannot make the call

@@ -19,7 +19,7 @@ it doenst cause teh problem
 
 
 2. instead of loading again
-us join fetch
+use join fetch
 
 When you fetch this Book, fetch this relationship as part of the query.
 

@@ -35,9 +35,9 @@ import com.sudhanva.library_management_v2.repo.MemberRepo;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Testcontainers
+// @Testcontainers
 @SpringBootTest
-@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+// @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class ConcurencyTest {
 
     /*

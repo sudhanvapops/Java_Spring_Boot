@@ -11,8 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestConstructor;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.sudhanva.library_management_v2.Model.Book;
 import com.sudhanva.library_management_v2.Model.Dto.ApiResponse.ApiResponse;
@@ -33,11 +35,11 @@ import com.sudhanva.library_management_v2.repo.MemberRepo;
 import lombok.RequiredArgsConstructor;
 
 
-@RequiredArgsConstructor
-@SpringBootTest
-// @Testcontainers
+@RequiredArgsConstructor 
+// @SpringBootTest
+// @Testcontainers 
 // It doesn't automatically know that those parameters are supposed to be Spring beans.so down line
-// @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+// @TestConstructor (autowireMode = TestConstructor.AutowireMode.ALL)
 public class BorrowTransactionServiceIntegrationTest {
 
 
