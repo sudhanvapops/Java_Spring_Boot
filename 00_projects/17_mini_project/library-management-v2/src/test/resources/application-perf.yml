@@ -29,5 +29,5 @@ spring:
 jwt:
     secret: Qt20iylRG7UFc5wjL7u8wFQovTOlS8A1/DK8Mq6HqRU=
     # access-token-expiration: 900000 # 15 min in milliseconds
-    access-token-expiration: 120000 # 1 min in milliseconds
+    access-token-expiration: 300000 # 5 min in milliseconds
     refresh-token-expiration: 604800000 # 7 Days in milli seconds

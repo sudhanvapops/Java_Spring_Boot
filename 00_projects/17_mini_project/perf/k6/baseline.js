@@ -11,12 +11,14 @@ export const options = {
     duration: "60s",
     summaryTrendStats: ["avg", "med", "p(90)", "p(95)", "p(99)", "max"],
     thresholds: {
-        // pass/fail rules; k6 exits non-zero if broken
-        http_req_failed: ["rate<0.01"],
-        http_req_duration: ["p(95)<2000"],
+        // pass/fail rules; 
+        // k6 exits non-zero if broken
+        http_req_failed: ["rate<0.01"], // how much are allowed to fail
+        http_req_duration: ["p(95)<2000"], // how long a request should take
     },
 };
  
+
 // SETUP: runs ONCE before the load. Whatever it returns goes to every VU.
 export function setup() {
     const res = http.post(
@@ -31,7 +33,7 @@ export function setup() {
 
 // DEFAULT FUNCTION: one "iteration". 
 // Each VU calls it again and again.
-export default function (data) {
+export default (data) => {
     // authors are 'author 0'..'author 4999'
     const n = Math.floor(Math.random() * 5000);       
     const res = http.get(
