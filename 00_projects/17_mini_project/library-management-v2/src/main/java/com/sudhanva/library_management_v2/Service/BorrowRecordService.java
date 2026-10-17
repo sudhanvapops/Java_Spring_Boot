@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +86,8 @@ public class BorrowRecordService {
     public ApiResponse<List<BorrowTransactionItemResponse>> getAllRecords(){
 
         
-        List<BorrowRecord> response =  borrowRecordRepo.findAll();
+        // List<BorrowRecord> response = borrowRecordRepo.findAllWithAssociations();
+        List<BorrowRecord> response = borrowRecordRepo.findAllWithGraph();
 
         if (response.isEmpty()){
             throw new NoBorrowRecordsFoundException();

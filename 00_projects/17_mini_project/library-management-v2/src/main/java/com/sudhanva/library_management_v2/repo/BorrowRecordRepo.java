@@ -3,6 +3,7 @@ package com.sudhanva.library_management_v2.repo;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -67,5 +68,26 @@ public interface BorrowRecordRepo extends JpaRepository<BorrowRecord,Long>{
         "book"
     })
     List<BorrowRecord> findByReturnDateIsNull();
+
+
+    // JOIN FETCH to avoid N+1 in getAllRecords()
+    // countQuery is required because JPQL JOIN FETCH + Pageable causes
+    // Hibernate to warn about in-memory pagination without it.
+    @Query(
+        value = """
+            SELECT br FROM BorrowRecord br
+            JOIN FETCH br.borrowTransaction bt
+            JOIN FETCH bt.member m
+            JOIN FETCH br.book b
+        """,
+        countQuery = "SELECT COUNT(br) FROM BorrowRecord br"
+    )
+    List<BorrowRecord> findAllWithAssociations();
+    // List<BorrowRecord> findAllWithAssociations(Pageable pageable);
+
+
+    @EntityGraph(attributePaths = {"borrowTransaction", "borrowTransaction.member", "book"})
+    @Query("SELECT br FROM BorrowRecord br")
+    List<BorrowRecord> findAllWithGraph();
 
 }
