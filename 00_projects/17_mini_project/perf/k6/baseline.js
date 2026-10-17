@@ -46,3 +46,5 @@ export default (data) => {
 
     sleep(0.5);   // think time: a real user pauses between requests
 }
+
+// k6 run --summary-export=b2-4.json b2.js

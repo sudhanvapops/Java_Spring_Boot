@@ -1,0 +1,215 @@
+{
+    "metrics": {
+        "http_req_duration{name:author_search}": {
+            "avg": 29.242181690634837,
+            "med": 17.8274,
+            "p(90)": 46.0402,
+            "p(95)": 75.3754,
+            "p(99)": 251.98465,
+            "max": 361.3739,
+            "thresholds": {
+                "p(95)<2000": false
+            }
+        },
+        "http_req_failed{name:author_search}": {
+            "passes": 0,
+            "fails": 2851,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 350.4137558482623,
+            "med": 199.9621,
+            "p(90)": 915.71935,
+            "p(95)": 977.5644849999996,
+            "p(99)": 1146.8797019999981,
+            "max": 2208.8448
+        },
+        "http_req_sending": {
+            "p(99)": 0.5193569999999985,
+            "max": 18.6554,
+            "avg": 0.020290235335440814,
+            "med": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "iteration_duration": {
+            "p(95)": 1518.6610999999996,
+            "p(99)": 1864.819179999995,
+            "max": 2715.8313,
+            "avg": 863.936338813036,
+            "med": 600.2156,
+            "p(90)": 1432.9929000000002
+        },
+        "http_reqs": {
+            "count": 5694,
+            "rate": 53.379726208990704
+        },
+        "http_req_failed{name:member_transaction_records}": {
+            "passes": 0,
+            "fails": 1053,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_req_receiving": {
+            "p(90)": 1.0155,
+            "p(95)": 1.1821399999999997,
+            "p(99)": 1.5104069999999998,
+            "max": 4.9355,
+            "avg": 0.43143898840885225,
+            "med": 0.41300000000000003
+        },
+        "vus_max": {
+            "value": 100,
+            "min": 100,
+            "max": 100
+        },
+        "http_req_failed{name:member_records}": {
+            "passes": 0,
+            "fails": 1489,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "iterations": {
+            "count": 5493,
+            "rate": 51.49540499929504
+        },
+        "http_req_connecting": {
+            "p(99)": 2.545058999999935,
+            "max": 21.363,
+            "avg": 0.11244048120828938,
+            "med": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_blocked": {
+            "avg": 0.12892848612574637,
+            "med": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "p(99)": 3.081,
+            "max": 31.6968
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "med": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0
+        },
+        "http_req_duration{name:member_records}": {
+            "max": 1114.2775,
+            "avg": 525.2980251846878,
+            "med": 508.1262,
+            "p(90)": 610.799,
+            "p(95)": 627.4803,
+            "p(99)": 854.1825439999999,
+            "thresholds": {
+                "p(95)<2000": false
+            }
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 5694,
+            "value": 0
+        },
+        "http_req_duration{name:member_transaction_records}": {
+            "avg": 955.484909021843,
+            "med": 917.4554,
+            "p(90)": 1062.9529,
+            "p(95)": 1159.7377199999999,
+            "p(99)": 1924.6039280000002,
+            "max": 2208.8448,
+            "thresholds": {
+                "p(95)<2000": false
+            }
+        },
+        "data_received": {
+            "count": 15049710,
+            "rate": 141087.00374511935
+        },
+        "http_req_duration": {
+            "max": 2208.8448,
+            "avg": 350.4137558482623,
+            "med": 199.9621,
+            "p(90)": 915.71935,
+            "p(95)": 977.5644849999996,
+            "p(99)": 1146.8797019999981
+        },
+        "checks": {
+            "passes": 7935,
+            "fails": 0,
+            "value": 1
+        },
+        "data_sent": {
+            "count": 1979645,
+            "rate": 18558.642095363084
+        },
+        "http_req_waiting": {
+            "max": 2207.9136,
+            "avg": 349.9620266245179,
+            "med": 199.10955,
+            "p(90)": 915.44956,
+            "p(95)": 976.8596249999991,
+            "p(99)": 1146.5281409999996
+        },
+        "vus": {
+            "min": 0,
+            "max": 71,
+            "value": 26
+        }
+    },
+    "setup_data": {
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmxvY2FsIiwic3ViIjoiYWRtaW5AbGlicmFyeS5sb2NhbCIsImlhdCI6MTc5MjE5ODE5MCwiZXhwIjoxNzkyMTk4NDkwfQ.9ip3X9UJ2WduXAjNfbycMHihT4w0_52OiqVOrYCo5y0"
+    },
+    "root_group": {
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "author: 200": {
+                    "fails": 0,
+                    "name": "author: 200",
+                    "path": "::author: 200",
+                    "id": "ddcd97253506df5d499e182f0e8c97dc",
+                    "passes": 2851
+                },
+                "member records: 200": {
+                    "name": "member records: 200",
+                    "path": "::member records: 200",
+                    "id": "e298dfebea4f8bd0b03d41b790ac9cda",
+                    "passes": 1489,
+                    "fails": 0
+                },
+                "member records: 10 rows": {
+                    "name": "member records: 10 rows",
+                    "path": "::member records: 10 rows",
+                    "id": "8a4dc71d5869ccd25f3d720a9844d59a",
+                    "passes": 1489,
+                    "fails": 0
+                },
+                "member transaction records: 200": {
+                    "fails": 0,
+                    "name": "member transaction records: 200",
+                    "path": "::member transaction records: 200",
+                    "id": "e28a211b96199e8f7df5ace56c7e0c01",
+                    "passes": 1053
+                },
+                "transactions: 5 rows": {
+                    "id": "7fcd9b21c49f60420548f1e5c60c5a8b",
+                    "passes": 1053,
+                    "fails": 0,
+                    "name": "transactions: 5 rows",
+                    "path": "::transactions: 5 rows"
+                }
+            },
+        "name": "",
+        "path": ""
+    }
+}

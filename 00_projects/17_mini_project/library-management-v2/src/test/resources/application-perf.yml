@@ -10,6 +10,8 @@ spring:
 
         hikari:
             auto-commit: false
+            pool-name: library-pool
+            maximum-pool-size: 10
 
     jpa:
         hibernate:
@@ -31,3 +33,13 @@ jwt:
     # access-token-expiration: 900000 # 15 min in milliseconds
     access-token-expiration: 300000 # 5 min in milliseconds
     refresh-token-expiration: 604800000 # 7 Days in milli seconds
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,metrics
+
+# logging:
+#     level:
+#         com.zaxxer.hikari: DEBUG

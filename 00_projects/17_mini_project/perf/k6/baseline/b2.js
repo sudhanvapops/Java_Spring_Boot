@@ -10,29 +10,29 @@ export const options = {
         warmup: {
             executor: "constant-vus",
             exec: "warmup",
-            vus: 3,
-            duration: "10s",
+            vus: 30,
+            duration: "5s",
         },
         author_search: {
             executor: "constant-vus",
             exec: "searchAuthor",
-            vus: 5,
+            vus: 50,
             duration: "30s",
-            startTime: "15s"
+            // startTime: "15s"
         },
         member_search: {
             executor: "constant-vus",
             exec: "memberRecords",
-            vus: 5,
+            vus: 50,
             duration: "30s",
-            startTime: "45s"
+            // startTime: "45s"
         },
         member_transaction_records_search: {
             executor: "constant-vus",
             exec: "memberTransactionRecords",
-            vus: 5,
+            vus: 50,
             duration: "30s",
-            startTime: "75s"
+            // startTime: "75s"
         }
     },
     summaryTrendStats: ["avg", "med", "p(90)", "p(95)", "p(99)", "max"],
