@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.sudhanva.library_management_v2.Model.BorrowRecord;
+import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse;
 import com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.DueTodayResponse;
 
 
@@ -89,5 +90,24 @@ public interface BorrowRecordRepo extends JpaRepository<BorrowRecord,Long>{
     @EntityGraph(attributePaths = {"borrowTransaction", "borrowTransaction.member", "book"})
     @Query("SELECT br FROM BorrowRecord br")
     List<BorrowRecord> findAllWithGraph();
+
+
+    // DTO Projection — avoids entity hydration + in-memory mapping for getAllRecords()
+    // Hibernate builds BorrowTransactionItemResponse directly from the JOIN result set.
+    @Query("""
+        SELECT new com.sudhanva.library_management_v2.Model.Dto.BorrowRecord.BorrowTransactionItemResponse(
+            m.id,
+            m.name,
+            b.id,
+            b.name,
+            b.author,
+            br.dueDate
+        )
+        FROM BorrowRecord br
+        JOIN br.borrowTransaction bt
+        JOIN bt.member m
+        JOIN br.book b
+    """)
+    List<BorrowTransactionItemResponse> findAllAsDto();
 
 }

@@ -1,0 +1,22 @@
+{
+  "1": "DataSeeder.java",
+  "3": "SecurityConfig.java",
+  "4": "BookExceptionHandler.java",
+  "6": "org.springframework.data.jpa.repository.JpaRepository",
+  "8": "User",
+  "10": "org.springframework.transaction.annotation.Transactional",
+  "13": "BorrowRecordService.java",
+  "15": "UserPrincipal",
+  "17": "LibrarySettingsExceptionHandler",
+  "18": "AuthExcptionHandlers.java",
+  "19": "lombok.Builder",
+  "20": "lombok.RequiredArgsConstructor",
+  "26": "CustomAccessDeniedHandler.java",
+  "28": "BorrowRecord",
+  "29": "PerfDataSeeder.java",
+  "30": "JwtFilter.java",
+  "41": "BorrowTransactionExceptionHandler",
+  "42": "BookService.java",
+  "43": "RefreshToken",
+  "44": "org.springframework.boot.testcontainers.service.connection.ServiceConnection"
+}

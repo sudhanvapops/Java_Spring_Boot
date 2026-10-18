@@ -87,16 +87,24 @@ public class BorrowRecordService {
 
         
         // List<BorrowRecord> response = borrowRecordRepo.findAllWithAssociations();
-        List<BorrowRecord> response = borrowRecordRepo.findAllWithGraph();
+        // List<BorrowRecord> response = borrowRecordRepo.findAllWithGraph();
+        List<BorrowTransactionItemResponse> response = borrowRecordRepo.findAllAsDto();
 
         if (response.isEmpty()){
             throw new NoBorrowRecordsFoundException();
         }
 
+        // return new ApiResponse<>(
+        //     true,
+        //     "Records: "+ response.size(),
+        //     response.stream().map( item -> mapToBorrowTransactionItemResponse(item)).toList()
+        // );
+
+        // By passing the whole Dto conversion phase
         return new ApiResponse<>(
             true,
             "Records: "+ response.size(),
-            response.stream().map( item -> mapToBorrowTransactionItemResponse(item)).toList()
+            response
         );
     }
 
